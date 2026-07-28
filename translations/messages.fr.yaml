@@ -1,0 +1,13 @@
+nav:
+    home: Accueil
+    about: 'À propos'
+    back_home: "Retour à l'accueil"
+welcome:
+    title: Bienvenue sur SysGC
+    subtitle: "L'application de conformité pour la construction au Québec."
+    visits: Visites
+about:
+    title: 'À propos de SysGC'
+    body: 'SysGC est une application SaaS de conformité pour la construction au Québec : déclarations mensuelles CCQ, vérification de licence RBQ, sécurité de chantier et facturation.'
+footer:
+    copyright: 'SysGC — conforme par construction.'

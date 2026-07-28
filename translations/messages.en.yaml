@@ -1,0 +1,13 @@
+nav:
+    home: Home
+    about: About
+    back_home: Back to home
+welcome:
+    title: Welcome to SysGC
+    subtitle: The compliance application for construction in Quebec.
+    visits: Visits
+about:
+    title: About SysGC
+    body: 'SysGC is a compliance SaaS for construction in Quebec: monthly CCQ declarations, RBQ license verification, jobsite safety, and billing.'
+footer:
+    copyright: 'SysGC — compliant by construction.'

@@ -1,0 +1,64 @@
+#:schema https://mago.carthage.software/1.45.0/schema.json
+# Welcome to Mago!
+# For full documentation, see https://mago.carthage.software/1.45.0/en/tools/overview/
+version = "1"
+php-version = "8.5.0"
+
+[source]
+workspace = "."
+paths = ["src/", "tests/"]
+includes = ["vendor"]
+excludes = [
+    "tests/bootstrap.php",
+    "src/Kernel.php"
+]
+
+[source.glob]
+literal-separator = true
+
+[formatter]
+# Changed to "symfony" preset to match Symfony coding standards perfectly
+preset = "pint"
+preserve-breaking-member-access-chain = true
+preserve-breaking-member-access-chain-first-method-on-same-line = true
+preserve-breaking-argument-list = true
+preserve-breaking-array-like = true
+preserve-breaking-parameter-list = true
+preserve-breaking-attribute-list = true
+preserve-breaking-conditional-expression = true
+preserve-breaking-condition-expression = true
+preserve-redundant-logical-binary-expression-parentheses = true
+
+[linter]
+# Both integrations are kept to enforce Symfony architectural rules and PHPUnit test standards
+integrations = ["symfony", "phpunit"]
+
+[linter.rules]
+# Enabled to catch unqualified function calls (e.g. avoiding ambiguous built-in functions)
+ambiguous-function-call = { enabled = true }
+literal-named-argument = { enabled = false }
+halstead = { effort-threshold = 7000 }
+
+[analyzer]
+plugins = []
+find-unused-definitions = true
+find-unused-expressions = true
+# Enabled: Important for maintaining a clean codebase in large Symfony projects
+analyze-dead-code = true
+memoize-properties = true
+strict-array-index-existence = true
+check-throws = true
+unchecked-exceptions = ["Error", "LogicException"]
+unchecked-exception-classes = []
+# Enabled: Enforces PHP 8.3+ #[Override] attribute, crucial for PHPUnit mocks/stubs and Symfony overrides
+check-missing-override = true
+find-unused-parameters = true
+strict-list-index-checks = true
+# Enabled: Prevents "undefined index" errors, highly recommended in modern PHP
+allow-array-truthy-operand = false
+# Enabled: Prevents loose comparisons like `if ($foo == true)`
+no-boolean-literal-comparison = true
+# Enabled: Symfony strictly requires return types and parameter types
+check-missing-type-hints = true
+# Disabled: Symfony best practice dictates using HttpFoundation\Request object instead of superglobals
+register-super-globals = false

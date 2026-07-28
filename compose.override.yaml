@@ -6,6 +6,9 @@ services:
     build:
       context: .
       target: frankenphp_dev
+    depends_on:
+      mailer:
+        condition: service_started
     volumes:
       - ./:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
@@ -22,9 +25,53 @@ services:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
       APP_ENV: "${APP_ENV:-dev}"
+      # Mailpit mail trap (SMTP 1025, web UI 8025)
+      MAILER_DSN: smtp://mailer:1025
+      MESSENGER_TRANSPORT_DSN: doctrine://default
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
     tty: true
+
+  mailer:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      # SMTP (app sends here) / web UI (catch-all inbox at http://localhost:8025)
+      - "${MAILER_SMTP_PORT:-1025}:1025"
+      - "${MAILER_WEB_PORT:-8025}:8025"
+
+  messenger-worker:
+    image: ${IMAGES_PREFIX:-}app-php-dev
+    build:
+      context: .
+      target: frankenphp_dev
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+      - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+      - /app/var
+    environment:
+      APP_ENV: "${APP_ENV:-dev}"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
+      MESSENGER_TRANSPORT_DSN: doctrine://default
+      XDEBUG_MODE: "off"
+    # The messenger reader: consumes the "async" (PostgreSQL doctrine) transport
+    command: [ "php", "bin/console", "messenger:consume", "async", "--memory-limit=256M", "--time-limit=3600" ]
+    # This container runs a console worker, not a web server — override the
+    # inherited Caddy/metrics healthcheck with a process liveness check.
+    # (The slim FrankenPHP image ships no `ps`; grep /proc cmdlines instead.)
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa 'messenger:consume' /proc/*/cmdline 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###

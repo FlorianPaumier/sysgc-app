@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.about'|trans }} — SysGC{% endblock %}
+
+{% block body %}
+    <h1>{{ 'about.title'|trans }}</h1>
+    <p>{{ 'about.body'|trans }}</p>
+    <p><a href="{{ path('home') }}">{{ 'nav.back_home'|trans }}</a></p>
+{% endblock %}
