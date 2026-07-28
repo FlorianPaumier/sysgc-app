@@ -50,7 +50,7 @@ final class AppShellTest extends WebTestCase
         $buttons = $bottomNav->filter('.bottom-nav__btn');
         self::assertSame(3, $buttons->count(), 'Bottom nav must have exactly 3 buttons.');
 
-        $labels = $buttons->each(static fn ($node) => trim($node->text()));
+        $labels = $bottomNav->filter('.bottom-nav__label')->each(static fn ($node) => trim($node->text()));
         self::assertSame(['Sécurité', 'Heures', 'Conformité'], $labels);
     }
 

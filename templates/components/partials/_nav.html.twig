@@ -1,0 +1,28 @@
+<nav class="nav" aria-label="Navigation principale">
+  <div class="nav-inner">
+    <a href="{{ path('app_home') }}" class="brand" aria-label="SysGC - accueil">
+      SYS<span class="gc">GC</span>
+      <span class="brand-meta">v.1.0 · QC</span>
+    </a>
+    {% if is_granted('ROLE_USER') %}
+      <ul class="nav-links">
+        <li><a href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
+        <li><a href="{{ path('app_profile') }}">{{ app.user.displayName }}</a></li>
+        {% if is_granted('ROLE_ADMIN') %}
+          <li><a href="{{ path('app_user_list') }}">Utilisateurs</a></li>
+        {% endif %}
+        <li><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+      </ul>
+    {% else %}
+      <ul class="nav-links">
+        {% block nav_links %}{% endblock %}
+      </ul>
+      {% block nav_cta %}
+	      <div class="flex flex-row gap-4 justify-center items-center">
+		      <a href="{{ path('connexion') }}" class="text-center text-ink-2 font-medium text-sm">connexion</a>
+		      <a href="{{ path('app_register') }}" class="nav-cta">Essai gratuit</a>
+	      </div>
+      {% endblock %}
+    {% endif %}
+  </div>
+</nav>

@@ -1,0 +1,56 @@
+{#
+Authenticated application shell (templates/layouts/app.html.twig).
+
+Extends base.html.twig and replaces {% block layout %} with:
+  - a desktop left sidebar (visible ≥ lg, hidden below lg);
+  - the main content column + optional {% block aside %} (dashboard widgets,
+    visible ≥ lg only);
+  - a mobile bottom nav (visible < lg, hidden ≥ lg) with the three foreman
+    actions: Sécurité · Heures · Conformité.
+
+Public/marketing pages extend base.html.twig directly and bypass this chrome.
+Nav hrefs are placeholders (`#`) until each domain card wires its routes.
+See specs/06-frontend.md and specs/12-ux-ui.md ("Mobile layout").
+#}
+{% extends 'base.html.twig' %}
+
+{% block layout %}
+<aside class="app-sidebar" aria-label="Navigation principale">
+    <a class="app-sidebar__brand" href="{{ path('home') }}" aria-label="SysGC — accueil">
+        SYS<span class="gc">GC</span>
+    </a>
+    <span class="app-sidebar__label">Navigation</span>
+    <nav class="app-sidebar__nav" aria-label="Sections de l'application">
+        <a href="#" class="app-sidebar__link is-active" aria-current="page">Tableau de bord</a>
+        <a href="#" class="app-sidebar__link">Chantiers</a>
+        <a href="#" class="app-sidebar__link">Déclarations CCQ</a>
+        <a href="#" class="app-sidebar__link">Sous-traitants RBQ</a>
+        <a href="#" class="app-sidebar__link">Sécurité</a>
+        <a href="#" class="app-sidebar__link">Factures</a>
+        <a href="#" class="app-sidebar__link">Travailleurs</a>
+        <a href="#" class="app-sidebar__link">Organisation</a>
+    </nav>
+</aside>
+
+<div class="app-body">
+    <main id="main" tabindex="-1">
+        {% block body %}{% endblock %}
+    </main>
+    {% block aside %}{% endblock %}
+</div>
+
+<nav class="bottom-nav" aria-label="Navigation mobile">
+    <a href="#" class="bottom-nav__btn">
+        <span class="bottom-nav__icon" aria-hidden="true">🦺</span>
+        <span class="bottom-nav__label">Sécurité</span>
+    </a>
+    <a href="#" class="bottom-nav__btn">
+        <span class="bottom-nav__icon" aria-hidden="true">⏱️</span>
+        <span class="bottom-nav__label">Heures</span>
+    </a>
+    <a href="#" class="bottom-nav__btn">
+        <span class="bottom-nav__icon" aria-hidden="true">📋</span>
+        <span class="bottom-nav__label">Conformité</span>
+    </a>
+</nav>
+{% endblock %}

@@ -57,7 +57,7 @@ test.describe('Application shell (mobile < lg)', () => {
   test('bottom nav has the three foreman buttons in the right order', async ({ page }) => {
     await page.goto(STYLEGUIDE);
 
-    const labels = await page.locator('.bottom-nav__btn').allInnerTexts();
+    const labels = await page.locator('.bottom-nav__label').allInnerTexts();
     expect(labels.map((t) => t.trim())).toEqual(['Sécurité', 'Heures', 'Conformité']);
   });
 

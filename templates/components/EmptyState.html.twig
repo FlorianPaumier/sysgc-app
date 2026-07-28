@@ -1,0 +1,17 @@
+{#
+EmptyState — empty-list placeholder with optional CTA (specs/06-frontend.md).
+Usage:
+    <twig:EmptyState icon="🏗️" title="Aucun chantier"
+        description="Ajoutez votre premier chantier pour commencer."
+        actionLabel="Nouveau chantier" actionUrl="/chantiers/nouveau" />
+#}
+{% props icon = '📋', title = '', description = '', actionLabel = '', actionUrl = '' %}
+
+<div class="empty-state" role="status">
+    <div class="empty-state__icon" aria-hidden="true">{{ icon }}</div>
+    {% if title %}<h3 class="empty-state__title">{{ title }}</h3>{% endif %}
+    {% if description %}<p class="empty-state__desc">{{ description }}</p>{% endif %}
+    {% if actionLabel and actionUrl %}
+        <a class="btn btn-primary empty-state__cta" href="{{ actionUrl }}">{{ actionLabel }}</a>
+    {% endif %}
+</div>

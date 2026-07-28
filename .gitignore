@@ -7,11 +7,13 @@
 /public/bundles/
 /var/
 /vendor/
+/node_modules
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
+/test-results
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###

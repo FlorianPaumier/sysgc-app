@@ -2,6 +2,9 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # French is the default UI locale (EN fallbacks in translations/messages.en.yaml)
+    default_locale: fr_FR
+
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 

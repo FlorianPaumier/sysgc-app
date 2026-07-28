@@ -1,0 +1,16 @@
+{#
+Spinner — loading indicator (specs/06-frontend.md, specs/12-ux-ui.md).
+Used inside Turbo Frame placeholders and on batch operations.
+Usage: <twig:Spinner size="md" />  (size: sm | md | lg)
+#}
+{% props size = 'md' %}
+
+{% set sizes = { sm: '14px', md: '18px', lg: '28px' } %}
+{% set _size = sizes[size] ?? sizes.md %}
+
+<span
+    class="spinner spinner--{{ size }}"
+    role="status"
+    aria-label="Chargement en cours"
+    style="display: inline-block; width: {{ _size }}; height: {{ _size }}; border-width: 2px;"
+></span>

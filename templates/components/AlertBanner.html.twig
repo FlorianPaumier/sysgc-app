@@ -1,0 +1,21 @@
+{#
+AlertBanner — page-top alert ribbon (specs/06-frontend.md, specs/12-ux-ui.md).
+The type is always conveyed as visible text (the label), never by color alone,
+so the state remains accessible to colour-blind users (WCAG 1.4.1).
+Usage: <twig:AlertBanner type="error" message="…" dismissible="true" />
+#}
+{% props type = 'info', message = '', dismissible = false %}
+
+{% set labels = { critical: 'Critique', error: 'Erreur', warning: 'Attention', info: 'Information', success: 'Confirmé' } %}
+{% set icons = { critical: '⛔', error: '⛔', warning: '⚠️', info: 'ℹ️', success: '✓' } %}
+
+<div class="alert-banner alert-banner--{{ type }}" role="alert">
+    <span class="alert-banner__icon" aria-hidden="true">{{ icons[type] ?? icons.info }}</span>
+    <div class="alert-banner__content">
+        <span class="alert-banner__label">{{ labels[type] ?? 'Information' }}</span>
+        {% if message %}<p class="alert-banner__message">{{ message }}</p>{% endif %}
+    </div>
+    {% if dismissible %}
+        <button type="button" class="alert-banner__close" aria-label="Fermer ce message">×</button>
+    {% endif %}
+</div>
