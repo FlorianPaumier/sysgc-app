@@ -28,7 +28,9 @@
     >
     
     {% block stylesheets %}
-        <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+        {# Logical asset path (AssetMapper public prefix is /assets) — served
+           digested + compiled by the TailwindCssAssetCompiler. #}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
     {% endblock %}
     
     {% block javascripts %}
