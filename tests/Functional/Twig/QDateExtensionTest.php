@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Twig;
 
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Twig\Environment;
 
@@ -28,11 +30,16 @@ final class QDateExtensionTest extends KernelTestCase
     #[DataProvider('datesProvider')]
     public function testQDateFormatsAsDayMonthYear(string $input, string $expected): void
     {
-        /** @var Environment $twig */
-        $twig = self::getContainer()->get('twig');
+        try {
+            /** @var Environment $twig */
+            $twig = self::getContainer()->get('twig');
 
-        $rendered = $twig->createTemplate('{{ date|qdate }}')->render(['date' => $input]);
+            $rendered = $twig->createTemplate('{{ date|qdate }}')->render(['date' => $input]);
 
-        self::assertSame($expected, $rendered);
+            self::assertSame($expected, $rendered);
+        } catch (\Exception $e) {
+            dump($e);
+            self::fail('Should have pass');
+        }
     }
 }

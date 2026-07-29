@@ -21,7 +21,7 @@ final class AppShellTest extends WebTestCase
 {
     public function testStyleguideRenders(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/_styleguide');
 
         self::assertResponseIsSuccessful();
@@ -29,7 +29,7 @@ final class AppShellTest extends WebTestCase
 
     public function testDesktopSidebarPresent(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/_styleguide');
 
         $sidebar = $crawler->filter('.app-sidebar');
@@ -40,7 +40,7 @@ final class AppShellTest extends WebTestCase
 
     public function testMobileBottomNavHasThreeButtons(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/_styleguide');
 
         $bottomNav = $crawler->filter('.bottom-nav');
@@ -50,13 +50,13 @@ final class AppShellTest extends WebTestCase
         $buttons = $bottomNav->filter('.bottom-nav__btn');
         self::assertSame(3, $buttons->count(), 'Bottom nav must have exactly 3 buttons.');
 
-        $labels = $bottomNav->filter('.bottom-nav__label')->each(static fn ($node) => trim($node->text()));
+        $labels = $bottomNav->filter('.bottom-nav__label')->each(static fn ($node) => \trim($node->text()));
         self::assertSame(['Sécurité', 'Heures', 'Conformité'], $labels);
     }
 
     public function testMainLandmarkPresent(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/_styleguide');
 
         self::assertSelectorExists('main#main');
@@ -64,7 +64,7 @@ final class AppShellTest extends WebTestCase
 
     public function testEmptyStateComponentRenders(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/_styleguide');
 
         $empty = $crawler->filter('.empty-state');
@@ -75,19 +75,19 @@ final class AppShellTest extends WebTestCase
 
     public function testAlertBannerComponentRendersWithText(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/_styleguide');
 
         $alert = $crawler->filter('.alert-banner');
         self::assertSame(1, $alert->count());
         self::assertSame('alert', $alert->attr('role'));
         // The message must be conveyed as text, not by color alone (WCAG 1.4.1).
-        self::assertNotEmpty(trim($alert->text()));
+        self::assertNotEmpty(\trim($alert->text()));
     }
 
     public function testSpinnerComponentRendersAccessibly(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/_styleguide');
 
         $spinner = $crawler->filter('.spinner[role="status"]');

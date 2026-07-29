@@ -48,7 +48,8 @@ analyze-dead-code = true
 memoize-properties = true
 strict-array-index-existence = true
 check-throws = true
-unchecked-exceptions = ["Error", "LogicException"]
+unchecked-exceptions = ["Error", "LogicException", "PHPUnit\\Framework\\AssertionFailedError",
+"PHPUnit\\Framework\\GeneratorNotSupportedException"]
 unchecked-exception-classes = []
 # Enabled: Enforces PHP 8.3+ #[Override] attribute, crucial for PHPUnit mocks/stubs and Symfony overrides
 check-missing-override = true

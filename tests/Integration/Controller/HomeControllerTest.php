@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
+use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -15,41 +16,58 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 final class HomeControllerTest extends WebTestCase
 {
+    /**
+     * @return void
+     */
     public function testHomePageRendersWithBaseLayout(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/');
 
         self::assertResponseIsSuccessful();
     }
 
+    /**
+     * @return void
+     */
     public function testHomePageHasSemanticMainLandmark(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/');
 
         // The skip link points here — required for WCAG 2.4.1.
         self::assertSelectorExists('main#main');
     }
 
+    /**
+     * @throws ExpectationFailedException
+     *
+     * @return void
+     */
     public function testHomePageWiresStylesheet(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/');
 
-        $links = $crawler->filter('head link[rel="stylesheet"]')->each(
-            static fn ($node) => $node->attr('href') ?? '',
-        );
+        $links = $crawler->filter('head link[rel="stylesheet"]')
+            ->each(
+                static fn ($node) => $node->attr('href') ?? '',
+            );
 
         self::assertTrue(
-            [] !== array_filter($links, static fn (string $href) => str_contains($href, 'styles/app.css')),
+            [] !== \array_filter($links, static fn (string $href) => \str_contains($href, 'styles/app.css')),
             'The compiled Tailwind stylesheet (assets/styles/app.css) must be linked in <head>.',
         );
     }
 
+    /**
+     * @throws ExpectationFailedException
+     *
+     * @return void
+     */
     public function testHomePageLangIsFrench(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $crawler = $client->request('GET', '/');
 
         self::assertSame('fr', $crawler->filter('html')->attr('lang'));

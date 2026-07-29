@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -18,11 +19,15 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 final class StyleguideController extends AbstractController
 {
+    /**
+     * @param KernelInterface $kernel
+     * @return Response
+     */
     #[Route('/_styleguide', name: 'app_styleguide')]
     public function index(KernelInterface $kernel): Response
     {
         if ('prod' === $kernel->getEnvironment()) {
-            throw $this->createNotFoundException('The styleguide is not available in production.');
+            return $this->redirect('/');
         }
 
         return $this->render('styleguide/index.html.twig');
