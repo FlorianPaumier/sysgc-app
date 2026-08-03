@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — SysGC{% endblock %}
+
+{% block body %}
+    <main id="main" class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
+        <h1 class="text-2xl font-bold text-zinc-900">Connexion</h1>
+        <p class="mt-1 text-sm text-zinc-600">Recevez un lien de connexion sécurisé par courriel.</p>
+
+        {% for flash_error in app.flashes('error') %}
+            <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+                {{ flash_error }}
+            </div>
+        {% endfor %}
+
+        {% if error %}
+            <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        {{ form_start(form, { attr: { class: 'mt-6 space-y-4' } }) }}
+            {{ form_row(form.email, { attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' } }) }}
+            {{ form_row(form.send, { attr: { class: 'w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700' } }) }}
+        {{ form_end(form) }}
+
+        <p class="mt-6 text-sm text-zinc-600">
+            Pas encore de compte ? <a href="{{ path('register') }}" class="font-semibold text-zinc-900 underline">Inscrivez-vous</a>.
+        </p>
+    </main>
+{% endblock %}

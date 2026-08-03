@@ -5,8 +5,13 @@ framework:
     # French is the default UI locale (EN fallbacks in translations/messages.en.yaml)
     default_locale: fr_FR
 
-    # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    # Session: 30-day lifetime, secure + httponly + samesite=lax cookie.
+    # See specs/04-auth.md.
+    session:
+        cookie_lifetime: 2592000
+        cookie_secure: true
+        cookie_httponly: true
+        cookie_samesite: lax
 
     # French is the default UI locale (EN fallbacks in translations/messages.en.yaml)
 

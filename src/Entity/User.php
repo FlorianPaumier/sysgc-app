@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
@@ -23,8 +25,9 @@ class User implements UserInterface
     #[ORM\Column(type: 'uuid', unique: true)]
     private ?Uuid $id = null;
 
+    /** @var non-empty-string */
     #[ORM\Column(length: 180)]
-    private ?string $email = null;
+    private string $email;
 
     /**
      * @var list<string> The user roles
@@ -42,10 +45,13 @@ class User implements UserInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
 
+    #[ORM\Column]
+    private bool $isVerified = false;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
-        $this->magicLinks = new ArrayCollection();
+        $this->magicLinks = new ArrayCollection;
     }
 
     public function getId(): ?Uuid
@@ -53,11 +59,15 @@ class User implements UserInterface
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    /** @return non-empty-string */
+    public function getEmail(): string
     {
         return $this->email;
     }
 
+    /**
+     * @param non-empty-string $email
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -70,21 +80,23 @@ class User implements UserInterface
      *
      * @see UserInterface
      */
+    #[\Override]
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return $this->email;
     }
 
     /**
      * @see UserInterface
      */
+    #[\Override]
     public function getRoles(): array
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
-        return array_unique($roles);
+        return \array_unique($roles);
     }
 
     /**
@@ -107,7 +119,7 @@ class User implements UserInterface
 
     public function addMagicLink(MagicLink $magicLink): static
     {
-        if (!$this->magicLinks->contains($magicLink)) {
+        if (! $this->magicLinks->contains($magicLink)) {
             $this->magicLinks->add($magicLink);
             $magicLink->setOwner($this);
         }
@@ -135,6 +147,18 @@ class User implements UserInterface
     public function setOrganization(?Organization $organization): static
     {
         $this->organization = $organization;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }

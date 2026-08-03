@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\MagicLink;
@@ -16,28 +18,27 @@ class MagicLinkRepository extends ServiceEntityRepository
         parent::__construct($registry, MagicLink::class);
     }
 
-    //    /**
-    //     * @return MagicLink[] Returns an array of MagicLink objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Find a non-expired magic link for a given user email + token hash.
+     *
+     * @param string $email     the user's email (user identifier)
+     * @param string $tokenHash hash('sha256', $rawToken)
+     */
+    public function findValid(string $email, string $tokenHash): ?MagicLink
+    {
+        /** @var ?MagicLink $result */
+        $result = $this->createQueryBuilder('m')
+            ->join('m.owner', 'u')
+            ->andWhere('u.email = :email')
+            ->andWhere('m.tokenHash = :hash')
+            ->andWhere('m.magicLinkTokenExpiresAt > :now')
+            ->setParameter('email', $email)
+            ->setParameter('hash', $tokenHash)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
 
-    //    public function findOneBySomeField($value): ?MagicLink
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $result;
+    }
 }

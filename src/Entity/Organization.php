@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
@@ -24,7 +26,7 @@ class Organization
     private ?string $name = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $rbqLicence = null;
+    private ?string $rbqLicense = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeCustomerId = null;
@@ -40,7 +42,8 @@ class Organization
 
     public function __construct()
     {
-        $this->users = new ArrayCollection();
+        $this->id = Uuid::v7();
+        $this->users = new ArrayCollection;
     }
 
     public function getId(): ?Uuid
@@ -60,14 +63,14 @@ class Organization
         return $this;
     }
 
-    public function getRbqLicence(): ?string
+    public function getRbqLicense(): ?string
     {
-        return $this->rbqLicence;
+        return $this->rbqLicense;
     }
 
-    public function setRbqLicence(string $rbqLicence): static
+    public function setRbqLicense(string $rbqLicense): static
     {
-        $this->rbqLicence = $rbqLicence;
+        $this->rbqLicense = $rbqLicense;
 
         return $this;
     }
@@ -92,6 +95,7 @@ class Organization
     public function setAddress(Address $address): Organization
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -105,7 +109,7 @@ class Organization
 
     public function addUser(User $user): static
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users->add($user);
             $user->setOrganization($this);
         }

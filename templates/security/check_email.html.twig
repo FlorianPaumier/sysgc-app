@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérifiez vos courriels — SysGC{% endblock %}
+
+{% block body %}
+    <main id="main" class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
+        <div class="rounded-md bg-green-50 p-6 text-center">
+            <svg class="mx-auto h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <h2 class="mt-4 text-xl font-semibold text-green-900">Vérifiez vos courriels</h2>
+            <p class="mt-2 text-sm text-green-700">
+                Un lien de connexion sécurisé a été envoyé à votre adresse courriel.
+                Le lien expire dans 15 minutes.
+            </p>
+            <p class="mt-4 text-xs text-green-600">
+                Si vous ne recevez pas le courriel, vérifiez vos courriers indésirables.
+            </p>
+        </div>
+    </main>
+{% endblock %}

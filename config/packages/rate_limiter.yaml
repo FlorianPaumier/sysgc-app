@@ -1,0 +1,13 @@
+framework:
+    rate_limiter:
+        login_per_email:
+            policy: token_bucket
+            limit: 3
+            rate: { interval: '15 minutes', bounce: 15 }
+            # Keyed by user email to enforce per‑email limits.
+            # The controller extracts the email from the form and passes it.
+        login_per_ip:
+            policy: token_bucket
+            limit: 20
+            rate: { interval: '5 minutes', bounce: 5 }
+            # Keyed by IP address (default) – no custom key extractor needed.
