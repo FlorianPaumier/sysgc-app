@@ -50,6 +50,15 @@
 </head>
 <body>
 <a href="#main" class="skip">Aller au contenu principal</a>
+{% embed 'components/partials/_nav.html.twig' %}
+    {% block nav_links %}
+        <li><a href="#modules">Modules</a></li>
+        <li><a href="#howto">Fonctionnement</a></li>
+        <li><a href="#pricing">Forfaits</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#contact">Contact</a></li>
+    {% endblock %}
+{% endembed %}
 {% block layout %}
     {# Default page layout: a single main column with an optional aside.
        The authenticated app shell (templates/layouts/app.html.twig) overrides
@@ -61,5 +70,24 @@
         {% block aside %}{% endblock %}
     </div>
 {% endblock %}
+<footer id="contact">
+    <div class="wrap">
+        <div class="foot-grid">
+            <div>
+                <div class="foot-brand">SYS<span class="gc">GC</span></div>
+                <div class="foot-tag">Construit au Québec — pour les entrepreneurs du Québec</div>
+            </div>
+            <ul class="foot-links">
+                <li><a href="{{ path('home') }}">Contact</a></li>
+                <li><a href="{{ path('home') }}">Confidentialité</a></li>
+                <li><a href="{{ path('home') }}">Conditions</a></li>
+            </ul>
+        </div>
+        <div class="foot-bottom">
+            <span>© {{ 'now'|date('Y') }} SysGC — Tous droits réservés.</span>
+            <span>Hébergé au Québec · Loi 25 · SOC 2 Type II</span>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

@@ -1,0 +1,23 @@
+{# templates/email/magic_link.html.twig #}
+{% extends 'emails/base.html.twig' %}
+
+{% block subject %}Connectez-vous à SysGC{% endblock %}
+
+{% block content %}
+    <p style="margin:0 0 16px;">Bonjour,</p>
+    <p style="margin:0 0 24px;">Cliquez pour vous connecter à votre compte SysGC :</p>
+    
+    <p style="margin:0 0 24px;text-align:center;">
+        <a href="{{ url }}"
+            style="display:inline-block;padding:12px 24px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">
+            Me connecter
+        </a>
+    </p>
+    
+    <p style="margin:0 0 8px;font-size:13px;color:#71717a;">
+        Ce lien expire dans 15 minutes.
+    </p>
+    <p style="margin:0;font-size:13px;color:#71717a;">
+        Si vous n'avez pas demandé ce lien, vous pouvez ignorer ce courriel.
+    </p>
+{% endblock %}

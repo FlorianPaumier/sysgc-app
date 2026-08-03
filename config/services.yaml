@@ -21,3 +21,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    Resend\Client:
+        factory: [ 'Resend', 'client' ]
+        arguments: [ '%env(RESEND_API_KEY)%' ]
+
+    App\Service\ResendMailer:
+        arguments:
+            $resend: '@Resend\Client'
+            $from: '%env(RESEND_FROM)%'
+            $twig: '@twig'
+            $logger: '@logger'

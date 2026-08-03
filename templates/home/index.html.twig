@@ -1,7 +1,291 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'nav.home'|trans }} — SysGC{% endblock %}
+{% block title %}SysGC — La conformité sans chiffrier{% endblock %}
 
 {% block body %}
-    <twig:Welcome />
+    <a href="#main" class="skip">Aller au contenu principal</a>
+    
+    <main id="main">
+        
+        {# ─── HERO ─── #}
+        <section class="hero">
+            <div class="wrap">
+                <div class="hero-grid">
+                    <div>
+                        <div class="label">SysGC · Conformité construction — Québec</div>
+                        <h1>La conformité<br>ne devrait pas<br><span class="line2">tenir sur un chiffrier.</span></h1>
+                        <p class="hero-sub">Déclarations CCQ, vérification RBQ, registres CNESST, avenants et facturation — réunis dans un seul système. Construit au Québec, pour les entrepreneurs qui courent après les chantiers, pas après la paperasse.</p>
+                        <div class="hero-cta">
+                            <a href="{{ path('home') }}" class="btn btn-primary">Essai gratuit — 30 jours</a>
+                            <a href="#modules" class="btn btn-ghost">Voir les modules →</a>
+                        </div>
+                        <div class="hero-meta">
+                            <div class="hero-meta-item">
+                                <div class="num">23 %</div>
+                                <div class="desc">des déclarations CCQ contiennent au moins une erreur</div>
+                            </div>
+                            <div class="hero-meta-item">
+                                <div class="num">500 $+</div>
+                                <div class="desc">d'amendes par déclaration erronée</div>
+                            </div>
+                            <div class="hero-meta-item">
+                                <div class="num">15 min</div>
+                                <div class="desc">par mois, contre 5 heures avant SysGC</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="permit" role="img" aria-label="Aperçu d'une déclaration CCQ validée dans SysGC">
+                            <div class="permit-stamp">Validé<span class="sub">14:32 · 28-10</span></div>
+                            <div class="permit-head">
+                                <span><span class="dot"></span>Déclaration CCQ — Mensuelle</span>
+                                <span>#CCQ-2025-10</span>
+                            </div>
+                            <div class="permit-body">
+                                <div class="permit-row"><span class="k">Chantier</span><span class="v">1234 Beaubien E.</span></div>
+                                <div class="permit-row"><span class="k">Période</span><span class="v">01-10 → 31-10-25</span></div>
+                                <div class="permit-row"><span class="k">Employés</span><span class="v">14</span></div>
+                                <div class="permit-row"><span class="k">Heures tot.</span><span class="v">1 872 h</span></div>
+                                <div class="permit-row"><span class="k">Cotisations</span><span class="v">8 412,40 $</span></div>
+                                <div class="permit-rules">
+                                    <div class="permit-rules-title">
+                                        <span>Règles de validation</span>
+                                        <span class="ok">23 / 23 ✓</span>
+                                    </div>
+                                    <div class="permit-rule">Codes de métier conformes à la convention collective</div>
+                                    <div class="permit-rule">Taux horaire ≥ taux conventionnel CCQ</div>
+                                    <div class="permit-rule">Heures supplémentaires majorées à 150 %</div>
+                                    <div class="permit-rule">Aucun chevauchement d'horaire</div>
+                                    <div class="permit-rule">Cotisations proportionnelles au salaire brut</div>
+                                </div>
+                            </div>
+                            <div class="permit-corner">SysGC · Aperçu</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        {# ─── MODULES ─── #}
+        <section id="modules" class="section-pad">
+            <div class="wrap">
+                <div class="section-head">
+                    <div>
+                        <div class="num">Section 01 / Modules</div>
+                    </div>
+                    <div>
+                        <h2>Couverture complète.<br>Zéro angle mort.</h2>
+                    </div>
+                </div>
+                <p class="section-lead">Six modules couvrent l'ensemble de vos obligations. Vous activez ceux dont vous avez besoin — vous ne payez pas pour ce que vous n'utilisez pas. Aucun chiffrier parallèle à maintenir, aucune intégration tierce à faire bricoler par votre comptable.</p>
+                
+                <div class="modules">
+                    <article class="module">
+                        <div class="module-num"><span>01</span><span class="code">CCQ</span></div>
+                        <div class="module-name">Déclarations CCQ</div>
+                        <div class="module-desc">Déclarations mensuelles pré-remplies à partir des feuilles de temps. Vingt-trois règles de validation passent avant transmission.</div>
+                        <div class="module-meta">23 règles · Transmission mensuelle</div>
+                    </article>
+                    <article class="module">
+                        <div class="module-num"><span>02</span><span class="code">RBQ</span></div>
+                        <div class="module-name">Vérification RBQ</div>
+                        <div class="module-desc">Vérification de licence par entrepreneur sous-traitant. Alertes soixante jours avant échéance. Historique de conformité consultable.</div>
+                        <div class="module-meta">Renouvellement · Alerte 60 j</div>
+                    </article>
+                    <article class="module">
+                        <div class="module-num"><span>03</span><span class="code">CNS</span></div>
+                        <div class="module-name">Sécurité &amp; CNESST</div>
+                        <div class="module-desc">Registres de sécurité, formations obligatoires, accidents de travail. Prêt pour inspection en deux clics.</div>
+                        <div class="module-meta">Registres · Inspections · Formations</div>
+                    </article>
+                    <article class="module">
+                        <div class="module-num"><span>04</span><span class="code">AVN</span></div>
+                        <div class="module-name">Avenants</div>
+                        <div class="module-desc">Création, signature et suivi des avenants de contrat. Traçabilité complète de chaque modification budgétaire.</div>
+                        <div class="module-meta">Signature électronique · Historique</div>
+                    </article>
+                    <article class="module">
+                        <div class="module-num"><span>05</span><span class="code">FAC</span></div>
+                        <div class="module-name">Facturation</div>
+                        <div class="module-desc">Factures par chantier, par phase. TPS et TVQ calculées automatiquement. Suivi des paiements et relances.</div>
+                        <div class="module-meta">TPS/TVQ · Relances · Export</div>
+                    </article>
+                    <article class="module">
+                        <div class="module-num"><span>06</span><span class="code">DOC</span></div>
+                        <div class="module-name">Documents</div>
+                        <div class="module-desc">Plans, contrats, certificats, photos de chantier. Classés par projet, accessibles depuis le téléphone sur le site.</div>
+                        <div class="module-meta">Versions · Mobile · Partage</div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        
+        {# ─── HOW IT WORKS ─── #}
+        <section id="howto" class="howto section-pad">
+            <div class="wrap">
+                <div class="section-head">
+                    <div>
+                        <div class="num">Section 02 / Processus</div>
+                    </div>
+                    <div>
+                        <h2>Trois étapes.<br>Zéro paperasse.</h2>
+                    </div>
+                </div>
+                <p class="section-lead">SysGC ne demande pas une nouvelle façon de travailler. Il épouse celle que vous avez déjà — il enlève juste la paperasse qui l'accompagne.</p>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-node">01</div>
+                        <h3>Créez votre chantier</h3>
+                        <p>Adresse, client, budget, date de début. SysGC configure automatiquement les obligations qui s'appliquent : CCQ, CNESST, RBQ selon votre secteur d'activité.</p>
+                        <div class="step-detail">≈ 4 minutes · 1 écran</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-node">02</div>
+                        <h3>Déclarez vos heures</h3>
+                        <p>La grille CCQ se pré-remplit à partir des feuilles de temps. Vous ajustez les codes de métier, vous confirmez les taux. Cinq minutes par chantier.</p>
+                        <div class="step-detail">≈ 5 minutes · Grille CCQ</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-node">03</div>
+                        <h3>Validez en un clic</h3>
+                        <p>Vingt-trois règles de validation passent avant transmission. Tout écart est signalé en rouge avec une explication claire. Vous transmettez en confiance.</p>
+                        <div class="step-detail">23 règles · Transmission directe</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        {# ─── TESTIMONIAL ─── #}
+        <section class="testi">
+            <div class="wrap">
+                <div class="testi-grid">
+                    <div class="testi-quote"><span class="mark">«</span> On passait 5 heures par mois sur la conformité CCQ. Maintenant c'est 15 minutes. Et on n'a plus jamais reçu d'amende. <span class="mark">»</span></div>
+                    <div class="testi-meta">
+                        <div class="name">David Tremblay</div>
+                        <div class="role">Construction DEM inc.</div>
+                        <div class="dossier">
+                            Dossier · <span>DEM-2024-03</span><br>
+                            Secteur · <span>Rénovation résidentiel</span><br>
+                            Chantiers actifs · <span>7</span><br>
+                            Client depuis · <span>Février 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        {# ─── PRICING ─── #}
+        <section id="pricing" class="section-pad" style="border-top:1px solid var(--color-rule);">
+            <div class="wrap">
+                <div class="section-head">
+                    <div>
+                        <div class="num">Section 03 / Tarification</div>
+                    </div>
+                    <div>
+                        <h2>Tarification simple.<br>Alignée sur votre taille.</h2>
+                    </div>
+                </div>
+                <p class="section-lead">Trois forfaits, sans surprise. Tous incluent la conformité CCQ, RBQ et CNESST. La différence : le nombre de chantiers actifs et d'utilisateurs. Taxes provinciales et fédérales en sus.</p>
+                
+                <div class="pricing-grid">
+                    <article class="plan">
+                        <div class="plan-name">Starter</div>
+                        <div class="plan-desc">Pour l'entrepreneur solo ou la petite équipe.</div>
+                        <div class="plan-price"><span class="cur">$</span>79<span class="per">/ mois</span></div>
+                        <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
+                        <ul class="plan-features">
+                            <li>3 chantiers actifs</li>
+                            <li>2 utilisateurs</li>
+                            <li>Modules CCQ + RBQ</li>
+                            <li>Déclarations mensuelles</li>
+                            <li>Support courriel — 48 h</li>
+                        </ul>
+                        <a href="{{ path('home') }}" class="plan-cta">Commencer l'essai</a>
+                    </article>
+                    <article class="plan featured">
+                        <span class="plan-tag">Recommandé</span>
+                        <div class="plan-name">Growth</div>
+                        <div class="plan-desc">Pour les équipes en croissance, trois à dix chantiers.</div>
+                        <div class="plan-price"><span class="cur">$</span>149<span class="per">/ mois</span></div>
+                        <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
+                        <ul class="plan-features">
+                            <li>10 chantiers actifs</li>
+                            <li>8 utilisateurs</li>
+                            <li>Tous les modules inclus</li>
+                            <li>Avenants électroniques</li>
+                            <li>Support téléphone — 24 h</li>
+                            <li>Formation initiale (1 h)</li>
+                        </ul>
+                        <a href="{{ path('home') }}" class="plan-cta">Commencer l'essai</a>
+                    </article>
+                    <article class="plan">
+                        <div class="plan-name">Enterprise</div>
+                        <div class="plan-desc">Pour les entrepreneurs établis, multi-chantiers.</div>
+                        <div class="plan-price"><span class="cur">$</span>199<span class="per">/ mois</span></div>
+                        <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
+                        <ul class="plan-features">
+                            <li>Chantiers illimités</li>
+                            <li>Utilisateurs illimités</li>
+                            <li>Tous les modules inclus</li>
+                            <li>API et intégrations</li>
+                            <li>Support prioritaire — 4 h</li>
+                            <li>Gestionnaire de compte dédié</li>
+                        </ul>
+                        <a href="{{ path('home') }}" class="plan-cta">Commencer l'essai</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+        
+        {# ─── FAQ ─── #}
+        <section id="faq" class="section-pad">
+            <div class="wrap">
+                <div class="section-head">
+                    <div>
+                        <div class="num">Section 04 / FAQ</div>
+                    </div>
+                    <div>
+                        <h2>Questions fréquentes.</h2>
+                    </div>
+                </div>
+                <div class="faq-list">
+                    {% set faqs = [
+                        {q: 'SysGC est-il conforme aux exigences de la CCQ?', a: 'Oui. SysGC est conçu spécifiquement pour le cadre réglementaire québécois de la construction. Tous les formulaires et calculs suivent les conventions collectives et les barèmes officiels. Les mises à jour sont déployées automatiquement dès qu\'un changement réglementaire est publié.'},
+                        {q: 'Puis-je importer mes employés et mes chantiers existants?', a: 'Absolument. SysGC accepte les imports CSV pour les listes de travailleurs, les chantiers en cours et l\'historique des déclarations. Notre équipe vous assiste gratuitement pour la migration si vous choisissez le forfait annuel.'},
+                        {q: 'Quels organismes sont couverts par SysGC?', a: 'CCQ (Commission de la construction du Québec), RBQ (Régie du bâtiment du Québec), CNESST (Commission des normes, de l\'équité, de la santé et de la sécurité du travail). Chaque module est tenu à jour avec les dernières exigences de son organisme.'},
+                        {q: 'Comment fonctionne la période d\'essai?', a: 'Trente jours d\'accès complet au forfait Growth. Aucune carte de crédit requise, aucun engagement. Vous pouvez annuler en un clic à tout moment. Si vous dépassez la période, vous passez au forfait de votre choix.'},
+                        {q: 'Mes données sont-elles protégées?', a: 'Chiffrement AES-256 au repos et en transit. Infrastructure hébergée au Québec (datacenters montréalais). Conforme à la Loi 25 et aux normes SOC 2 Type II. Aucune donnée transmise hors du Canada.'},
+                    ] %}
+                    {% for f in faqs %}
+                        <details class="faq-item">
+                            <summary><span class="q-num">0{{ loop.index }}</span> {{ f.q }}</summary>
+                            <div class="faq-answer">{{ f.a }}</div>
+                        </details>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        
+        {# ─── CTA FINAL ─── #}
+        <section id="cta" class="cta-final">
+            <div class="wrap">
+                <div class="cta-final-grid">
+                    <div>
+                        <div class="label" style="color:rgba(241,236,223,.5);margin-bottom:24px;">Dernière étape</div>
+                        <h2>Prêt à quitter<br>le <em>chiffrier?</em></h2>
+                        <p>Commencez votre essai gratuit. Trente jours. Aucune carte de crédit requise. Migration depuis Excel incluse avec le forfait annuel.</p>
+                    </div>
+                    <form class="cta-form" action="{{ path('home') }}" method="get">
+                        <label for="email">Courriel professionnel</label>
+                        <div class="input-row">
+                            <input type="email" id="email" name="email" placeholder="david@constructiondem.ca" required autocomplete="email">
+                            <button type="submit">Démarrer →</button>
+                        </div>
+                        <div class="fine">En soumettant, vous acceptez d'être contacté par SysGC. Désabonnement en un clic.</div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    
+    </main>
 {% endblock %}

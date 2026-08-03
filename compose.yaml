@@ -50,7 +50,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
+    ports:
+      - "5555:5432"
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
