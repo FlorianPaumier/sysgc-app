@@ -18,9 +18,8 @@ class Organization
     use TimestampableTrait;
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $id = null;
+    private Uuid $id;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -40,13 +39,20 @@ class Organization
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $users;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $projects;
+
     public function __construct()
     {
         $this->id = Uuid::v7();
         $this->users = new ArrayCollection;
+        $this->projects = new ArrayCollection;
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
@@ -123,6 +129,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($user->getOrganization() === $this) {
                 $user->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): static
+    {
+        if (! $this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): static
+    {
+        if ($this->projects->removeElement($project)) {
+            // set the owning side to null (unless already changed)
+            if ($project->getOrganization() === $this) {
+                $project->setOrganization(null);
             }
         }
 

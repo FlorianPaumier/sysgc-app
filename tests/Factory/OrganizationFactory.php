@@ -26,9 +26,7 @@ final class OrganizationFactory extends PersistentObjectFactory
     {
         return [
             'name' => self::faker()->company(),
-            // RBQ numbers are formatted like "RBQ-1234-5678-90".
             'rbqLicense' => 'RBQ-' . self::faker()->numerify('####-####-##'),
-            'address' => AddressFactory::new(),
         ];
     }
 }

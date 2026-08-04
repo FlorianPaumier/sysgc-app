@@ -25,9 +25,7 @@ final class MagicLinkFactory extends PersistentObjectFactory
     protected function defaults(): array | callable
     {
         return [
-            // SHA-256 of 'test-token' by default — override in tests.
             'tokenHash' => hash('sha256', 'test-token'),
-            // Valid 15 minutes from now by default.
             'magicLinkTokenExpiresAt' => self::faker()->dateTimeInTimeInterval('+15 minutes'),
             'owner' => UserFactory::new(),
         ];

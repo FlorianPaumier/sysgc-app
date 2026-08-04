@@ -25,10 +25,8 @@ final class UserFactory extends PersistentObjectFactory
     protected function defaults(): array | callable
     {
         return [
-            // email has a unique DB constraint — keep faker values unique.
             'email' => self::faker()->unique()->email(),
             'roles' => [],
-            // deterministic: magic-link users start unverified.
             'isVerified' => false,
             'organization' => OrganizationFactory::new(),
         ];

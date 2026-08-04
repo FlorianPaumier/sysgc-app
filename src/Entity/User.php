@@ -21,9 +21,8 @@ class User implements UserInterface
     use TimestampableTrait;
 
     #[ORM\Id]
-    #[ORM\GeneratedValue]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $id = null;
+    private Uuid $id;
 
     /** @var non-empty-string */
     #[ORM\Column(length: 180)]
@@ -54,7 +53,7 @@ class User implements UserInterface
         $this->magicLinks = new ArrayCollection;
     }
 
-    public function getId(): ?Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }

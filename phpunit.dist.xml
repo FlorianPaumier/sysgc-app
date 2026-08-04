@@ -16,7 +16,7 @@
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
         <!-- Dedicated test database (PostgreSQL). DAMA rolls back after each test. -->
-        <env name="DATABASE_URL" value="postgresql://app:!ChangeMe!@127.0.0.1:5432/app_test?serverVersion=16&amp;charset=utf8" force="true" />
+        <env name="DATABASE_URL" value="postgresql://app:!ChangeMe!@database:5432/app_test?serverVersion=16&amp;charset=utf8" force="true" />
     </php>
 
     <testsuites>

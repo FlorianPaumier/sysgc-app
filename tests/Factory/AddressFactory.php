@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Factory;
 
 use App\Entity\Address;
-use Zenstruck\Foundry\ObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends ObjectFactory<Address>
+ * @extends PersistentObjectFactory<Address>
  */
-final class AddressFactory extends ObjectFactory
+final class AddressFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
@@ -30,7 +30,6 @@ final class AddressFactory extends ObjectFactory
             'postalCode' => self::faker()->postcode(),
             'city' => self::faker()->city(),
             'state' => null,
-            // Quebec construction product — default to Canada.
             'country' => 'CA',
         ];
     }
