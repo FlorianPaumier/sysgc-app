@@ -1,9 +1,33 @@
-{# templates/emails/magic_link.html.twig #}
+{# templates/emails/contact_admin.html.twig - Auto-response sent to user after contact form submission #}
 {% extends 'emails/base.html.twig' %}
 
-{% block subject %}Connectez-vous à SysGC{% endblock %}
+{% block subject %}Confirmation - Votre message SysGC{% endblock %}
 
 {% block content %}
-   {{ name }}
-   {{ message }}
+    <h1>Message reçu</h1>
+
+    <p class="mb-4">Bonjour {{ name }},</p>
+
+    <p class="mb-4">
+        Nous avons bien reçu votre message concernant "<strong>{{ subject }}</strong>".
+    </p>
+
+    <div class="alert alert-success mb-4">
+        <p class="mb-0">Notre équipe vous répondra dans les plus brefs délais.</p>
+    </div>
+
+    <h3 class="mb-2">Votre message :</h3>
+    <div class="bg-muted rounded mb-4" style="margin:0 0 24px;padding:16px;background:#f4f4f5;border-radius:6px;">
+        <p class="text-small text-muted mb-0" style="margin:0;">
+            {{ message|slice(0, 200) }}{% if message|length > 200 %}...{% endif %}
+        </p>
+    </div>
+
+    <p class="text-small text-muted mb-3">
+        Merci de nous avoir contactés.
+    </p>
+
+    <p class="text-small text-muted">
+        L'équipe SysGC
+    </p>
 {% endblock %}

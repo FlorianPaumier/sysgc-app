@@ -1,0 +1,6 @@
+# Disable messenger in tests to avoid schema update issues
+framework:
+    messenger:
+        transports:
+            async: 'sync://'
+            failed: 'sync://'

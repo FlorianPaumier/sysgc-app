@@ -23,8 +23,10 @@ security:
                 target: login
 
     access_control:
-        - { path: ^/, roles: PUBLIC_ACCESS }
-        - { path: ^/app, roles: ROLE_USER }
+        - { path: ^/connexion, roles: PUBLIC_ACCESS }
+        - { path: ^/inscription, roles: PUBLIC_ACCESS }
+        - { path: ^/connexion/verifier, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:

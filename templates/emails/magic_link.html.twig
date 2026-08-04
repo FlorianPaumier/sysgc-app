@@ -1,23 +1,35 @@
 {# templates/emails/magic_link.html.twig #}
 {% extends 'emails/base.html.twig' %}
 
-{% block subject %}Connectez-vous à SysGC{% endblock %}
+{% block subject %}Votre lien de connexion SysGC{% endblock %}
 
 {% block content %}
-    <p style="margin:0 0 16px;">Bonjour,</p>
-    <p style="margin:0 0 24px;">Cliquez pour vous connecter à votre compte SysGC :</p>
-    
-    <p style="margin:0 0 24px;text-align:center;">
-        <a href="{{ url }}"
-            style="display:inline-block;padding:12px 24px;background:#18181b;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">
+    <h1 class="text-center">Connexion à votre compte</h1>
+
+    <p class="mb-4">Bonjour,</p>
+    <p class="mb-4">Cliquez sur le bouton ci-dessous pour vous connecter à votre compte SysGC :</p>
+
+    <p class="text-center mb-4" style="margin:24px 0;">
+        <a href="{{ url }}" class="btn">
             Me connecter
         </a>
     </p>
-    
-    <p style="margin:0 0 8px;font-size:13px;color:#71717a;">
-        Ce lien expire dans 15 minutes.
+
+    <div class="alert alert-info mb-4">
+        <p class="text-small mb-0" style="margin:0;">
+            <strong>Important :</strong> Ce lien expire dans 15 minutes.
+        </p>
+    </div>
+
+    <p class="text-small text-muted mb-3">
+        Si vous n'arrivez pas à cliquer sur le bouton, copiez et collez ce lien dans votre navigateur :
     </p>
-    <p style="margin:0;font-size:13px;color:#71717a;">
-        Si vous n'avez pas demandé ce lien, vous pouvez ignorer ce courriel.
+
+    <p class="text-small mb-4" style="word-break:break-all;color:#71717a;">
+        {{ url }}
+    </p>
+
+    <p class="text-small text-muted">
+        Si vous n'avez pas demandé ce lien, vous pouvez ignorer ce courriel en toute sécurité.
     </p>
 {% endblock %}

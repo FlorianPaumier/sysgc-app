@@ -1,0 +1,29 @@
+{# templates/emails/admin_contact.html.twig - Sent to admin when user submits contact form #}
+{% extends 'emails/base.html.twig' %}
+
+{% block subject %}Nouveau contact - {{ subject }}{% endblock %}
+
+{% block content %}
+    <h2 class="text-center" style="color:#ef4444;">Nouveau message de contact</h2>
+
+    <table class="mb-4" style="margin:16px 0 24px;">
+        <tr>
+            <td class="border-bottom" style="padding:12px 0;border-bottom:1px solid #e4e4e7;"><strong>De :</strong> {{ name }}</td>
+        </tr>
+        <tr>
+            <td class="border-bottom" style="padding:12px 0;border-bottom:1px solid #e4e4e7;"><strong>Courriel :</strong> {{ from }}</td>
+        </tr>
+        <tr>
+            <td style="padding:12px 0;"><strong>Sujet :</strong> {{ subject }}</td>
+        </tr>
+    </table>
+
+    <h3 class="mb-2">Message :</h3>
+    <div class="bg-muted rounded mb-4" style="margin:0 0 24px;padding:16px;background:#f4f4f5;border-radius:6px;">
+        <p style="white-space:pre-wrap;margin:0;">{{ message }}</p>
+    </div>
+
+    <p class="text-small text-muted">
+        Ce message a été envoyé via le formulaire de contact du site SysGC.
+    </p>
+{% endblock %}
