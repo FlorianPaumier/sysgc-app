@@ -16,24 +16,23 @@ final class QDateRuntime implements RuntimeExtensionInterface
     /**
      * Format a date as DD/MM/YYYY (Quebec standard).
      *
-     * @param \DateTimeInterface|string|int|null $date
+     * @param \DateTimeInterface|int|string|null $date
      */
-    public function format($date): string
+    public function format(\DateTimeInterface|int|string|null $date): string
     {
         if (null === $date || '' === $date) {
             return '';
         }
 
         if (\is_int($date)) {
-            return new \DateTimeImmutable()
-                ->setTimestamp($date)
-                ->format(self::QUEBEC_DATE_FORMAT);
+            $date = new \DateTimeImmutable()->setTimestamp($date);
         }
 
         if (\is_string($date)) {
             try {
                 $date = new \DateTimeImmutable($date);
             } catch (\DateMalformedStringException) {
+                /** @var string */
                 return $date; // pass through unparseable strings unchanged
             }
         }

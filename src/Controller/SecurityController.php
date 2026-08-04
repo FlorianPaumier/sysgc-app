@@ -22,7 +22,7 @@ final class SecurityController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly MagicLinkDispatcher $magicLinkDispatcher,
-        private readonly RateLimiterFactory $loginPerEmailLimiter,
+        private readonly RateLimiterFactory $loginPerEmailLimiterFactory,
     ) {}
 
     #[Route('/connexion', name: 'login', methods: ['GET', 'POST'])]
@@ -38,7 +38,7 @@ final class SecurityController extends AbstractController
             $email = $data['email'];
 
             // Enforce per‑email rate limit (3 attempts per 15 minutes).
-            $limiter = $this->loginPerEmailLimiter->create($email);
+            $limiter = $this->loginPerEmailLimiterFactory->create($email);
             $rateLimit = $limiter->consume();
             if (!$rateLimit->isAccepted()) {
                 throw new TooManyRequestsHttpException($rateLimit->getRetryAfter()->getTimestamp() - time(), 'Trop de tentatives. Réessayez dans 15 minutes.');

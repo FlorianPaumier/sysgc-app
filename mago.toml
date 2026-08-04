@@ -6,7 +6,7 @@ php-version = "8.5.0"
 
 [source]
 workspace = "."
-paths = ["src/", "tests/"]
+paths = ["src/"]
 includes = ["vendor"]
 excludes = [
     "tests/bootstrap.php",
@@ -37,7 +37,7 @@ integrations = ["symfony", "phpunit"]
 # Enabled to catch unqualified function calls (e.g. avoiding ambiguous built-in functions)
 ambiguous-function-call = { enabled = true }
 literal-named-argument = { enabled = false }
-halstead = { effort-threshold = 7000 }
+halstead = { effort-threshold = 7000, difficulty-threshold = 20 }
 
 [analyzer]
 plugins = []

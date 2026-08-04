@@ -26,7 +26,7 @@ final class RegistrationController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly MagicLinkDispatcher $magicLinkDispatcher,
         private readonly Security $security,
-        private readonly RateLimiterFactory $loginPerEmailLimiter,
+        private readonly RateLimiterFactory $loginPerEmailLimiterFactory,
     ) {}
 
     #[Route('/inscription', name: 'register', methods: ['GET', 'POST'])]
@@ -42,7 +42,7 @@ final class RegistrationController extends AbstractController
             $email = $data['email'];
 
             // Enforce per‑email rate limit (3 attempts per 15 minutes).
-            $limiter = $this->loginPerEmailLimiter->create($email);
+            $limiter = $this->loginPerEmailLimiterFactory->create($email);
             $rateLimit = $limiter->consume();
             if (!$rateLimit->isAccepted()) {
                 throw new TooManyRequestsHttpException($rateLimit->getRetryAfter()->getTimestamp() - time(), 'Trop de tentatives. Réessayez dans 15 minutes.');

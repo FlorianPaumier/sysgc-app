@@ -37,12 +37,13 @@ final class HomeControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/');
 
-        $links = $crawler->filter('head link[rel="stylesheet"]')->each(
-            static fn ($node) => $node->attr('href') ?? '',
-        );
+        $links = $crawler->filter('head link[rel="stylesheet"]')
+            ->each(
+                static fn ($node) => $node->attr('href') ?? '',
+            );
 
         self::assertTrue(
-            [] !== array_filter(
+            [] !== \array_filter(
                 $links,
                 static fn (string $href) => str_contains($href, 'styles/app') && str_ends_with($href, '.css'),
             ),

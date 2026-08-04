@@ -1,0 +1,9 @@
+{# templates/emails/magic_link.html.twig #}
+{% extends 'emails/base.html.twig' %}
+
+{% block subject %}Connectez-vous à SysGC{% endblock %}
+
+{% block content %}
+   {{ name }}
+   {{ message }}
+{% endblock %}

@@ -35,12 +35,13 @@ class ContactController extends AbstractController
         $success = false;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get("website") !== null) {
+            if ($form->get("website")->getData() !== "") {
                 $messageBus->dispatch(new SendContactEmail(
-                    $contact
+                    $contact,
+                    "emails/contact.html.twig"
                 ));
             }
-            $success = true;
+            return $this->redirectToRoute("app_contact");
         }
         return $this->render('contact.html.twig', [
             "form" => $form,

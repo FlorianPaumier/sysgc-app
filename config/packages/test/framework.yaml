@@ -1,0 +1,7 @@
+framework:
+    # Disable messenger in tests
+    messenger:
+        transports:
+            async: 'test://'
+            sync: 'test://'
+            failed: 'test://'

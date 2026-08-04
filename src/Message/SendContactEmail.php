@@ -8,7 +8,10 @@ use Symfony\Component\Messenger\Attribute\AsMessage;
 #[AsMessage('async')]
 final class SendContactEmail
 {
-    public function __construct(ContactDTO $contactDTO)
+    public function __construct(
+        public ContactDTO $contactDTO,
+        public string $template
+    )
     {
     }
 }

@@ -27,7 +27,8 @@ services:
 
     App\Service\ResendMailer:
         arguments:
-            $resend: '@Resend\Client'
             $from: '%env(RESEND_FROM)%'
-            $twig: '@twig'
             $logger: '@logger'
+
+    Symfony\Component\RateLimiter\RateLimiterFactory $loginPerEmailLimiterFactory: '@limiter.login_per_email'
+    Symfony\Component\RateLimiter\RateLimiterFactory $loginPerIpLimiterFactory: '@limiter.login_per_ip'

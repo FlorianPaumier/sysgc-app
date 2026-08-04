@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Organization;
@@ -30,7 +32,6 @@ class OrganizationRepository extends ServiceEntityRepository
     //            ->getResult()
     //        ;
     //    }
-
     //    public function findOneBySomeField($value): ?Organization
     //    {
     //        return $this->createQueryBuilder('o')

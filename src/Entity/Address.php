@@ -1,8 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Entity;
-
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -33,23 +33,77 @@ class Address
     #[Assert\Country(message: 'Le code pays "{{ value }}" n\'est pas valide.')]
     private string $country = 'FR'; // Default to France
 
-    public function getStreet(): string { return $this->street; }
-    public function setStreet(string $street): static { $this->street = $street; return $this; }
+    public function getStreet(): string
+    {
+        return $this->street;
+    }
 
-    public function getStreet2(): ?string { return $this->street2; }
-    public function setStreet2(?string $street2): static { $this->street2 = $street2; return $this; }
+    public function setStreet(string $street): static
+    {
+        $this->street = $street;
 
-    public function getPostalCode(): string { return $this->postalCode; }
-    public function setPostalCode(string $postalCode): static { $this->postalCode = $postalCode; return $this; }
+        return $this;
+    }
 
-    public function getCity(): string { return $this->city; }
-    public function setCity(string $city): static { $this->city = $city; return $this; }
+    public function getStreet2(): ?string
+    {
+        return $this->street2;
+    }
 
-    public function getState(): ?string { return $this->state; }
-    public function setState(?string $state): static { $this->state = $state; return $this; }
+    public function setStreet2(?string $street2): static
+    {
+        $this->street2 = $street2;
 
-    public function getCountry(): string { return $this->country; }
-    public function setCountry(string $country): static { $this->country = $country; return $this; }
+        return $this;
+    }
+
+    public function getPostalCode(): string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(string $postalCode): static
+    {
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function getCity(): string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(?string $state): static
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): static
+    {
+        $this->country = $country;
+
+        return $this;
+    }
 
     /**
      * Magic method to easily display the address in Twig: {{ user.address }}
@@ -59,7 +113,7 @@ class Address
         $parts = array_filter([
             $this->street,
             $this->street2,
-            trim($this->postalCode . ' ' . $this->city),
+            trim($this->postalCode.' '.$this->city),
             $this->state,
             strtoupper($this->country),
         ]);
