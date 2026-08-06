@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Service;
 use App\Service\RbqScraper;
 use App\Service\ValueObject\RbqLicenseResult;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -166,6 +167,7 @@ HTML;
     }
 
     #[Test]
+    #[Group('slow')]
     public function check_retries_on_429_status(): void
     {
         $callCount = 0;
@@ -188,6 +190,7 @@ HTML;
     }
 
     #[Test]
+    #[Group('slow')]
     public function check_retries_on_timeout(): void
     {
         $callCount = 0;
@@ -210,6 +213,7 @@ HTML;
     }
 
     #[Test]
+    #[Group('slow')]
     public function check_returns_timeout_error_after_max_retries(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
@@ -226,6 +230,7 @@ HTML;
     }
 
     #[Test]
+    #[Group('slow')]
     public function check_returns_rate_limited_after_3_429s(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
