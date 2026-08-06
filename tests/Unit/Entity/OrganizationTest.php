@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Address;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\SubscriptionTier;
 use PHPUnit\Framework\TestCase;
 
 final class OrganizationTest extends TestCase
@@ -77,5 +78,30 @@ final class OrganizationTest extends TestCase
 
         self::assertFalse($organization->getUsers()->contains($user));
         self::assertNull($user->getOrganization());
+    }
+
+    public function test_subscription_tier_defaults_to_null(): void
+    {
+        $organization = new Organization();
+
+        self::assertNull($organization->getSubscriptionTier());
+    }
+
+    public function test_subscription_tier_is_mutable(): void
+    {
+        $organization = new Organization();
+
+        $organization->setSubscriptionTier(SubscriptionTier::Pro);
+
+        self::assertSame(SubscriptionTier::Pro, $organization->getSubscriptionTier());
+    }
+
+    public function test_subscription_tier_accepts_null(): void
+    {
+        $organization = new Organization();
+        $organization->setSubscriptionTier(SubscriptionTier::Starter);
+        $organization->setSubscriptionTier(null);
+
+        self::assertNull($organization->getSubscriptionTier());
     }
 }
