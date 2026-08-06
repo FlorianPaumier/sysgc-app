@@ -31,7 +31,7 @@ class Address
     #[ORM\Column(length: 2)]
     #[Assert\NotBlank(message: 'Le pays est obligatoire.')]
     #[Assert\Country(message: 'Le code pays "{{ value }}" n\'est pas valide.')]
-    private string $country = 'FR'; // Default to France
+    private string $country = 'CA';
 
     public function getStreet(): string
     {
