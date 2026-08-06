@@ -22,12 +22,12 @@ final class OrganizationFactory extends PersistentObjectFactory
      * @return array<string, mixed>|callable
      */
     #[\Override]
-    protected function defaults(): array | callable
+    protected function defaults(): array|callable
     {
         return [
             'name' => self::faker()->company(),
             // RBQ numbers are formatted like "RBQ-1234-5678-90".
-            'rbqLicense' => 'RBQ-' . self::faker()->numerify('####-####-##'),
+            'rbqLicense' => 'RBQ-'.self::faker()->numerify('####-####-##'),
             'address' => AddressFactory::new(),
         ];
     }

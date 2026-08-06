@@ -1,0 +1,9 @@
+# This file is for test environment specific configuration
+services:
+    App\Service\LicenseVerifier:
+        public: true
+        autowire: true
+
+    App\Service\RbqScraper:
+        public: true
+        autowire: true

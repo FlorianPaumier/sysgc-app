@@ -47,7 +47,7 @@ trait OrgScopedRepositoryTrait
     protected function applyOrganizationFilter(QueryBuilder $qb, Organization $organization, string $alias): void
     {
         $qb->andWhere(\sprintf('%s.organization = :org', $alias))
-           ->setParameter('org', $organization->getId(), 'uuid');
+            ->setParameter('org', $organization->getId(), 'uuid');
     }
 
     /**

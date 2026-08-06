@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use Psr\Log\LoggerInterface;
-use Resend\Client;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -37,7 +35,13 @@ final readonly class ResendMailer
     public function send(string $to, string $subject, string $template, array $context): void
     {
         try {
-            $this->mailer->send(new TemplatedEmail()->from($this->from)->to($to)->subject($subject)->htmlTemplate($template)->context($context));
+            $this->mailer->send(
+                new TemplatedEmail()->from($this->from)
+                    ->to($to)
+                    ->subject($subject)
+                    ->htmlTemplate($template)
+                    ->context($context),
+            );
         } catch (\Throwable $e) {
             $this->logger->error('Resend API failure', [
                 'to' => $to,
@@ -62,6 +66,6 @@ final readonly class ResendMailer
      */
     public function sendToAdmin(string $subject, array $context): void
     {
-        $this->send($this->from, $subject, "emails/admin_contact.html.twig", $context);
+        $this->send($this->from, $subject, 'emails/admin_contact.html.twig', $context);
     }
 }

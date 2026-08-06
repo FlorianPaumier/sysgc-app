@@ -7,8 +7,8 @@ namespace App\Security;
 use App\Entity\Project;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Voter for project-level access control.
@@ -24,6 +24,7 @@ final class ProjectVoter extends Voter
     public const EDIT = 'edit';
     public const DELETE = 'delete';
 
+    #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
         if (! \in_array($attribute, [self::VIEW, self::EDIT, self::DELETE], true)) {
@@ -37,8 +38,14 @@ final class ProjectVoter extends Voter
         return true;
     }
 
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
-    {
+    #[\Override]
+    protected function voteOnAttribute(
+        string $attribute,
+        mixed $subject,
+        #[\SensitiveParameter]
+        TokenInterface $token,
+        ?Vote $vote = null,
+    ): bool {
         $user = $token->getUser();
 
         if (! $user instanceof User) {

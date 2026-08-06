@@ -161,4 +161,14 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * Human-readable display name for UI surfaces.
+     */
+    public function getDisplayName(): string
+    {
+        $at = strpos($this->email, '@');
+
+        return $at !== false ? substr($this->email, 0, $at) : $this->email;
+    }
 }

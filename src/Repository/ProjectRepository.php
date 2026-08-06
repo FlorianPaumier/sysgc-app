@@ -19,4 +19,13 @@ class ProjectRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Project::class);
     }
+
+    public function save(Project $project, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($project);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }

@@ -15,10 +15,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\RateLimiter\Annotation\RateLimit;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class RegistrationController extends AbstractController
 {
@@ -27,12 +26,22 @@ final class RegistrationController extends AbstractController
         private readonly MagicLinkDispatcher $magicLinkDispatcher,
         private readonly Security $security,
         private readonly RateLimiterFactory $loginPerEmailLimiterFactory,
+        private readonly RateLimiterFactory $loginPerIpLimiterFactory,
     ) {}
 
     #[Route('/inscription', name: 'register', methods: ['GET', 'POST'])]
-    #[RateLimit('login_per_ip', limit: 20, interval: '5 minutes')]
     public function register(Request $request): Response
     {
+        // IP-based brute-force protection.
+        $ipLimiter = $this->loginPerIpLimiterFactory->create($request->getClientIp());
+        $ipLimit = $ipLimiter->consume();
+        if (! $ipLimit->isAccepted()) {
+            throw new TooManyRequestsHttpException(
+                $ipLimit->getRetryAfter()->getTimestamp() - time(),
+                'Trop de tentatives depuis cette adresse IP. Réessayez plus tard.',
+            );
+        }
+
         $form = $this->createForm(RegistrationType::class);
         $form->handleRequest($request);
 
@@ -44,17 +53,18 @@ final class RegistrationController extends AbstractController
             // Enforce per‑email rate limit (3 attempts per 15 minutes).
             $limiter = $this->loginPerEmailLimiterFactory->create($email);
             $rateLimit = $limiter->consume();
-            if (!$rateLimit->isAccepted()) {
-                throw new TooManyRequestsHttpException($rateLimit->getRetryAfter()->getTimestamp() - time(), 'Trop de tentatives. Réessayez dans 15 minutes.');
+            if (! $rateLimit->isAccepted()) {
+                throw new TooManyRequestsHttpException(
+                    $rateLimit->getRetryAfter()->getTimestamp() - time(),
+                    'Trop de tentatives. Réessayez dans 15 minutes.',
+                );
             }
 
-            $organization = (new Organization())
-                ->setName($data['organizationName'])
+            $organization = new Organization()->setName($data['organizationName'])
                 ->setRbqLicense($data['rbqLicense'])
-                ->setAddress(new Address());
+                ->setAddress(new Address);
 
-            $user = (new User())
-                ->setEmail($email)
+            $user = new User()->setEmail($email)
                 ->setOrganization($organization);
 
             $this->entityManager->persist($organization);

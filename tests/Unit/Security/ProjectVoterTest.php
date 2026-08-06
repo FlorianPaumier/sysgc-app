@@ -7,7 +7,6 @@ namespace App\Tests\Unit\Security;
 use App\Entity\User;
 use App\Entity\Organization;
 use App\Security\ProjectVoter;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -18,13 +17,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class ProjectVoterTest extends TestCase
 {
     private ProjectVoter $voter;
-    private MockObject&TokenInterface $token;
+    private TokenInterface $token;
     private User $user;
 
     protected function setUp(): void
     {
         $this->voter = new ProjectVoter();
-        $this->token = $this->createMock(TokenInterface::class);
+        $this->token = $this->createStub(TokenInterface::class);
 
         $org = new Organization();
         $org->setName('Test Org');
@@ -61,7 +60,7 @@ final class ProjectVoterTest extends TestCase
         $projectOrg->setAddress(new \App\Entity\Address());
 
         // Mock project with different org
-        $project = $this->createMock(\App\Entity\Project::class);
+        $project = $this->createStub(\App\Entity\Project::class);
         $project->method('getOrganization')->willReturn($projectOrg);
 
         $this->token->method('getUser')->willReturn($this->user);
@@ -81,7 +80,7 @@ final class ProjectVoterTest extends TestCase
         $this->user->setOrganization($sharedOrg);
 
         // Mock project with same org
-        $project = $this->createMock(\App\Entity\Project::class);
+        $project = $this->createStub(\App\Entity\Project::class);
         $project->method('getOrganization')->willReturn($sharedOrg);
 
         $this->token->method('getUser')->willReturn($this->user);
@@ -104,7 +103,7 @@ final class ProjectVoterTest extends TestCase
         $projectOrg->setRbqLicense('PROJ-456');
         $projectOrg->setAddress(new \App\Entity\Address());
 
-        $project = $this->createMock(\App\Entity\Project::class);
+        $project = $this->createStub(\App\Entity\Project::class);
         $project->method('getOrganization')->willReturn($projectOrg);
 
         $this->token->method('getUser')->willReturn($this->user);

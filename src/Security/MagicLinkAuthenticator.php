@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -20,7 +21,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Passwordless magic-link authenticator.
@@ -40,13 +40,17 @@ final class MagicLinkAuthenticator implements AuthenticatorInterface
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {}
 
+    #[\Override]
     public function supports(Request $request): bool
     {
-        return $request->attributes->get('_route') === 'login_verify'
+        return (
+            $request->attributes->get('_route') === 'login_verify'
             && $request->query->has('token')
-            && $request->query->has('email');
+            && $request->query->has('email')
+        );
     }
 
+    #[\Override]
     public function authenticate(Request $request): Passport
     {
         $rawToken = (string) $request->query->get('token', '');
@@ -62,8 +66,12 @@ final class MagicLinkAuthenticator implements AuthenticatorInterface
         $user = $magicLink->getOwner();
         \assert($user instanceof User);
 
+        // Single-use: consume the magic link immediately.
+        $this->entityManager->remove($magicLink);
+        $this->entityManager->flush();
+
         // Reading A: a successful magic link verifies the email address.
-        if (!$user->isVerified()) {
+        if (! $user->isVerified()) {
             $user->setIsVerified(true);
             $this->entityManager->flush();
         }
@@ -73,6 +81,7 @@ final class MagicLinkAuthenticator implements AuthenticatorInterface
         return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), $userLoader));
     }
 
+    #[\Override]
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $user = $passport->getUser();
@@ -80,11 +89,17 @@ final class MagicLinkAuthenticator implements AuthenticatorInterface
         return new PostAuthenticationToken($user, $firewallName, $user->getRoles());
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
-    {
+    #[\Override]
+    public function onAuthenticationSuccess(
+        Request $request,
+        #[\SensitiveParameter]
+        TokenInterface $token,
+        string $firewallName,
+    ): Response {
         return new RedirectResponse($this->urlGenerator->generate('dashboard'));
     }
 
+    #[\Override]
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $session = $request->getSession();

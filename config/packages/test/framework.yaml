@@ -1,7 +1,7 @@
 framework:
-    # Disable messenger in tests
+    # Disable messenger in tests — use sync transport
     messenger:
         transports:
-            async: 'test://'
-            sync: 'test://'
-            failed: 'test://'
+            async: 'sync://'
+            sync: 'sync://'
+            failed: 'sync://'

@@ -8,15 +8,15 @@ use App\Factory\OrganizationFactory;
 use App\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
  * Integration tests for RegistrationController.
  * Tests registration flow, duplicate email handling, and rate limiting.
  */
+#[ResetDatabase]
 final class RegistrationControllerTest extends IntegrationTestCase
 {
-    use ResetDatabase;
 
     private KernelBrowser $client;
 

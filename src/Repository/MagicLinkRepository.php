@@ -27,18 +27,16 @@ class MagicLinkRepository extends ServiceEntityRepository
     public function findValid(string $email, string $tokenHash): ?MagicLink
     {
         /** @var ?MagicLink $result */
-        $result = $this->createQueryBuilder('m')
+        return $this->createQueryBuilder('m')
             ->join('m.owner', 'u')
             ->andWhere('u.email = :email')
             ->andWhere('m.tokenHash = :hash')
             ->andWhere('m.magicLinkTokenExpiresAt > :now')
             ->setParameter('email', $email)
             ->setParameter('hash', $tokenHash)
-            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('now', new \DateTimeImmutable)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
-
-        return $result;
     }
 }

@@ -16,24 +16,25 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 final class LoginType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('email', EmailType::class, [
-                'label' => 'Courriel',
-                'attr' => [
-                    'autocomplete' => 'email',
-                    'autofocus' => true,
-                ],
-                'constraints' => [
-                    new NotBlank(message: 'Veuillez saisir votre courriel.'),
-                ],
-            ])
+        $builder->add('email', EmailType::class, [
+            'label' => 'Courriel',
+            'attr' => [
+                'autocomplete' => 'email',
+                'autofocus' => true,
+            ],
+            'constraints' => [
+                new NotBlank(message: 'Veuillez saisir votre courriel.'),
+            ],
+        ])
             ->add('send', SubmitType::class, [
                 'label' => 'Recevoir mon lien de connexion',
             ]);
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

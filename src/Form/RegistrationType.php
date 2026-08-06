@@ -21,17 +21,17 @@ use Symfony\Component\Validator\Constraints\Regex;
  */
 final class RegistrationType extends AbstractType
 {
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('email', EmailType::class, [
-                'label' => 'Courriel',
-                'attr' => ['autocomplete' => 'email', 'autofocus' => true],
-                'constraints' => [
-                    new NotBlank(message: 'Veuillez saisir votre courriel.'),
-                    new Email(message: 'Le courriel « {{ value }} » n\'est pas valide.'),
-                ],
-            ])
+        $builder->add('email', EmailType::class, [
+            'label' => 'Courriel',
+            'attr' => ['autocomplete' => 'email', 'autofocus' => true],
+            'constraints' => [
+                new NotBlank(message: 'Veuillez saisir votre courriel.'),
+                new Email(message: 'Le courriel « {{ value }} » n\'est pas valide.'),
+            ],
+        ])
             ->add('organizationName', TextType::class, [
                 'label' => 'Nom de l\'entreprise',
                 'attr' => ['autocomplete' => 'organization'],
@@ -56,6 +56,7 @@ final class RegistrationType extends AbstractType
             ]);
     }
 
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

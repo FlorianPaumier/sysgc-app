@@ -27,6 +27,6 @@ final class MagicLinkEmailTemplateTest extends KernelTestCase
         self::assertStringContainsString('https://example.com/connexion/verifier', $html);
         self::assertStringContainsString('Me connecter', $html);
         self::assertStringContainsString('Ce lien expire dans 15 minutes.', $html);
-        self::assertStringContainsString('Connectez-vous à SysGC', $html);
+        self::assertStringContainsString('Connexion à votre compte', $html);
     }
 }

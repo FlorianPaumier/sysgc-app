@@ -6,12 +6,12 @@
     </a>
     {% if is_granted('ROLE_USER') %}
       <ul class="nav-links">
-        <li><a href="{{ path('home') }}">Tableau de bord</a></li>
-        <li><a href="{{ path('home') }}">{{ app.user.displayName }}</a></li>
+        <li><a href="{{ path('dashboard') }}">Tableau de bord</a></li>
+        <li><a href="{{ path('dashboard') }}">{{ app.user.displayName }}</a></li>
         {% if is_granted('ROLE_ADMIN') %}
-          <li><a href="{{ path('home') }}">Utilisateurs</a></li>
+          <li><a href="{{ path('dashboard') }}">Utilisateurs</a></li>
         {% endif %}
-        <li><a href="{{ path('home') }}">Déconnexion</a></li>
+        <li><a href="{{ path('logout') }}">Déconnexion</a></li>
       </ul>
     {% else %}
       <ul class="nav-links">

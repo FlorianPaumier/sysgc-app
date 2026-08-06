@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Form\LoginType;
 use App\Repository\UserRepository;
 use App\Service\MagicLinkDispatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\RateLimiter\Annotation\RateLimit;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 final class SecurityController extends AbstractController
 {
@@ -23,12 +21,22 @@ final class SecurityController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly MagicLinkDispatcher $magicLinkDispatcher,
         private readonly RateLimiterFactory $loginPerEmailLimiterFactory,
+        private readonly RateLimiterFactory $loginPerIpLimiterFactory,
     ) {}
 
     #[Route('/connexion', name: 'login', methods: ['GET', 'POST'])]
-    #[RateLimit('login_per_ip', limit: 20, interval: '5 minutes')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
+        // IP-based brute-force protection.
+        $ipLimiter = $this->loginPerIpLimiterFactory->create($request->getClientIp());
+        $ipLimit = $ipLimiter->consume();
+        if (! $ipLimit->isAccepted()) {
+            throw new TooManyRequestsHttpException(
+                $ipLimit->getRetryAfter()->getTimestamp() - time(),
+                'Trop de tentatives depuis cette adresse IP. Réessayez plus tard.',
+            );
+        }
+
         $form = $this->createForm(LoginType::class);
         $form->handleRequest($request);
 
@@ -40,8 +48,11 @@ final class SecurityController extends AbstractController
             // Enforce per‑email rate limit (3 attempts per 15 minutes).
             $limiter = $this->loginPerEmailLimiterFactory->create($email);
             $rateLimit = $limiter->consume();
-            if (!$rateLimit->isAccepted()) {
-                throw new TooManyRequestsHttpException($rateLimit->getRetryAfter()->getTimestamp() - time(), 'Trop de tentatives. Réessayez dans 15 minutes.');
+            if (! $rateLimit->isAccepted()) {
+                throw new TooManyRequestsHttpException(
+                    $rateLimit->getRetryAfter()->getTimestamp() - time(),
+                    'Trop de tentatives. Réessayez dans 15 minutes.',
+                );
             }
 
             // Always show the same "check your email" confirmation to avoid

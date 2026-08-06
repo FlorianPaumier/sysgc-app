@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Message;
 
 use App\DTO\ContactDTO;
@@ -10,8 +12,6 @@ final class SendContactEmail
 {
     public function __construct(
         public ContactDTO $contactDTO,
-        public string $template
-    )
-    {
-    }
+        public string $template,
+    ) {}
 }

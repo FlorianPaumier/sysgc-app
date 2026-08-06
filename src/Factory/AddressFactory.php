@@ -22,7 +22,7 @@ final class AddressFactory extends ObjectFactory
      * @return array<string, mixed>|callable
      */
     #[\Override]
-    protected function defaults(): array | callable
+    protected function defaults(): array|callable
     {
         return [
             'street' => self::faker()->streetAddress(),

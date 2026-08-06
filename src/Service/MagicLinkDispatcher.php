@@ -32,18 +32,21 @@ final readonly class MagicLinkDispatcher
     {
         $rawToken = bin2hex(random_bytes(64));
 
-        $magicLink = (new MagicLink())
-            ->setTokenHash(hash('sha256', $rawToken))
+        $magicLink = new MagicLink()->setTokenHash(hash('sha256', $rawToken))
             ->setMagicLinkTokenExpiresAt(new \DateTimeImmutable('+15 minutes'))
             ->setOwner($user);
 
         $this->entityManager->persist($magicLink);
         $this->entityManager->flush();
 
-        $url = $this->urlGenerator->generate('login_verify', [
-            'token' => $rawToken,
-            'email' => $user->getEmail(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = $this->urlGenerator->generate(
+            'login_verify',
+            [
+                'token' => $rawToken,
+                'email' => $user->getEmail(),
+            ],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
 
         $this->bus->dispatch(new SendMagicLinkMessage(
             to: $user->getEmail(),

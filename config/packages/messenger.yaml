@@ -11,7 +11,7 @@ framework:
                     multiplier: 2
                     max_delay: 5000    # 5s
             failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+            sync: 'sync://'
 
         default_bus: messenger.bus.default
 

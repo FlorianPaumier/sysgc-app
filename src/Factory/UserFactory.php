@@ -22,7 +22,7 @@ final class UserFactory extends PersistentObjectFactory
      * @return array<string, mixed>|callable
      */
     #[\Override]
-    protected function defaults(): array | callable
+    protected function defaults(): array|callable
     {
         return [
             // email has a unique DB constraint — keep faker values unique.
