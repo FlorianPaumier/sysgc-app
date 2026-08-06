@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -35,6 +36,7 @@ class Organization
     private ?SubscriptionTier $subscriptionTier = null;
 
     #[ORM\Embedded(class: Address::class)]
+    #[Assert\Valid]
     private Address $address;
 
     /**
