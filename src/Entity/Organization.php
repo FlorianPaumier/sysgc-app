@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Entity\Trait\TimestampableTrait;
+use App\Enum\SubscriptionTier;
 use App\Repository\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,6 +30,9 @@ class Organization
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeCustomerId = null;
+
+    #[ORM\Column(length: 20, nullable: true, enumType: SubscriptionTier::class)]
+    private ?SubscriptionTier $subscriptionTier = null;
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
@@ -89,6 +93,18 @@ class Organization
     public function setStripeCustomerId(?string $stripeCustomerId): static
     {
         $this->stripeCustomerId = $stripeCustomerId;
+
+        return $this;
+    }
+
+    public function getSubscriptionTier(): ?SubscriptionTier
+    {
+        return $this->subscriptionTier;
+    }
+
+    public function setSubscriptionTier(?SubscriptionTier $subscriptionTier): static
+    {
+        $this->subscriptionTier = $subscriptionTier;
 
         return $this;
     }
