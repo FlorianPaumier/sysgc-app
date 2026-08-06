@@ -61,6 +61,12 @@ class Project
     #[ORM\OneToMany(targetEntity: \App\Entity\Invoice::class, mappedBy: 'project')]
     private Collection $invoices;
 
+    /**
+     * @var Collection<int, \App\Entity\CCQDeclaration>
+     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\CCQDeclaration::class, mappedBy: 'project')]
+    private Collection $ccqDeclarations;
+
     public function __construct(#[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
     private Organization $organization, #[ORM\Column(length: 255)]
@@ -72,6 +78,7 @@ class Project
         $this->safetyLogs = new ArrayCollection;
         $this->changeOrders = new ArrayCollection;
         $this->invoices = new ArrayCollection;
+        $this->ccqDeclarations = new ArrayCollection;
     }
 
     public function getId(): ?Uuid
@@ -221,5 +228,13 @@ class Project
     public function getInvoices(): Collection
     {
         return $this->invoices;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\CCQDeclaration>
+     */
+    public function getCcqDeclarations(): Collection
+    {
+        return $this->ccqDeclarations;
     }
 }
