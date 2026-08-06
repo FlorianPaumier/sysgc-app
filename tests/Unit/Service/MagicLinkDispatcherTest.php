@@ -100,7 +100,7 @@ final class MagicLinkDispatcherTest extends TestCase
             ->method('generate')
             ->with('login_verify', $this->callback(function (array $params) use (&$rawToken) {
                 $rawToken = $params['token'] ?? null;
-                return $rawToken !== null && \strlen($rawToken) === 128;
+                return $rawToken !== null && \strlen((string) $rawToken) === 128;
             }), UrlGeneratorInterface::ABSOLUTE_URL)
             ->willReturn('https://sysgc.test/connexion/verifier');
 
@@ -202,9 +202,7 @@ final class MagicLinkDispatcherTest extends TestCase
                     && isset($message->context['url'])
                     && $message->context['url'] === $generatedUrl;
             }))
-            ->willReturnCallback(function (SendMagicLinkMessage $message) {
-                return new Envelope($message);
-            });
+            ->willReturnCallback(fn(SendMagicLinkMessage $message) => new Envelope($message));
 
         $this->dispatcher->dispatchFor($user);
     }

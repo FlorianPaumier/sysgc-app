@@ -40,7 +40,7 @@ final class OrganizationTest extends TestCase
     public function test_address_is_mutable(): void
     {
         $organization = new Organization();
-        $address = (new Address())->setStreet('123 rue example')->setCity('Montréal');
+        $address = new Address()->setStreet('123 rue example')->setCity('Montréal');
 
         self::assertSame($address, $organization->setAddress($address)->getAddress());
         self::assertSame('123 rue example', $organization->getAddress()->getStreet());
@@ -49,7 +49,7 @@ final class OrganizationTest extends TestCase
     public function test_add_user_links_bidirectionally(): void
     {
         $organization = new Organization();
-        $user = (new User())->setEmail('owner@example.com');
+        $user = new User()->setEmail('owner@example.com');
 
         $organization->addUser($user);
 
@@ -60,7 +60,7 @@ final class OrganizationTest extends TestCase
     public function test_add_user_is_idempotent(): void
     {
         $organization = new Organization();
-        $user = (new User())->setEmail('owner@example.com');
+        $user = new User()->setEmail('owner@example.com');
 
         $organization->addUser($user);
         $organization->addUser($user);
@@ -71,7 +71,7 @@ final class OrganizationTest extends TestCase
     public function test_remove_user_clears_back_reference(): void
     {
         $organization = new Organization();
-        $user = (new User())->setEmail('owner@example.com');
+        $user = new User()->setEmail('owner@example.com');
         $organization->addUser($user);
 
         $organization->removeUser($user);

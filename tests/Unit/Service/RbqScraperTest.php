@@ -235,9 +235,7 @@ HTML;
     {
         $logger = $this->createStub(LoggerInterface::class);
 
-        $client = new MockHttpClient(function () {
-            return new MockResponse('', ['http_code' => 429]);
-        });
+        $client = new MockHttpClient(fn() => new MockResponse('', ['http_code' => 429]));
 
         $scraper = new RbqScraper($client, $logger);
         $result = $scraper->check('RBQ-8888-8888-88');

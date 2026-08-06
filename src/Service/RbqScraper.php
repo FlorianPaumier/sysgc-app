@@ -12,7 +12,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Scrapes RBQ public registry to verify subcontractor licenses.
  */
-final class RbqScraper
+final readonly class RbqScraper
 {
     private const string BASE_URL = 'https://www.rbq.gouv.qc.ca/soaitec/asp/RegistreLicRecherche.asp';
     private const int TIMEOUT_SECONDS = 10;
@@ -20,8 +20,8 @@ final class RbqScraper
     private const array RETRY_DELAYS = [10, 30, 90]; // seconds, exponential backoff
 
     public function __construct(
-        private readonly HttpClientInterface $httpClient,
-        private readonly LoggerInterface $rbqLogger,
+        private HttpClientInterface $httpClient,
+        private LoggerInterface $rbqLogger,
     ) {}
 
     /**
@@ -77,7 +77,7 @@ final class RbqScraper
                 ]);
 
                 return $result;
-            } catch (\Symfony\Component\HttpClient\Exception\TimeoutException $e) {
+            } catch (\Symfony\Component\HttpClient\Exception\TimeoutException) {
                 $this->rbqLogger->warning('RBQ timeout', [
                     'license' => $this->maskLicense($licenseNumber),
                     'attempt' => $attempt,

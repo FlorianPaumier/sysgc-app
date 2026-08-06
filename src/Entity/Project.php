@@ -25,12 +25,6 @@ class Project
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private string $address;
-
-    #[ORM\Column(length: 255)]
-    private string $clientName;
-
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $startDate = null;
 
@@ -42,10 +36,6 @@ class Project
 
     #[ORM\Column(type: 'decimal', precision: 12, scale: 2)]
     private string $budget = '0.00';
-
-    #[ORM\ManyToOne(inversedBy: 'projects')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Organization $organization;
 
     /**
      * @var Collection<int, \App\Entity\Subcontractor>
@@ -71,12 +61,13 @@ class Project
     #[ORM\OneToMany(targetEntity: \App\Entity\Invoice::class, mappedBy: 'project')]
     private Collection $invoices;
 
-    public function __construct(Organization $organization, string $address, string $clientName)
+    public function __construct(#[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Organization $organization, #[ORM\Column(length: 255)]
+    private string $address, #[ORM\Column(length: 255)]
+    private string $clientName)
     {
         $this->id = Uuid::v7();
-        $this->organization = $organization;
-        $this->address = $address;
-        $this->clientName = $clientName;
         $this->subcontractors = new ArrayCollection;
         $this->safetyLogs = new ArrayCollection;
         $this->changeOrders = new ArrayCollection;

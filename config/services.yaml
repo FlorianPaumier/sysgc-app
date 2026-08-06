@@ -32,3 +32,9 @@ services:
 
     Symfony\Component\RateLimiter\RateLimiterFactory $loginPerEmailLimiterFactory: '@limiter.login_per_email'
     Symfony\Component\RateLimiter\RateLimiterFactory $loginPerIpLimiterFactory: '@limiter.login_per_ip'
+
+    App\Service\StripeService:
+        arguments:
+            $starterPriceId: '%env(STRIPE_STARTER_PRICE_ID)%'
+            $proPriceId: '%env(STRIPE_PRO_PRICE_ID)%'
+            $businessPriceId: '%env(STRIPE_BUSINESS_PRICE_ID)%'

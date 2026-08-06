@@ -84,8 +84,7 @@ Extends the authenticated app shell so the sidebar is visible.
                 <dd>{{ organization.subscriptionTier ? organization.subscriptionTier.workerLimit ~ ' travailleurs inclus' : '—' }}</dd>
             </div>
         </dl>
-        {# Wire to path('billing_portal') when BillingController lands (specs/05-routes-templates.md). #}
-        <a href="#" class="mt-4 inline-block text-sm font-medium text-zinc-900 underline hover:text-zinc-700">
+        <a href="{{ path('billing_portal') }}" class="mt-4 inline-block text-sm font-medium text-zinc-900 underline hover:text-zinc-700">
             Gérer mon abonnement
         </a>
     </section>

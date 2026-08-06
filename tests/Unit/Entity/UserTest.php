@@ -19,7 +19,7 @@ final class UserTest extends TestCase
 
     public function test_user_identifier_is_email(): void
     {
-        $user = (new User())->setEmail('owner@example.com');
+        $user = new User()->setEmail('owner@example.com');
 
         self::assertSame('owner@example.com', $user->getUserIdentifier());
     }
@@ -33,7 +33,7 @@ final class UserTest extends TestCase
 
     public function test_roles_always_includes_role_user(): void
     {
-        $user = (new User())->setRoles(['ROLE_ADMIN']);
+        $user = new User()->setRoles(['ROLE_ADMIN']);
 
         self::assertContains('ROLE_ADMIN', $user->getRoles());
         self::assertContains('ROLE_USER', $user->getRoles());
@@ -41,7 +41,7 @@ final class UserTest extends TestCase
 
     public function test_roles_are_deduplicated(): void
     {
-        $user = (new User())->setRoles(['ROLE_USER', 'ROLE_USER']);
+        $user = new User()->setRoles(['ROLE_USER', 'ROLE_USER']);
 
         self::assertSame(['ROLE_USER'], $user->getRoles());
     }

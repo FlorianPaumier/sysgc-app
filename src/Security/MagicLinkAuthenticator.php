@@ -32,12 +32,12 @@ use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
  *
  * @see specs/04-auth.md
  */
-final class MagicLinkAuthenticator implements AuthenticatorInterface
+final readonly class MagicLinkAuthenticator implements AuthenticatorInterface
 {
     public function __construct(
-        private readonly MagicLinkRepository $magicLinkRepository,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly UrlGeneratorInterface $urlGenerator,
+        private MagicLinkRepository $magicLinkRepository,
+        private EntityManagerInterface $entityManager,
+        private UrlGeneratorInterface $urlGenerator,
     ) {}
 
     #[\Override]

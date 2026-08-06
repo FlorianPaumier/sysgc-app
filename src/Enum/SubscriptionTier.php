@@ -27,4 +27,16 @@ enum SubscriptionTier: string
             self::Business => 50,
         };
     }
+
+    /**
+     * Monthly price in Canadian dollars (CAD).
+     */
+    public function monthlyPrice(): int
+    {
+        return match ($this) {
+            self::Starter => 79,
+            self::Pro => 149,
+            self::Business => 199,
+        };
+    }
 }

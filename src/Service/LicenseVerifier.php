@@ -13,12 +13,12 @@ use Psr\Log\LoggerInterface;
 /**
  * Verifies subcontractor RBQ licenses.
  */
-final class LicenseVerifier
+final readonly class LicenseVerifier
 {
     public function __construct(
-        private readonly RbqScraper $rbqScraper,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly LoggerInterface $rbqLogger,
+        private RbqScraper $rbqScraper,
+        private EntityManagerInterface $entityManager,
+        private LoggerInterface $rbqLogger,
     ) {}
 
     /**

@@ -45,4 +45,19 @@ final class SubscriptionTierTest extends TestCase
         self::assertSame(SubscriptionTier::Pro, SubscriptionTier::from('pro'));
         self::assertSame(SubscriptionTier::Business, SubscriptionTier::from('business'));
     }
+
+    public function test_starter_monthly_price_is_79(): void
+    {
+        self::assertSame(79, SubscriptionTier::Starter->monthlyPrice());
+    }
+
+    public function test_pro_monthly_price_is_149(): void
+    {
+        self::assertSame(149, SubscriptionTier::Pro->monthlyPrice());
+    }
+
+    public function test_business_monthly_price_is_199(): void
+    {
+        self::assertSame(199, SubscriptionTier::Business->monthlyPrice());
+    }
 }

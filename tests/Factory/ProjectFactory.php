@@ -38,13 +38,11 @@ final class ProjectFactory extends ModelFactory
     #[\Override]
     protected function initialize(): self
     {
-        return $this->instantiate(function (array $attributes) {
-            return new Project(
-                $attributes['organization'],
-                $attributes['address'],
-                $attributes['clientName']
-            );
-        });
+        return $this->instantiate(fn(array $attributes) => new Project(
+            $attributes['organization'],
+            $attributes['address'],
+            $attributes['clientName']
+        ));
     }
 
     #[\Override]

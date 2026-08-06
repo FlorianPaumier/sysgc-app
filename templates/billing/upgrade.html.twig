@@ -1,0 +1,75 @@
+{#
+Billing upgrade page.
+Route: /forfaits (GET/POST) — BillingController::upgrade / upgradePost
+#}
+{% extends 'layouts/app.html.twig' %}
+
+{% block title %}Forfaits — SysGC{% endblock %}
+
+{% block body %}
+<div class="mx-auto max-w-4xl px-4 py-10">
+    <h1 class="text-2xl font-bold text-zinc-900">Choisir un forfait</h1>
+    <p class="mt-2 text-sm text-zinc-600">Tous les forfaits incluent les fonctionnalites de base : gestion de chantiers, securite, et conformite CCQ-RBQ.</p>
+
+    {% for flash_error in app.flashes('error') %}
+        <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+            {{ flash_error }}
+        </div>
+    {% endfor %}
+
+    {% for flash_info in app.flashes('info') %}
+        <div class="mt-4 rounded-md bg-blue-50 p-3 text-sm text-blue-700" role="status">
+            {{ flash_info }}
+        </div>
+    {% endfor %}
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-3">
+        {# Capture CSRF token once — it may only be rendered once. #}
+        {% set csrfToken = form_widget(form._token) %}
+
+        {% for tier in tiers %}
+            {% set tierValue = tier.value %}
+            {% set isCurrent = currentTier and currentTier.value == tierValue %}
+            <div class="rounded-md border p-6 {% if isCurrent %}border-zinc-900 ring-1 ring-zinc-900{% else %}border-zinc-200{% endif %}">
+                <h2 class="text-lg font-semibold text-zinc-900">{{ tier.label }}</h2>
+
+                <p class="mt-2">
+                    <span class="text-3xl font-bold text-zinc-900">{{ prices[tierValue] }}&nbsp;$</span>
+                    <span class="text-sm text-zinc-500">/mois</span>
+                </p>
+
+                <ul class="mt-4 space-y-2 text-sm text-zinc-600">
+                    <li class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Jusqu'a {{ tier.workerLimit }} travailleurs
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        TPS + TVQ calcules automatiquement
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Facturation mensuelle
+                    </li>
+                </ul>
+
+                <div class="mt-6">
+                    {% if isCurrent %}
+                        <span class="block w-full rounded-md bg-zinc-100 px-4 py-2 text-center text-sm font-semibold text-zinc-700">
+                            Forfait actuel
+                        </span>
+                    {% else %}
+                        <form method="post" action="{{ path('billing_upgrade_post') }}">
+                            <input type="hidden" name="billing_plan[tier]" value="{{ tierValue }}">
+                            {{ csrfToken|raw }}
+                            <button type="submit" class="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700">
+                                {{ tierValue == 'starter' ? 'Commencer' : 'Choisir ' ~ tier.label }}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

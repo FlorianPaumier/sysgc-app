@@ -7,3 +7,10 @@ services:
     App\Service\RbqScraper:
         public: true
         autowire: true
+
+    # Override Stripe client with fake for test environment
+    stripe.client:
+        class: App\Tests\Fake\FakeStripeClient
+        public: true
+
+    Stripe\StripeClient: '@stripe.client'

@@ -9,7 +9,7 @@ use App\Service\ResendMailer;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final class SendContactEmailHandler
+final readonly class SendContactEmailHandler
 {
     public function __construct(
         private ResendMailer $mailer,

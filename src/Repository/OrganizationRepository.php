@@ -18,6 +18,11 @@ class OrganizationRepository extends ServiceEntityRepository
         parent::__construct($registry, Organization::class);
     }
 
+    public function findOneByStripeCustomerId(string $stripeCustomerId): ?Organization
+    {
+        return $this->findOneBy(['stripeCustomerId' => $stripeCustomerId]);
+    }
+
     //    /**
     //     * @return Organization[] Returns an array of Organization objects
     //     */
