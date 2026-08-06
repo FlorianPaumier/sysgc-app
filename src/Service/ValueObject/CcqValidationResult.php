@@ -20,7 +20,7 @@ readonly class CcqValidationResult
 
     public function isValid(): bool
     {
-        return array_all($this->errors, fn($error) => !$error->isError());
+        return array_all($this->errors, fn ($error) => ! $error->isError());
     }
 
     /**

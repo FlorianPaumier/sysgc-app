@@ -98,8 +98,8 @@
             "@auto-scripts"
         ],
         "mago:format": "mago format",
-        "mago:lint": "mago lint",
-        "mago:analyze": "mago analyze",
+        "mago:lint": "mago lint --baseline mago-lint-baseline.txt",
+        "mago:analyze": "mago analyze --baseline mago-analyze-baseline.txt",
         "mago:all": [
             "@mago:format",
             "@mago:lint",

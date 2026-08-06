@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Entity\CCQDeclaration;
 use App\Entity\Enum\InvoiceStatus;
 use App\Entity\Organization;
 use App\Entity\Project;
-use App\Entity\SafetyLog;
-use App\Entity\Subcontractor;
+
+use function sprintf;
+use function usort;
 
 final class ComplianceScoreCalculator
 {
@@ -94,13 +94,8 @@ final class ComplianceScoreCalculator
         }
 
         // Sort by priority: critical first, then warning, then ok
-        usort($alerts, fn (array $a, array $b): int => match (true) {
-            $a['level'] === 'critical' && $b['level'] !== 'critical' => -1,
-            $a['level'] !== 'critical' && $b['level'] === 'critical' => 1,
-            $a['level'] === 'warning' && $b['level'] === 'ok' => -1,
-            $a['level'] === 'ok' && $b['level'] === 'warning' => 1,
-            default => 0,
-        });
+        $priority = ['critical' => 0, 'warning' => 1, 'ok' => 2];
+        usort($alerts, static fn (array $a, array $b): int => $priority[$a['level']] <=> $priority[$b['level']]);
 
         return $alerts;
     }
@@ -202,10 +197,17 @@ final class ComplianceScoreCalculator
                 'message' => sprintf('Déclaration CCQ en retard pour « %s » — échéance dépassée.', $projectName),
                 'link' => sprintf('/ccq/declare/%s', $project->getId()),
             ];
-        } elseif ($daysUntilDeadline <= 7) {
+
+            return;
+        }
+        if ($daysUntilDeadline <= 7) {
             $alerts[] = [
                 'level' => 'warning',
-                'message' => sprintf('Déclaration CCQ à produire pour « %s » — échéance dans %d jour(s).', $projectName, $daysUntilDeadline),
+                'message' => sprintf(
+                    'Déclaration CCQ à produire pour « %s » — échéance dans %d jour(s).',
+                    $projectName,
+                    $daysUntilDeadline,
+                ),
                 'link' => sprintf('/ccq/declare/%s', $project->getId()),
             ];
         }
@@ -217,13 +219,18 @@ final class ComplianceScoreCalculator
     private function collectSubcontractorAlerts(Project $project, array &$alerts): void
     {
         foreach ($project->getSubcontractors() as $sub) {
-            if (! $sub->isVerified()) {
-                $alerts[] = [
-                    'level' => 'critical',
-                    'message' => sprintf('Sous-traitant « %s » non vérifié dans « %s ».', $sub->getName(), $project->getName() ?? 'Sans nom'),
-                    'link' => sprintf('/project/%s/subcontractors', $project->getId()),
-                ];
+            if ($sub->isVerified()) {
+                continue;
             }
+            $alerts[] = [
+                'level' => 'critical',
+                'message' => sprintf(
+                    'Sous-traitant « %s » non vérifié dans « %s ».',
+                    $sub->getName(),
+                    $project->getName() ?? 'Sans nom',
+                ),
+                'link' => sprintf('/project/%s/subcontractors', $project->getId()),
+            ];
         }
     }
 
@@ -235,7 +242,10 @@ final class ComplianceScoreCalculator
         if (! $this->hasSafetyLogForDate($project, $now)) {
             $alerts[] = [
                 'level' => 'warning',
-                'message' => sprintf('Journal de sécurité manquant aujourd\'hui pour « %s ».', $project->getName() ?? 'Sans nom'),
+                'message' => sprintf(
+                    'Journal de sécurité manquant aujourd\'hui pour « %s ».',
+                    $project->getName() ?? 'Sans nom',
+                ),
                 'link' => sprintf('/project/%s/safety', $project->getId()),
             ];
         }

@@ -64,7 +64,7 @@ final readonly class MagicLinkAuthenticator implements AuthenticatorInterface
         }
 
         $user = $magicLink->getOwner();
-        \assert($user instanceof User);
+        \assert($user instanceof User, 'Expected User instance from MagicLink owner');
 
         // Single-use: consume the magic link immediately.
         $this->entityManager->remove($magicLink);
@@ -103,7 +103,7 @@ final readonly class MagicLinkAuthenticator implements AuthenticatorInterface
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         $session = $request->getSession();
-        \assert($session instanceof Session);
+        \assert($session instanceof Session, 'Expected Session instance from request');
         $session->getFlashBag()->add('error', 'Ce lien est invalide ou a expiré. Veuillez demander un nouveau lien.');
 
         return new RedirectResponse($this->urlGenerator->generate('login'));

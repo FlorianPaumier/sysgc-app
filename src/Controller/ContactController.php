@@ -41,7 +41,10 @@ final class ContactController extends AbstractController
                     'emails/contact.html.twig',
                 ));
 
-                $this->addFlash('success', 'Votre message a été envoyé. Nous vous répondrons dans les plus brefs délais.');
+                $this->addFlash(
+                    'success',
+                    'Votre message a été envoyé. Nous vous répondrons dans les plus brefs délais.',
+                );
             }
 
             return $this->redirectToRoute('app_contact');

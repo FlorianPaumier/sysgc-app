@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
+use function in_array;
+
 /**
  * 25 Quebec CCQ construction trades.
  */

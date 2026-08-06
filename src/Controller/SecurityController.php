@@ -15,6 +15,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+use function time;
+
 final class SecurityController extends AbstractController
 {
     public function __construct(

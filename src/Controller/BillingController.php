@@ -53,16 +53,20 @@ final class BillingController extends AbstractController
         $form->handleRequest($request);
 
         if (! $form->isSubmitted() || ! $form->isValid()) {
-            return $this->render('billing/upgrade.html.twig', [
-                'form' => $form,
-                'tiers' => SubscriptionTier::cases(),
-                'prices' => [
-                    'starter' => '79',
-                    'pro' => '149',
-                    'business' => '199',
+            return $this->render(
+                'billing/upgrade.html.twig',
+                [
+                    'form' => $form,
+                    'tiers' => SubscriptionTier::cases(),
+                    'prices' => [
+                        'starter' => '79',
+                        'pro' => '149',
+                        'business' => '199',
+                    ],
+                    'currentTier' => $organization->getSubscriptionTier(),
                 ],
-                'currentTier' => $organization->getSubscriptionTier(),
-            ], new Response(status: 422));
+                new Response(status: 422),
+            );
         }
 
         /** @var SubscriptionTier $tier */

@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
+use function time;
+
 final class RegistrationController extends AbstractController
 {
     public function __construct(

@@ -177,7 +177,10 @@ final readonly class ValidationEngine
                 if ($days === null) {
                     $errors[] = new CcqError(
                         code: 'missing_week_declaration',
-                        message: sprintf('La semaine %d doit être déclarée explicitement (mettre 0 si aucune heure).', $weekNum),
+                        message: sprintf(
+                            'La semaine %d doit être déclarée explicitement (mettre 0 si aucune heure).',
+                            $weekNum,
+                        ),
                         isWarning: false,
                         workerId: $workerId,
                         week: $weekNum,
@@ -194,7 +197,11 @@ final readonly class ValidationEngine
                     if ($hours < 0.0) {
                         $errors[] = new CcqError(
                             code: 'negative_hours',
-                            message: sprintf('Les heures ne peuvent pas être négatives (semaine %d, %s).', $weekNum, $day),
+                            message: sprintf(
+                                'Les heures ne peuvent pas être négatives (semaine %d, %s).',
+                                $weekNum,
+                                $day,
+                            ),
                             isWarning: false,
                             workerId: $workerId,
                             week: $weekNum,
@@ -276,7 +283,8 @@ final readonly class ValidationEngine
                 }
 
                 // Rule 8: electrician_overtime
-                if ($trade === CcqTrade::Electrician
+                if (
+                    $trade === CcqTrade::Electrician
                     && $weekTotal > self::ELECTRICIAN_OVERTIME_THRESHOLD
                     && ! $worker['hasOvertimeFlag']
                 ) {
@@ -295,7 +303,7 @@ final readonly class ValidationEngine
                 }
 
                 // Rule 19: cross_project_ceiling
-                if ($workerId !== null && isset($crossProjectWeeklyHours[$workerId][$weekNum])) {
+                if ($workerId !== null && ($crossProjectWeeklyHours[$workerId][$weekNum] ?? null) !== null) {
                     $crossHours = (float) $crossProjectWeeklyHours[$workerId][$weekNum];
                     $combinedTotal = $weekTotal + $crossHours;
                     if ($combinedTotal > self::MAX_WEEK_HOURS) {

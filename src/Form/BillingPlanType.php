@@ -17,16 +17,15 @@ final class BillingPlanType extends AbstractType
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('tier', ChoiceType::class, [
-                'label' => 'Forfait',
-                'choices' => SubscriptionTier::cases(),
-                'choice_value' => fn (?SubscriptionTier $tier) => $tier?->value,
-                'choice_label' => fn (SubscriptionTier $tier) => $tier->label(),
-                'constraints' => [
-                    new NotBlank(message: 'Veuillez choisir un forfait.'),
-                ],
-            ])
+        $builder->add('tier', ChoiceType::class, [
+            'label' => 'Forfait',
+            'choices' => SubscriptionTier::cases(),
+            'choice_value' => fn (?SubscriptionTier $tier) => $tier?->value,
+            'choice_label' => fn (SubscriptionTier $tier) => $tier->label(),
+            'constraints' => [
+                new NotBlank(message: 'Veuillez choisir un forfait.'),
+            ],
+        ])
             ->add('subscribe', SubmitType::class, [
                 'label' => 'Choisir ce forfait',
             ]);

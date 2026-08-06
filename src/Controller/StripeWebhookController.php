@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\StripeService;
 use Psr\Log\LoggerInterface;
+use SensitiveParameter;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Exception\UnexpectedValueException;
 use Stripe\Webhook;
@@ -21,6 +22,7 @@ final class StripeWebhookController extends AbstractController
         private readonly StripeService $stripeService,
         private readonly LoggerInterface $logger,
         #[Autowire('%env(STRIPE_WEBHOOK_SECRET)%')]
+        #[SensitiveParameter]
         private readonly string $webhookSecret,
     ) {}
 
@@ -32,7 +34,7 @@ final class StripeWebhookController extends AbstractController
 
         try {
             $event = Webhook::constructEvent($payload, $signatureHeader, $this->webhookSecret);
-        } catch (UnexpectedValueException | SignatureVerificationException $e) {
+        } catch (UnexpectedValueException|SignatureVerificationException $e) {
             $this->logger->error('Signature webhook Stripe invalide : {message}', [
                 'message' => $e->getMessage(),
             ]);

@@ -33,11 +33,11 @@ readonly class ProjectService
             $project->setBudget($data['budget']);
         }
 
-        if (isset($data['endDate']) && $data['endDate'] instanceof \DateTimeInterface) {
+        if ($data['endDate'] instanceof \DateTimeInterface) {
             $project->setEndDate($data['endDate']);
         }
 
-        if (isset($data['status']) && $data['status'] instanceof ProjectStatus) {
+        if ($data['status'] instanceof ProjectStatus) {
             $project->setStatus($data['status']);
         }
 
@@ -51,27 +51,27 @@ readonly class ProjectService
      */
     public function update(Project $project, array $data): Project
     {
-        if (isset($data['address']) && \is_string($data['address'])) {
+        if (\is_string($data['address'] ?? null)) {
             $project->setAddress($data['address']);
         }
 
-        if (isset($data['clientName']) && \is_string($data['clientName'])) {
+        if (\is_string($data['clientName'] ?? null)) {
             $project->setClientName($data['clientName']);
         }
 
-        if (isset($data['startDate']) && $data['startDate'] instanceof \DateTimeInterface) {
+        if ($data['startDate'] instanceof \DateTimeInterface) {
             $project->setStartDate($data['startDate']);
         }
 
-        if (isset($data['endDate']) && $data['endDate'] instanceof \DateTimeInterface) {
+        if ($data['endDate'] instanceof \DateTimeInterface) {
             $project->setEndDate($data['endDate']);
         }
 
-        if (isset($data['budget']) && \is_string($data['budget'])) {
+        if (\is_string($data['budget'] ?? null)) {
             $project->setBudget($data['budget']);
         }
 
-        if (isset($data['status']) && $data['status'] instanceof ProjectStatus) {
+        if ($data['status'] instanceof ProjectStatus) {
             $project->setStatus($data['status']);
         }
 

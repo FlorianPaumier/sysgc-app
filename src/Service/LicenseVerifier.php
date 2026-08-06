@@ -38,7 +38,7 @@ final readonly class LicenseVerifier
                 continue;
             }
 
-            // TODO: Dispatch BatchRbqCheckMessage (next card)
+            // TODO(backlog): Dispatch BatchRbqCheckMessage
             ++$queued;
         }
 
@@ -75,9 +75,7 @@ final readonly class LicenseVerifier
 
         // Only mark verified if the license exists and is in good standing.
         $subcontractor->setVerified(
-            $result->found
-            && $result->error === null
-            && $result->status === 'valid',
+            $result->found && $result->error === null && $result->status === 'valid',
         );
         $subcontractor->setLastVerifiedAt(new \DateTimeImmutable);
 

@@ -42,7 +42,7 @@ final readonly class StripeService
             ]],
             'client_reference_id' => (string) $org->getId(),
             'metadata' => [
-                'tier' => $this->tierForPriceId($priceId)?->value ?: '',
+                'tier' => $this->tierForPriceId($priceId)?->value ?? '',
             ],
             'automatic_tax' => ['enabled' => true],
             'success_url' => $this->urlGenerator->generate('billing_success', [], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -107,7 +107,7 @@ final readonly class StripeService
             'limit' => 1,
         ]);
 
-        if (empty($subscriptions->data)) {
+        if ($subscriptions->data === []) {
             $org->setSubscriptionTier(null);
             $this->entityManager->flush();
 

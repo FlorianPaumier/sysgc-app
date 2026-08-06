@@ -67,12 +67,15 @@ class Project
     #[ORM\OneToMany(targetEntity: \App\Entity\CCQDeclaration::class, mappedBy: 'project')]
     private Collection $ccqDeclarations;
 
-    public function __construct(#[ORM\ManyToOne(inversedBy: 'projects')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Organization $organization, #[ORM\Column(length: 255)]
-    private string $address, #[ORM\Column(length: 255)]
-    private string $clientName)
-    {
+    public function __construct(
+        #[ORM\ManyToOne(inversedBy: 'projects')]
+        #[ORM\JoinColumn(nullable: false)]
+        private Organization $organization,
+        #[ORM\Column(length: 255)]
+        private string $address,
+        #[ORM\Column(length: 255)]
+        private string $clientName,
+    ) {
         $this->id = Uuid::v7();
         $this->subcontractors = new ArrayCollection;
         $this->safetyLogs = new ArrayCollection;

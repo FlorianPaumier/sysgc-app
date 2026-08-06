@@ -19,15 +19,14 @@ final class OrganizationSettingsType extends AbstractType
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('name', TextType::class, [
-                'label' => 'Nom de l\'entreprise',
-                'empty_data' => '',
-                'constraints' => [
-                    new NotBlank(message: 'Veuillez saisir le nom de l\'entreprise.'),
-                    new Length(max: 255, maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'),
-                ],
-            ])
+        $builder->add('name', TextType::class, [
+            'label' => 'Nom de l\'entreprise',
+            'empty_data' => '',
+            'constraints' => [
+                new NotBlank(message: 'Veuillez saisir le nom de l\'entreprise.'),
+                new Length(max: 255, maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'),
+            ],
+        ])
             ->add('rbqLicense', TextType::class, [
                 'label' => 'Numéro de licence RBQ',
                 'empty_data' => '',

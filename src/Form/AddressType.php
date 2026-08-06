@@ -16,11 +16,10 @@ final class AddressType extends AbstractType
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('street', TextType::class, [
-                'label' => 'Rue',
-                'empty_data' => '',
-            ])
+        $builder->add('street', TextType::class, [
+            'label' => 'Rue',
+            'empty_data' => '',
+        ])
             ->add('street2', TextType::class, [
                 'label' => 'Appartement, suite, etc.',
                 'required' => false,

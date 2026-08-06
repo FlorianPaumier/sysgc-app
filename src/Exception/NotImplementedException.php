@@ -4,6 +4,4 @@ declare(strict_types=1);
 
 namespace App\Exception;
 
-final class NotImplementedException extends \RuntimeException
-{
-}
+final class NotImplementedException extends \RuntimeException {}

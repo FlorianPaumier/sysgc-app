@@ -9,6 +9,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use function str_contains;
+use function strlen;
+use function strtolower;
+use function substr;
+use function trim;
+
 /**
  * Scrapes RBQ public registry to verify subcontractor licenses.
  */
