@@ -23,7 +23,7 @@ final class Version20260806173147 extends AbstractMigration
         $this->addSql('CREATE TABLE ccqdeclaration (id UUID NOT NULL, period_month INT NOT NULL, period_year INT NOT NULL, project_id UUID NOT NULL, PRIMARY KEY (id))');
         $this->addSql('CREATE INDEX IDX_3CF5C310166D1F9C ON ccqdeclaration (project_id)');
         $this->addSql('ALTER TABLE ccqdeclaration ADD CONSTRAINT FK_3CF5C310166D1F9C FOREIGN KEY (project_id) REFERENCES project (id) NOT DEFERRABLE');
-        $this->addSql('ALTER TABLE invoice ADD status VARCHAR(255) NOT NULL');
+        $this->addSql("ALTER TABLE invoice ADD status VARCHAR(255) DEFAULT 'draft' NOT NULL");
         $this->addSql('ALTER TABLE project ALTER start_date DROP NOT NULL');
     }
 

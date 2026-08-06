@@ -34,23 +34,23 @@ final class RegistrationController extends AbstractController
     #[Route('/inscription', name: 'register', methods: ['GET', 'POST'])]
     public function register(Request $request): Response
     {
-        // IP-based brute-force protection.
-        $ipLimiter = $this->loginPerIpLimiterFactory->create($request->getClientIp());
-        $ipLimit = $ipLimiter->consume();
-        if (! $ipLimit->isAccepted()) {
-            throw new TooManyRequestsHttpException(
-                $ipLimit->getRetryAfter()->getTimestamp() - time(),
-                'Trop de tentatives depuis cette adresse IP. Réessayez plus tard.',
-            );
-        }
-
         $form = $this->createForm(RegistrationType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // IP-based brute-force protection — only consume on POST submission.
+            $ipLimiter = $this->loginPerIpLimiterFactory->create($request->getClientIp());
+            $ipLimit = $ipLimiter->consume();
+            if (! $ipLimit->isAccepted()) {
+                throw new TooManyRequestsHttpException(
+                    $ipLimit->getRetryAfter()->getTimestamp() - time(),
+                    'Trop de tentatives depuis cette adresse IP. Réessayez plus tard.',
+                );
+            }
+
             /** @var array{email: string, organizationName: string, rbqLicense: string} $data */
             $data = $form->getData();
-            $email = $data['email'];
+            $email = \mb_strtolower($data['email']);
 
             // Enforce per‑email rate limit (3 attempts per 15 minutes).
             $limiter = $this->loginPerEmailLimiterFactory->create($email);

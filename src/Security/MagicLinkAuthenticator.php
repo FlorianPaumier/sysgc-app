@@ -43,18 +43,14 @@ final readonly class MagicLinkAuthenticator implements AuthenticatorInterface
     #[\Override]
     public function supports(Request $request): bool
     {
-        return (
-            $request->attributes->get('_route') === 'login_verify'
-            && $request->query->has('token')
-            && $request->query->has('email')
-        );
+        return $request->attributes->get('_route') === 'login_verify';
     }
 
     #[\Override]
     public function authenticate(Request $request): Passport
     {
         $rawToken = (string) $request->query->get('token', '');
-        $email = (string) $request->query->get('email', '');
+        $email = \mb_strtolower((string) $request->query->get('email', ''));
         $tokenHash = hash('sha256', $rawToken);
 
         $magicLink = $this->magicLinkRepository->findValid($email, $tokenHash);

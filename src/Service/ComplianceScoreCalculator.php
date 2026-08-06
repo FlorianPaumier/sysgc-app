@@ -129,8 +129,10 @@ final class ComplianceScoreCalculator
     private function hasSafetyLogsAllWeekdays(Project $project, \DateTimeImmutable $now): bool
     {
         $monday = $now->modify('monday this week');
+        $today = (int) $now->format('N'); // 1=Mon .. 7=Sun
+        $weekdayCount = \min($today, 5); // Only check weekdays up to today
 
-        for ($offset = 0; $offset <= 4; $offset++) {
+        for ($offset = 0; $offset < $weekdayCount; $offset++) {
             $day = $monday->modify("+{$offset} days");
             if (! $this->hasSafetyLogForDate($project, \DateTimeImmutable::createFromInterface($day))) {
                 return false;
@@ -144,7 +146,7 @@ final class ComplianceScoreCalculator
     {
         $subs = $project->getSubcontractors();
         if ($subs->isEmpty()) {
-            return true;
+            return false; // No subcontractors = no bonus
         }
 
         foreach ($subs as $sub) {
@@ -160,7 +162,7 @@ final class ComplianceScoreCalculator
     {
         $invoices = $project->getInvoices();
         if ($invoices->isEmpty()) {
-            return true;
+            return false; // No invoices = no bonus
         }
 
         foreach ($invoices as $invoice) {
@@ -191,7 +193,7 @@ final class ComplianceScoreCalculator
 
         $projectName = $project->getName() ?? 'Sans nom';
 
-        if ($daysUntilDeadline <= 0) {
+        if ($daysUntilDeadline < 0) {
             $alerts[] = [
                 'level' => 'critical',
                 'message' => sprintf('Déclaration CCQ en retard pour « %s » — échéance dépassée.', $projectName),

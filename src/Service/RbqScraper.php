@@ -23,7 +23,7 @@ final readonly class RbqScraper
     private const string BASE_URL = 'https://www.rbq.gouv.qc.ca/soaitec/asp/RegistreLicRecherche.asp';
     private const int TIMEOUT_SECONDS = 10;
     private const int MAX_RETRIES = 3;
-    private const array RETRY_DELAYS = [10, 30, 90]; // seconds, exponential backoff
+    private const array RETRY_DELAYS = [2, 5, 10]; // seconds
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -140,6 +140,9 @@ final readonly class RbqScraper
             if ($statusElement->count() > 0) {
                 $statusText = $statusElement->text();
                 $status = match (true) {
+                    // 'invalide' must be checked before 'valide'/'valid' — 'invalide' contains both
+                    str_contains(strtolower($statusText), 'invalide') => 'invalid',
+                    str_contains(strtolower($statusText), 'valide') => 'valid',
                     str_contains(strtolower($statusText), 'valid') => 'valid',
                     str_contains(strtolower($statusText), 'expir') => 'expired',
                     str_contains(strtolower($statusText), 'suspend') => 'suspended',

@@ -42,19 +42,19 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
 
     // ── Invalid signature ───────────────────────────────────────────────
 
-    public function test_webhook_invalid_signature_returns_200(): void
+    public function test_webhook_invalid_signature_returns_400(): void
     {
         $this->client->request('POST', '/stripe/webhook', [], [], [
             'HTTP_STRIPE_SIGNATURE' => 't=9999999999,v1=bogus',
             'CONTENT_TYPE' => 'application/json',
         ], '{"type":"test"}');
 
-        self::assertResponseStatusCodeSame(200);
+        self::assertResponseStatusCodeSame(400);
     }
 
     // ── Malformed JSON ──────────────────────────────────────────────────
 
-    public function test_webhook_malformed_json_returns_200(): void
+    public function test_webhook_malformed_json_returns_400(): void
     {
         $payload = 'not-json';
         $this->client->request('POST', '/stripe/webhook', [], [], [
@@ -62,7 +62,7 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
             'CONTENT_TYPE' => 'application/json',
         ], $payload);
 
-        self::assertResponseStatusCodeSame(200);
+        self::assertResponseStatusCodeSame(400);
     }
 
     // ── Valid checkout.session.completed ────────────────────────────────
@@ -112,7 +112,7 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
 
     // ── Processing error still returns 200 ──────────────────────────────
 
-    public function test_processing_error_still_returns_200(): void
+    public function test_processing_error_returns_500(): void
     {
         $org = OrganizationFactory::createOne([
             'stripeCustomerId' => 'cus_fail',
@@ -138,8 +138,8 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
             'CONTENT_TYPE' => 'application/json',
         ], $payload);
 
-        // Must still return 200 despite processing error
-        self::assertResponseStatusCodeSame(200);
+        // Must return 500 so Stripe retries
+        self::assertResponseStatusCodeSame(500);
     }
 
     // ── Verify constructEvent output ────────────────────────────────────

@@ -5,3 +5,5 @@ framework:
             async: 'sync://'
             sync: 'sync://'
             failed: 'sync://'
+    mailer:
+        dsn: 'null://null'

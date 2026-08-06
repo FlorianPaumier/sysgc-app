@@ -105,6 +105,7 @@ final readonly class StripeService
             'customer' => $stripeCustomerId,
             'status' => 'active',
             'limit' => 1,
+            'expand' => ['data.items.data.price'],
         ]);
 
         if ($subscriptions->data === []) {
@@ -115,9 +116,22 @@ final readonly class StripeService
         }
 
         $subscription = $subscriptions->data[0];
-        /** @var array{price: array{id?: string}} $itemData */
-        $itemData = $subscription->items->data[0];
-        $priceId = $itemData['price']['id'] ?? null;
+
+        // Guard against empty items
+        if ($subscription->items->data === []) {
+            $this->logger->warning('Subscription sans items pour customer {customer}', [
+                'customer' => $stripeCustomerId,
+            ]);
+
+            return;
+        }
+
+        /** @var mixed $item */
+        $item = $subscription->items->data[0];
+        /** @var mixed $price */
+        $price = $item->price ?? null;
+        // When expanded, price is a Stripe\Price object; when unexpanded, it's a string ID
+        $priceId = \is_string($price) ? $price : ($price['id'] ?? null);
 
         if ($priceId === null) {
             return;

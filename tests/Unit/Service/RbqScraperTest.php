@@ -25,7 +25,7 @@ final class RbqScraperTest extends TestCase
         <h2>ABC Construction Inc.</h2>
         <p><span class="label">Catégorie:</span> <span class="value">Entrepreneur général</span></p>
         <p><span class="label">Date d'expiration:</span> <span class="value">2025-12-31</span></p>
-        <p><span class="label">Statut:</span> <span class="value status-valid">Valid</span></p>
+        <p><span class="label">Statut:</span> <span class="value status-valid">Valide</span></p>
     </div>
 </body>
 </html>

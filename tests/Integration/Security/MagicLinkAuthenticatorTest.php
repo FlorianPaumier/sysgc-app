@@ -8,6 +8,8 @@ use App\Entity\MagicLink;
 use App\Factory\MagicLinkFactory;
 use App\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -40,9 +42,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertResponseRedirects('/dashboard');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function valid_token_marks_user_as_verified(): void
     {
         $user = UserFactory::createOne(['email' => 'test@example.com', 'isVerified' => false]);
@@ -55,14 +55,16 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
 
         $this->client->request('GET', "/connexion/verifier?token={$rawToken}&email=test@example.com");
 
-        // User should now be verified
-        $user->refresh();
-        $this->assertTrue($user->isVerified());
+        // User should now be verified — detach and re-fetch from DB
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $refreshed = $em->getRepository(\App\Entity\User::class)->find($user->getId());
+        self::assertNotNull($refreshed);
+        $this->assertTrue($refreshed->isVerified());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function invalid_token_redirects_to_login_with_error(): void
     {
         UserFactory::createOne(['email' => 'test@example.com']);
@@ -74,9 +76,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertSelectorTextContains('.flash-error', 'invalide ou a expiré');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function expired_token_redirects_to_login_with_error(): void
     {
         $user = UserFactory::createOne(['email' => 'test@example.com']);
@@ -94,9 +94,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertSelectorTextContains('.flash-error', 'invalide ou a expiré');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function token_with_wrong_email_does_not_authenticate(): void
     {
         $user = UserFactory::createOne(['email' => 'test@example.com']);
@@ -115,9 +113,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertSelectorTextContains('.flash-error', 'invalide ou a expiré');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function token_hash_mismatch_does_not_authenticate(): void
     {
         UserFactory::createOne(['email' => 'test@example.com']);
@@ -131,9 +127,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertSelectorTextContains('.flash-error', 'invalide ou a expiré');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function verify_without_params_returns_error(): void
     {
         $this->client->request('GET', '/connexion/verifier');
@@ -142,9 +136,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         $this->assertResponseRedirects('/connexion');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function already_verified_user_stays_verified(): void
     {
         $user = UserFactory::createOne(['email' => 'test@example.com', 'isVerified' => true]);
@@ -157,13 +149,16 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
 
         $this->client->request('GET', "/connexion/verifier?token={$rawToken}&email=test@example.com");
 
-        $user->refresh();
-        $this->assertTrue($user->isVerified()); // Still verified
+        // Re-fetch from DB to verify state
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $refreshed = $em->getRepository(\App\Entity\User::class)->find($user->getId());
+        self::assertNotNull($refreshed);
+        $this->assertTrue($refreshed->isVerified()); // Still verified
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function magic_link_works_once_then_can_be_used_again(): void
     {
         $user = UserFactory::createOne(['email' => 'test@example.com']);

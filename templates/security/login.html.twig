@@ -8,7 +8,7 @@
         <p class="mt-1 text-sm text-zinc-600">Recevez un lien de connexion sécurisé par courriel.</p>
 
         {% for flash_error in app.flashes('error') %}
-            <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+            <div class="flash-error mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
                 {{ flash_error }}
             </div>
         {% endfor %}

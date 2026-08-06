@@ -156,16 +156,16 @@ final class ComplianceScoreCalculatorTest extends TestCase
     }
 
     #[Test]
-    public function noSubcontractorsCountsAsAllVerified(): void
+    public function noSubcontractorsYieldsNoBonus(): void
     {
         $now = new \DateTimeImmutable('2026-08-15');
         $project = $this->createEmptyProject();
         $project->getSubcontractors()->clear();
-        // Keep the overdue invoice (baseline) so only 15 from subs + 0 from invoices = 15
+        // Keep the overdue invoice (baseline) — no sub bonus, no invoice bonus
 
         $score = $this->calculator->calculate($project, $now);
 
-        $this->assertSame(15, $score);
+        $this->assertSame(0, $score);
     }
 
     #[Test]
@@ -196,16 +196,16 @@ final class ComplianceScoreCalculatorTest extends TestCase
     }
 
     #[Test]
-    public function noInvoicesCountsAsNoOverdue(): void
+    public function noInvoicesYieldsNoBonus(): void
     {
         $now = new \DateTimeImmutable('2026-08-15');
         $project = $this->createEmptyProject();
         $project->getInvoices()->clear();
-        // Keep the unverified sub (baseline) so only 5 from invoices + 0 from subs = 5
+        // Keep the unverified sub (baseline) — no invoice bonus, no sub bonus
 
         $score = $this->calculator->calculate($project, $now);
 
-        $this->assertSame(5, $score);
+        $this->assertSame(0, $score);
     }
 
     #[Test]
@@ -287,17 +287,18 @@ final class ComplianceScoreCalculatorTest extends TestCase
     #[Test]
     public function getAlertsCriticalWhenCcqDeadlineOverdue(): void
     {
-        $now = new \DateTimeImmutable('2026-08-31'); // end of month = deadline
+        // On the last day of the month (deadline day), no CCQ declaration triggers warning
+        $now = new \DateTimeImmutable('2026-08-31'); // end of month = deadline day
         $org = $this->createOrganization();
         $project = $this->createEmptyProject(); // no CCQ declaration
+        $project->getSubcontractors()->clear(); // avoid sub alert masking
         $this->addProjectToOrganization($org, $project);
 
         $alerts = $this->calculator->getAlerts($org, $now);
 
         $this->assertNotEmpty($alerts);
-        $critical = $alerts[0];
-        $this->assertSame('critical', $critical['level']);
-        $this->assertStringContainsString('CCQ', $critical['message']);
+        $this->assertSame('warning', $alerts[0]['level']);
+        $this->assertStringContainsString('CCQ', $alerts[0]['message']);
     }
 
     #[Test]

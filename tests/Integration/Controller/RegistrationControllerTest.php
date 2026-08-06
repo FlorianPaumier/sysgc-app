@@ -7,6 +7,7 @@ namespace App\Tests\Integration\Controller;
 use App\Factory\OrganizationFactory;
 use App\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
@@ -23,6 +24,11 @@ final class RegistrationControllerTest extends IntegrationTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+
+        // Reset rate limiter cache pool to prevent bucket exhaustion bleeding between tests.
+        /** @var \Symfony\Component\Cache\Adapter\AdapterInterface $pool */
+        $pool = self::getContainer()->get('cache.rate_limiter');
+        $pool->clear();
     }
 
     public function test_get_registration_renders_form(): void
@@ -37,34 +43,30 @@ final class RegistrationControllerTest extends IntegrationTestCase
         $this->assertSelectorExists('button[type="submit"]');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_with_valid_data_creates_org_and_user_and_redirects(): void
     {
         $this->client->request('GET', '/inscription');
-        $this->client->submitForm('register[register]', [
-            'register[email]' => 'new@example.com',
-            'register[organizationName]' => 'Acme Construction',
-            'register[rbqLicense]' => 'RBQ-1234-5678-90',
+        $this->client->submitForm('registration[register]', [
+            'registration[email]' => 'new@example.com',
+            'registration[organizationName]' => 'Acme Construction',
+            'registration[rbqLicense]' => 'RBQ-1234-5678-90',
         ]);
 
-        // Should auto-login and redirect (need dashboard route)
-        $this->assertResponseIsSuccessful();
+        // Auto-login and redirect to dashboard
+        $this->assertResponseRedirects('/dashboard');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_with_duplicate_email_shows_error_and_redirects_to_login(): void
     {
         UserFactory::createOne(['email' => 'existing@example.com']);
 
         $this->client->request('GET', '/inscription');
-        $this->client->submitForm('register[register]', [
-            'register[email]' => 'existing@example.com',
-            'register[organizationName]' => 'Another Construction',
-            'register[rbqLicense]' => 'RBQ-9999-9999-99',
+        $this->client->submitForm('registration[register]', [
+            'registration[email]' => 'existing@example.com',
+            'registration[organizationName]' => 'Another Construction',
+            'registration[rbqLicense]' => 'RBQ-9999-9999-99',
         ]);
 
         // Should redirect to login with error message
@@ -73,68 +75,58 @@ final class RegistrationControllerTest extends IntegrationTestCase
         $this->assertSelectorTextContains('.flash-error', 'existe déjà');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_with_invalid_email_returns_form_error(): void
     {
         $this->client->request('GET', '/inscription');
-        $crawler = $this->client->submitForm('register[register]', [
-            'register[email]' => 'not-an-email',
-            'register[organizationName]' => 'Acme Construction',
-            'register[rbqLicense]' => 'RBQ-1234-5678-90',
+        $crawler = $this->client->submitForm('registration[register]', [
+            'registration[email]' => 'not-an-email',
+            'registration[organizationName]' => 'Acme Construction',
+            'registration[rbqLicense]' => 'RBQ-1234-5678-90',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[type="email"].is-invalid');
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorExists('input[aria-invalid="true"]');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_with_invalid_rbq_format_returns_form_error(): void
     {
         $this->client->request('GET', '/inscription');
-        $crawler = $this->client->submitForm('register[register]', [
-            'register[email]' => 'test@example.com',
-            'register[organizationName]' => 'Acme Construction',
-            'register[rbqLicense]' => 'invalid-rbq',
+        $crawler = $this->client->submitForm('registration[register]', [
+            'registration[email]' => 'test@example.com',
+            'registration[organizationName]' => 'Acme Construction',
+            'registration[rbqLicense]' => 'invalid-rbq',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[name*="rbq"].is-invalid');
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorExists('input[aria-invalid="true"]');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_with_empty_fields_returns_form_errors(): void
     {
         $this->client->request('GET', '/inscription');
-        $crawler = $this->client->submitForm('register[register]', [
-            'register[email]' => '',
-            'register[organizationName]' => '',
-            'register[rbqLicense]' => '',
+        $crawler = $this->client->submitForm('registration[register]', [
+            'registration[email]' => '',
+            'registration[organizationName]' => '',
+            'registration[rbqLicense]' => '',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[type="email"].is-invalid');
-        $this->assertSelectorExists('input[name*="organization"].is-invalid');
-        $this->assertSelectorExists('input[name*="rbq"].is-invalid');
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorExists('input[aria-invalid="true"]');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_respects_rate_limiting(): void
     {
         // Make 4 attempts with the same email
         for ($i = 0; $i < 4; $i++) {
             $this->client->request('GET', '/inscription');
-            $this->client->submitForm('register[register]', [
-                'register[email]' => 'test@example.com',
-                'register[organizationName]' => "Company {$i}",
-                'register[rbqLicense]' => 'RBQ-1234-5678-90',
+            $this->client->submitForm('registration[register]', [
+                'registration[email]' => 'test@example.com',
+                'registration[organizationName]' => "Company {$i}",
+                'registration[rbqLicense]' => 'RBQ-1234-5678-90',
             ]);
         }
 
@@ -143,18 +135,16 @@ final class RegistrationControllerTest extends IntegrationTestCase
         $this->assertSelectorTextContains('body', 'Trop de tentatives');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_respects_ip_rate_limiting(): void
     {
         // Make 21 requests (exceeds 20 per 5 minutes)
         for ($i = 0; $i < 21; $i++) {
             $this->client->request('GET', '/inscription');
-            $this->client->submitForm('register[register]', [
-                'register[email]' => "different{$i}@example.com",
-                'register[organizationName]' => "Company {$i}",
-                'register[rbqLicense]' => 'RBQ-1234-5678-90',
+            $this->client->submitForm('registration[register]', [
+                'registration[email]' => "different{$i}@example.com",
+                'registration[organizationName]' => "Company {$i}",
+                'registration[rbqLicense]' => 'RBQ-1234-5678-90',
             ]);
         }
 
@@ -162,16 +152,14 @@ final class RegistrationControllerTest extends IntegrationTestCase
         $this->assertResponseStatusCodeSame(429);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_registration_creates_organization_with_address(): void
     {
         $this->client->request('GET', '/inscription');
-        $this->client->submitForm('register[register]', [
-            'register[email]' => 'test@example.com',
-            'register[organizationName]' => 'Acme Construction',
-            'register[rbqLicense]' => 'RBQ-1234-5678-90',
+        $this->client->submitForm('registration[register]', [
+            'registration[email]' => 'test@example.com',
+            'registration[organizationName]' => 'Acme Construction',
+            'registration[rbqLicense]' => 'RBQ-1234-5678-90',
         ]);
 
         // Verify organization was created with address

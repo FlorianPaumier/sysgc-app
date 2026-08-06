@@ -10,3 +10,25 @@ services:
       APP_SECRET: ${APP_SECRET}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+
+  messenger-worker:
+    image: ${IMAGES_PREFIX:-}app-php-prod
+    build:
+      context: .
+      target: frankenphp_prod
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
+      MESSENGER_TRANSPORT_DSN: doctrine://default
+      MAILER_DSN: ${MAILER_DSN}
+    command: [ "php", "bin/console", "messenger:consume", "async", "--memory-limit=256M", "--time-limit=3600" ]
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa 'messenger:consume' /proc/*/cmdline 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

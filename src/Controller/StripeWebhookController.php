@@ -39,7 +39,7 @@ final class StripeWebhookController extends AbstractController
                 'message' => $e->getMessage(),
             ]);
 
-            return new Response('', Response::HTTP_OK);
+            return new Response('', Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -49,7 +49,10 @@ final class StripeWebhookController extends AbstractController
         } catch (\Throwable $e) {
             $this->logger->error('Erreur lors du traitement du webhook Stripe : {message}', [
                 'message' => $e->getMessage(),
+                'exception' => $e::class,
             ]);
+
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response('', Response::HTTP_OK);
