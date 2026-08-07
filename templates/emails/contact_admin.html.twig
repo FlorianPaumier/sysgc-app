@@ -1,33 +1,39 @@
-{# templates/emails/contact_admin.html.twig - Auto-response sent to user after contact form submission #}
+{# Auto-response sent to user after contact form submission #}
 {% extends 'emails/base.html.twig' %}
 
-{% block subject %}Confirmation - Votre message SysGC{% endblock %}
+{% block subject %}Confirmation — Votre message SysGC{% endblock %}
 
 {% block content %}
-    <h1>Message reçu</h1>
+    <h3 style="margin:0 0 8px;">Message reçu</h3>
+    <p style="margin:0 0 24px;">Bonjour {{ name }},</p>
 
-    <p class="mb-4">Bonjour {{ name }},</p>
-
-    <p class="mb-4">
-        Nous avons bien reçu votre message concernant "<strong>{{ subject }}</strong>".
+    <p style="margin:0 0 24px;">
+        Nous avons bien reçu votre message concernant «&nbsp;<strong style="color:#17161A;">{{ subject }}</strong>&nbsp;». Notre équipe l'examinera et vous répondra dans les plus brefs délais.
     </p>
 
-    <div class="alert alert-success mb-4">
-        <p class="mb-0">Notre équipe vous répondra dans les plus brefs délais.</p>
+    {# ─── Confirmation badge ─── #}
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+        <tr>
+            <td style="background:#f0fdf4;border:1px solid #16A34A;border-radius:6px;padding:14px 18px;">
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;color:#15803d;line-height:1.5;">
+                            <strong>✓</strong>&nbsp; Réponse habituelle en moins de 4&nbsp;h durant les jours ouvrables.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    {# ─── Message preview ─── #}
+    <p style="font-family:'Saira Condensed','Trebuchet MS','Arial Narrow',-apple-system,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;color:#B5AC97;text-transform:uppercase;margin:0 0 8px;">
+        Votre message
+    </p>
+    <div style="background:#F1ECDF;border:1px solid #D6CDB6;border-radius:6px;padding:16px 20px;margin:0 0 24px;font-family:'IBM Plex Mono','SF Mono','Monaco','Courier New',monospace;font-size:13px;line-height:1.7;color:#17161A;white-space:pre-wrap;">
+        {{ message|slice(0, 300) }}{% if message|length > 300 %}...{% endif %}
     </div>
 
-    <h3 class="mb-2">Votre message :</h3>
-    <div class="bg-muted rounded mb-4" style="margin:0 0 24px;padding:16px;background:#f4f4f5;border-radius:6px;">
-        <p class="text-small text-muted mb-0" style="margin:0;">
-            {{ message|slice(0, 200) }}{% if message|length > 200 %}...{% endif %}
-        </p>
-    </div>
-
-    <p class="text-small text-muted mb-3">
-        Merci de nous avoir contactés.
-    </p>
-
-    <p class="text-small text-muted">
-        L'équipe SysGC
-    </p>
+    <p style="margin:0 0 8px;">Merci de nous avoir contactés.</p>
+    <p style="margin:0;color:#6B665C;">L'équipe SysGC</p>
 {% endblock %}

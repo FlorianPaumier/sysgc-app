@@ -1,29 +1,51 @@
-{# templates/emails/admin_contact.html.twig - Sent to admin when user submits contact form #}
+{# Admin notification — new contact form submission #}
 {% extends 'emails/base.html.twig' %}
 
-{% block subject %}Nouveau contact - {{ subject }}{% endblock %}
+{% block subject %}Nouveau contact — {{ subject }}{% endblock %}
 
 {% block content %}
-    <h2 class="text-center" style="color:#ef4444;">Nouveau message de contact</h2>
+    <p style="font-family:'Saira Condensed','Trebuchet MS','Arial Narrow',-apple-system,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;color:#B5AC97;text-transform:uppercase;margin:0 0 8px;">
+        Formulaire de contact
+    </p>
+    <h3 style="margin:0 0 24px;">Nouveau message reçu</h3>
 
-    <table class="mb-4" style="margin:16px 0 24px;">
+    {# ─── Sender card ─── #}
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #D6CDB6;border-radius:6px;margin:0 0 24px;">
         <tr>
-            <td class="border-bottom" style="padding:12px 0;border-bottom:1px solid #e4e4e7;"><strong>De :</strong> {{ name }}</td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#6B665C;border-bottom:1px solid #D6CDB6;">
+                <strong style="color:#3D3A35;font-weight:600;">De</strong>
+            </td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#17161A;border-bottom:1px solid #D6CDB6;">
+                {{ name }}
+            </td>
         </tr>
         <tr>
-            <td class="border-bottom" style="padding:12px 0;border-bottom:1px solid #e4e4e7;"><strong>Courriel :</strong> {{ from }}</td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#6B665C;border-bottom:1px solid #D6CDB6;">
+                <strong style="color:#3D3A35;font-weight:600;">Courriel</strong>
+            </td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#17161A;border-bottom:1px solid #D6CDB6;">
+                {{ from }}
+            </td>
         </tr>
         <tr>
-            <td style="padding:12px 0;"><strong>Sujet :</strong> {{ subject }}</td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#6B665C;">
+                <strong style="color:#3D3A35;font-weight:600;">Sujet</strong>
+            </td>
+            <td style="padding:10px 16px;font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;color:#17161A;">
+                {{ subject }}
+            </td>
         </tr>
     </table>
 
-    <h3 class="mb-2">Message :</h3>
-    <div class="bg-muted rounded mb-4" style="margin:0 0 24px;padding:16px;background:#f4f4f5;border-radius:6px;">
-        <p style="white-space:pre-wrap;margin:0;">{{ message }}</p>
+    {# ─── Message block ─── #}
+    <p style="font-family:'Saira Condensed','Trebuchet MS','Arial Narrow',-apple-system,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;color:#B5AC97;text-transform:uppercase;margin:0 0 8px;">
+        Message
+    </p>
+    <div style="background:#F1ECDF;border:1px solid #D6CDB6;border-radius:6px;padding:16px 20px;margin:0 0 24px;font-family:'IBM Plex Mono','SF Mono','Monaco','Courier New',monospace;font-size:13px;line-height:1.7;color:#17161A;white-space:pre-wrap;">
+        {{ message }}
     </div>
 
-    <p class="text-small text-muted">
-        Ce message a été envoyé via le formulaire de contact du site SysGC.
+    <p class="text-small text-muted" style="font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#B5AC97;">
+        Envoyé via le formulaire de contact du site SysGC.
     </p>
 {% endblock %}

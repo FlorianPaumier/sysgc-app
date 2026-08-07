@@ -12,11 +12,13 @@ use App\Repository\OrganizationRepository;
 use App\Service\StripeService;
 use App\Tests\Fake\FakeStripeClient;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[CoversClass(StripeService::class)]
+#[AllowMockObjectsWithoutExpectations]
 final class StripeServiceTest extends TestCase
 {
     private FakeStripeClient $stripe;
@@ -40,7 +42,7 @@ final class StripeServiceTest extends TestCase
         $this->repo = $this->createMock(OrganizationRepository::class);
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $this->urlGenerator = $this->createStub(UrlGeneratorInterface::class);
 
         $this->urlGenerator->method('generate')
             ->willReturnCallback(fn (string $route) => match ($route) {
@@ -172,7 +174,7 @@ final class StripeServiceTest extends TestCase
     public function test_handle_webhook_checkout_completed_activates_subscription(): void
     {
         $org = $this->createOrganization();
-        $this->repo->method('findOneByStripeCustomerId')
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')
             ->with('cus_new')
             ->willReturn($org);
 
@@ -245,7 +247,7 @@ final class StripeServiceTest extends TestCase
     public function test_handle_webhook_invoice_paid_logs_and_syncs(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_123', tier: SubscriptionTier::Pro);
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_123')->willReturn($org);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_123')->willReturn($org);
 
         // syncSubscription fetches from Stripe — return Business tier
         $this->stripe->subscriptionListData = [
@@ -290,7 +292,7 @@ final class StripeServiceTest extends TestCase
     public function test_handle_webhook_subscription_updated_syncs_tier(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_abc', tier: SubscriptionTier::Starter);
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_abc')->willReturn($org);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_abc')->willReturn($org);
 
         $this->stripe->subscriptionListData = [
             ['id' => 'sub_1', 'status' => 'active', 'items' => ['data' => [['price' => ['id' => 'price_business']]]]],
@@ -312,7 +314,7 @@ final class StripeServiceTest extends TestCase
     public function test_handle_webhook_subscription_deleted_downgrades_tier(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_abc', tier: SubscriptionTier::Pro);
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_abc')->willReturn($org);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_abc')->willReturn($org);
 
         $this->em->expects($this->once())->method('flush');
 
@@ -333,7 +335,7 @@ final class StripeServiceTest extends TestCase
     public function test_sync_subscription_no_active_subscription_downgrades(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_x', tier: SubscriptionTier::Pro);
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_x')->willReturn($org);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_x')->willReturn($org);
 
         $this->stripe->subscriptionListData = []; // no active subs
 
@@ -344,7 +346,7 @@ final class StripeServiceTest extends TestCase
 
     public function test_sync_subscription_unknown_customer_logs_warning(): void
     {
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_x')->willReturn(null);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_x')->willReturn(null);
 
         $this->logger->expects($this->once())->method('warning')
             ->with($this->stringContains('Organisation introuvable'));
@@ -355,7 +357,7 @@ final class StripeServiceTest extends TestCase
     public function test_sync_subscription_unknown_price_leaves_tier_unchanged(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_x', tier: SubscriptionTier::Pro);
-        $this->repo->method('findOneByStripeCustomerId')->with('cus_x')->willReturn($org);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_x')->willReturn($org);
 
         $this->stripe->subscriptionListData = [
             ['id' => 'sub_1', 'status' => 'active', 'items' => ['data' => [['price' => ['id' => 'price_unknown']]]]],

@@ -29,7 +29,7 @@
 
                 {# Flash errors #}
                 {% for flash_error in app.flashes('error') %}
-                    <div class="alert-banner alert-banner--error" role="alert">
+                    <div class="flash-error alert-banner alert-banner--error" role="alert">
                         <span class="alert-banner__icon" aria-hidden="true">!</span>
                         <div class="alert-banner__content">
                             <span class="alert-banner__message">{{ flash_error }}</span>
@@ -51,7 +51,7 @@
                     {% set email_has_error = form.email.vars.errors|length > 0 %}
                     <div class="auth-field-group">
                         {{ form_label(form.email, null, { label_attr: { class: 'auth-field-label' } }) }}
-                        {{ form_widget(form.email, { attr: { class: 'auth-field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca' } }) }}
+                        {{ form_widget(form.email, { attr: { class: 'auth-field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca', 'aria-invalid': email_has_error ? 'true' : 'false' } }) }}
                         {{ form_errors(form.email) }}
                     </div>
 

@@ -3,7 +3,7 @@
 {% block body %}
     <div class="auth-page">
         <div class="auth-card" id="contactCard" style="max-width:520px">
-            {% if success is defined and success %}
+            {% if app.flashes('success') is not empty %}
                 <div class="auth-success visible">
                     <div class="auth-success-circle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -21,45 +21,45 @@
                     </div>
                     <h1 class="auth-heading">[Nous contacter]</h1>
                     <p class="auth-subtitle">Une question sur les forfaits, la conformité ou votre compte&#8239;? Écrivez-nous.</p>
-                    
+
                     {{ form_start(form, {attr: {class: 'auth-form'}}) }}
-                    
+
                     <div class="hidden" aria-hidden="true">
                         {{ form_widget(form.website) }}
                     </div>
-                    
+
                     <div class="auth-field-group">
                         {{ form_label(form.name, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.name, {attr: {class: 'auth-field-input', disabled: rate_limited is defined}}) }}
+                        {{ form_widget(form.name, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.name) }}
                     </div>
-                    
+
                     <div class="auth-field-group">
                         {{ form_label(form.email, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.email, {attr: {class: 'auth-field-input', disabled: rate_limited is defined}}) }}
+                        {{ form_widget(form.email, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.email) }}
                     </div>
-                    
+
                     <div class="auth-field-group">
                         {{ form_label(form.subject, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.subject, {attr: {class: 'auth-field-input', style: 'appearance:none;cursor:pointer', disabled: rate_limited is defined}}) }}
+                        {{ form_widget(form.subject, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.subject) }}
                     </div>
-                    
+
                     <div class="auth-field-group">
                         {{ form_label(form.message, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.message, {attr: {class: 'auth-field-input', style: 'height:auto;padding:12px 14px;resize:vertical;min-height:120px;font-family:var(--font-mono);font-size:0.76rem;line-height:1.6', disabled: rate_limited is defined}}) }}
+                        {{ form_widget(form.message, {attr: {class: 'auth-field-input', style: 'height:auto;padding:12px 14px;resize:vertical;min-height:120px;font-family:var(--font-mono);font-size:0.76rem;line-height:1.6', disabled: rate_limited}}) }}
                         {{ form_errors(form.message) }}
                     </div>
-                    
-                    <button type="submit" class="auth-submit-btn" {% if rate_limited is defined %}disabled{% endif %}>
-                        {% if rate_limited is defined %}
+
+                    <button type="submit" class="auth-submit-btn" {% if rate_limited %}disabled{% endif %}>
+                        {% if rate_limited %}
                             Réessayez plus tard
                         {% else %}
                             Envoyer le message
                         {% endif %}
                     </button>
-                    
+
                     {{ form_end(form) }}
                 </div>
             {% endif %}

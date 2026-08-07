@@ -25,19 +25,19 @@ readonly class ProjectService
 
         $project = new Project($org, $address, $clientName);
 
-        if ($data['startDate'] instanceof \DateTimeInterface) {
+        if (($data['startDate'] ?? null) instanceof \DateTimeInterface) {
             $project->setStartDate($data['startDate']);
         }
 
-        if (\is_string($data['budget'])) {
+        if (\is_string($data['budget'] ?? null)) {
             $project->setBudget($data['budget']);
         }
 
-        if ($data['endDate'] instanceof \DateTimeInterface) {
+        if (($data['endDate'] ?? null) instanceof \DateTimeInterface) {
             $project->setEndDate($data['endDate']);
         }
 
-        if ($data['status'] instanceof ProjectStatus) {
+        if (($data['status'] ?? null) instanceof ProjectStatus) {
             $project->setStatus($data['status']);
         }
 
@@ -59,11 +59,11 @@ readonly class ProjectService
             $project->setClientName($data['clientName']);
         }
 
-        if ($data['startDate'] instanceof \DateTimeInterface) {
+        if (($data['startDate'] ?? null) instanceof \DateTimeInterface) {
             $project->setStartDate($data['startDate']);
         }
 
-        if ($data['endDate'] instanceof \DateTimeInterface) {
+        if (($data['endDate'] ?? null) instanceof \DateTimeInterface) {
             $project->setEndDate($data['endDate']);
         }
 
@@ -71,7 +71,7 @@ readonly class ProjectService
             $project->setBudget($data['budget']);
         }
 
-        if ($data['status'] instanceof ProjectStatus) {
+        if (($data['status'] ?? null) instanceof ProjectStatus) {
             $project->setStatus($data['status']);
         }
 

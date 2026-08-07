@@ -45,7 +45,7 @@ final class HomeControllerTest extends WebTestCase
         self::assertTrue(
             [] !== \array_filter(
                 $links,
-                static fn (string $href) => str_contains($href, 'styles/global') && str_ends_with($href, '.css'),
+                static fn (string $href) => str_contains($href, 'styles/app') && str_ends_with($href, '.css'),
             ),
             'The compiled Tailwind stylesheet (styles/global.css) must be linked in <head>.',
         );
