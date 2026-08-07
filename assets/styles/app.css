@@ -46,3 +46,5 @@
     /* ─── Layout ─── */
     --container-max-w: 1240px;
 }
+
+@import "./global.css";

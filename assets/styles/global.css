@@ -673,7 +673,7 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         border: 1px solid var(--color-ink);
-        background: var(--color-ink);
+        background: var(--color-paper);
         gap: 1px;
     }
 
@@ -1751,6 +1751,315 @@
     @media (min-width: 64rem) {
         .bottom-nav {
             display: none;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE — Home page & shared components
+       Breakpoints: < 768px (mobile), 768-1023px (tablet)
+       ═══════════════════════════════════════════════════════════════════ */
+
+    /* ─── Tablet (768–1023px) ─── */
+    @media (min-width: 48rem) and (max-width: 63.99rem) {
+        .modules {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pricing-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pricing-grid .plan:last-child {
+            grid-column: 1 / -1;
+            max-width: 400px;
+            justify-self: center;
+            width: 100%;
+        }
+
+        .hero-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .hero-meta {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+    }
+
+    /* ─── Mobile (< 768px) ─── */
+    @media (max-width: 47.99rem) {
+        /* ── Container ── */
+        .wrap { padding: 0 20px; }
+
+        /* ── Nav ── */
+        .nav-inner {
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            gap: 8px;
+        }
+
+        .brand {
+            font-size: 22px;
+            gap: 6px;
+        }
+
+        .brand-meta {
+            font-size: 9px;
+            padding-left: 8px;
+        }
+
+        .nav-links {
+            flex-basis: 100%;
+            overflow-x: auto;
+            gap: 16px;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav-links::-webkit-scrollbar { display: none; }
+
+        .nav-links a {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .nav-cta {
+            font-size: 10px;
+            padding: 8px 12px;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 40px 0 56px;
+        }
+
+        .hero-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 10vw, 56px);
+            margin: 16px 0 24px;
+        }
+
+        .hero h1 .line2 {
+            border-left-width: 3px;
+            padding-left: 14px;
+        }
+
+        .hero-sub {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        .hero-cta {
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 32px;
+        }
+
+        .hero-cta .btn { justify-content: center; }
+
+        .hero-meta {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .hero-meta-item .num {
+            font-size: 24px;
+        }
+
+        .hero-meta-item .desc {
+            font-size: 11px;
+        }
+
+        /* ── Permit card ── */
+        .permit {
+            box-shadow: 4px 4px 0 var(--color-ink);
+            margin-top: 0;
+        }
+
+        .permit-stamp {
+            top: 46px;
+            right: -8px;
+            padding: 6px 10px;
+            font-size: 18px;
+            border-width: 2px;
+        }
+
+        .permit-stamp .sub { font-size: 7px; }
+
+        .permit-head {
+            font-size: 10px;
+            padding: 10px 12px;
+        }
+
+        .permit-body { padding: 16px; }
+
+        .permit-row { font-size: 11px; }
+
+        .permit-rule { font-size: 11px; }
+
+        /* ── Section shared ── */
+        .section-pad { padding: 56px 0; }
+
+        .section-head {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+        }
+
+        .section-head h2 {
+            font-size: clamp(28px, 8vw, 42px);
+        }
+
+        .section-lead {
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        /* ── Modules ── */
+        .modules {
+            grid-template-columns: 1fr;
+        }
+
+        .module { padding: 24px 20px; }
+
+        .module-name { font-size: 28px; }
+
+        .module-desc { min-height: auto; }
+
+        /* ── Steps (howto) ── */
+        .steps {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .steps::before { display: none; }
+
+        .step h3 { font-size: 24px; }
+
+        .step p { font-size: 14px; }
+
+        /* ── Testimonial ── */
+        .testi { padding: 64px 0; }
+
+        .testi-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .testi-quote {
+            font-size: clamp(22px, 5vw, 30px);
+        }
+
+        .testi-meta { border-left-width: 2px; }
+
+        /* ── Pricing ── */
+        .pricing-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .plan { padding: 28px 20px; }
+
+        .plan-name { font-size: 24px; }
+
+        .plan-price { font-size: 40px; }
+
+        .plan-desc { min-height: auto; }
+
+        .plan-tag { right: 16px; }
+
+        /* ── FAQ ── */
+        .faq-item summary {
+            grid-template-columns: 36px 1fr 28px;
+            gap: 12px;
+            padding: 20px 0;
+            font-size: 17px;
+        }
+
+        .faq-answer {
+            padding: 0 0 24px 48px;
+            font-size: 14px;
+        }
+
+        /* ── CTA final ── */
+        .cta-final { padding: 64px 0; }
+
+        .cta-final-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .cta-final h2 {
+            font-size: clamp(32px, 9vw, 48px);
+        }
+
+        .cta-final p { font-size: 15px; }
+
+        /* ── Footer ── */
+        footer { padding: 40px 0 24px; }
+
+        .foot-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .foot-brand { font-size: 36px; }
+
+        .foot-links { gap: 16px; }
+
+        .foot-bottom {
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 16px;
+        }
+    }
+
+    /* ─── Small phones (< 400px) ─── */
+    @media (max-width: 24.99rem) {
+        .hero-meta {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .hero-meta-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .hero-meta-item .desc {
+            text-align: left;
+        }
+
+        .cta-form .input-row {
+            flex-direction: column;
+        }
+
+        .cta-form button {
+            padding: 14px;
+        }
+
+        .faq-item summary {
+            grid-template-columns: 28px 1fr 24px;
+            font-size: 15px;
+            gap: 8px;
+        }
+
+        .faq-answer {
+            padding: 0 0 20px 36px;
+        }
+
+        .nav-cta {
+            font-size: 10px;
+            padding: 6px 10px;
+            letter-spacing: .03em;
         }
     }
 
