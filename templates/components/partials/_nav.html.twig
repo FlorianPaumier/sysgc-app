@@ -1,28 +1,38 @@
-<nav class="nav" aria-label="Navigation principale">
+{% import 'components/partials/_icons.html.twig' as icons %}
+
+<nav class="nav" aria-label="Navigation principale" data-controller="nav" data-nav-target="menu">
   <div class="nav-inner">
     <a href="{{ path('home') }}" class="brand" aria-label="SysGC - accueil">
       SYS<span class="gc">GC</span>
       <span class="brand-meta">v.1.0 · QC</span>
     </a>
-    {% if is_granted('ROLE_USER') %}
-      <ul class="nav-links">
-        <li><a href="{{ path('dashboard') }}">Tableau de bord</a></li>
-        <li><a href="{{ path('dashboard') }}">{{ app.user.displayName }}</a></li>
-        {% if is_granted('ROLE_ADMIN') %}
-          <li><a href="{{ path('dashboard') }}">Utilisateurs</a></li>
-        {% endif %}
-        <li><a href="{{ path('logout') }}">Déconnexion</a></li>
-      </ul>
-    {% else %}
+
+    <button type="button" class="nav-toggle"
+            data-nav-target="toggle" data-action="nav#toggle"
+            aria-controls="nav-drawer" aria-expanded="false"
+            aria-label="Menu">
+      {{ icons.icon('menu') }}
+    </button>
+
+    <div id="nav-drawer" class="nav-drawer">
+      <div class="nav-drawer__header">
+        <button type="button" class="nav-drawer__close"
+                data-action="nav#toggle"
+                aria-label="Fermer le menu">
+          {{ icons.icon('x') }}
+        </button>
+      </div>
       <ul class="nav-links">
         {% block nav_links %}{% endblock %}
       </ul>
       {% block nav_cta %}
-	      <div class="flex flex-row gap-4 justify-center items-center">
-		      <a href="{{ path('login') }}" class="text-center text-ink-2 font-medium text-sm">connexion</a>
-		      <a href="{{ path('register') }}" class="nav-cta">Essai gratuit</a>
-	      </div>
+        <div class="nav-actions">
+          <a href="{{ path('login') }}" class="nav-login">connexion</a>
+          <a href="{{ path('register') }}" class="nav-cta">Essai gratuit</a>
+        </div>
       {% endblock %}
-    {% endif %}
+    </div>
+
+    <div class="nav-overlay" data-action="click->nav#toggle"></div>
   </div>
 </nav>

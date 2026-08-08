@@ -167,6 +167,47 @@
         color: var(--color-ink);
     }
 
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+
+    .nav-login {
+        color: var(--color-ink-2);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .nav-login:hover { color: var(--color-ink); }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    .nav-drawer {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        justify-content: space-between;
+    }
+
+    .nav-drawer__header {
+        display: none;
+    }
+
+    .nav-drawer__close {
+        display: none;
+    }
+
+    .nav-overlay {
+        display: none;
+    }
+
     /* ─── HERO ─── */
     .hero {
         padding: 72px 0 96px;
@@ -683,6 +724,12 @@
         position: relative;
         display: flex;
         flex-direction: column;
+    }
+
+    .plan:nth-child(2) {
+        border: var(--color-ink) solid 1px;
+        border-bottom: 0;
+        border-top: 0;
     }
 
     .plan.featured { background: var(--color-paper); }
@@ -1470,6 +1517,27 @@
         margin-top: 0.25rem;
     }
 
+    @media (max-width: 47.99rem) {
+        .dashboard-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .plan:not(:last-child) {
+            border-bottom: var(--color-ink) solid 1px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .plan:not(:last-child) {
+            border: 0;
+        }
+        .plan:last-child {
+            border-top: var(--color-ink) solid 1px;
+        }
+    }
+
     /* ─────────────────────────────────────────────────────────────
        STATE COMPONENTS — EmptyState, AlertBanner
        ───────────────────────────────────────────────────────────── */
@@ -1588,18 +1656,24 @@
 
     /* ─────────────────────────────────────────────────────────────
        APP SHELL — authenticated layout (templates/layouts/app.html.twig)
-       Desktop sidebar (≥ lg) + mobile bottom nav (< lg).
+       BEM component CSS. Tailwind utilities are supplementary (inert until
+       Tailwind source-scanning works); layout-critical properties live here.
        ───────────────────────────────────────────────────────────── */
 
-    /* On app pages the sidebar + main sit side by side. Scoped with :has()
-       so public/marketing pages (which extend base directly) keep block flow. */
+    /* Root wrapper — flex row on desktop, min full height */
+    .app-shell {
+        display: block;
+        min-height: 100dvh;
+    }
+
     @media (min-width: 64rem) {
-        body:has(.app-sidebar) {
+        .app-shell {
             display: flex;
-            align-items: flex-start;
+            align-items: stretch;
         }
     }
 
+    /* ── Sidebar ──────────────────────────────────────────────── */
     .app-sidebar {
         display: none;
     }
@@ -1608,18 +1682,20 @@
         .app-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
             width: 256px;
             flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            align-self: flex-start;
-            height: 100dvh;
-            padding: 1.75rem 1.25rem;
+            padding: 1.75rem 1.25rem 1rem;
             border-right: 1px solid var(--color-rule);
             background: var(--color-paper);
-            overflow-y: auto;
+            transition: width 150ms ease;
         }
+    }
+
+    .app-sidebar__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .app-sidebar__brand {
@@ -1633,22 +1709,47 @@
 
     .app-sidebar__brand .gc { color: var(--color-orange); }
 
+    .app-sidebar__collapse {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--color-ink-3);
+    }
+
+    .app-sidebar__collapse:hover { color: var(--color-ink); }
+
+    .app-sidebar__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .app-sidebar__group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
     .app-sidebar__label {
         font-family: var(--font-mono);
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: var(--color-ink-3);
-    }
-
-    .app-sidebar__nav {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        padding: 0 0.75rem;
+        margin-bottom: 0.25rem;
     }
 
     .app-sidebar__link {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         padding: 10px 12px;
         text-decoration: none;
         color: var(--color-ink-2);
@@ -1668,27 +1769,158 @@
         background: var(--color-paper-2);
     }
 
-    /* Main column + optional page aside (dashboard widgets). */
-    .app-body {
+    .app-sidebar__icon {
+        flex-shrink: 0;
+    }
+
+    /* ── User menu (sidebar bottom) ───────────────────────────── */
+    .app-sidebar__user {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-rule);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .app-sidebar__avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--color-ink);
+        color: var(--color-paper);
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .app-sidebar__user-meta {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .app-sidebar__user-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-ink);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .app-sidebar__user-email {
+        font-size: 0.75rem;
+        color: var(--color-ink-3);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .app-sidebar__logout {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-left: auto;
+        color: var(--color-ink-3);
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .app-sidebar__logout:hover { color: var(--color-stamp); }
+
+    /* ── Collapsed sidebar ────────────────────────────────────── */
+    .app-sidebar--collapsed { width: 68px !important; }
+
+    .app-sidebar--collapsed .app-sidebar__label,
+    .app-sidebar--collapsed .app-sidebar__link-text,
+    .app-sidebar--collapsed .app-sidebar__user-meta,
+    .app-sidebar--collapsed .app-sidebar__collapse {
+        display: none;
+    }
+
+    .app-sidebar--collapsed .app-sidebar__link {
+        justify-content: center;
+        border-left-color: transparent;
+        padding: 10px 0;
+    }
+
+    .app-sidebar--collapsed .app-sidebar__link.is-active {
+        border-left-color: var(--color-orange);
+    }
+
+    .app-sidebar--collapsed .app-sidebar__user {
+        justify-content: center;
+    }
+
+    /* ── Main content column ──────────────────────────────────── */
+    .app-shell__main {
         display: flex;
         flex-direction: column;
         min-width: 0;
         flex: 1 1 auto;
     }
 
-    @media (max-width: 63.99rem) {
-        /* Leave room for the fixed mobile bottom nav. */
-        .app-body { padding-bottom: 56px; }
+    /* ── Header (toggle + breadcrumb) ─────────────────────────── */
+    .app-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        height: 56px;
+        padding: 0 1rem;
+        border-bottom: 1px solid var(--color-rule);
+        position: sticky;
+        top: 0;
+        background: var(--color-paper);
+        z-index: 40;
     }
 
-    .app-body > main {
+    .app-header__toggle {
+        display: none;
+    }
+
+    @media (min-width: 64rem) {
+        .app-header__toggle {
+            display: flex;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--color-ink-3);
+        }
+
+        .app-header__toggle:hover { color: var(--color-ink); }
+    }
+
+    .breadcrumb {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--color-ink-3);
+    }
+
+    .breadcrumb__current { color: var(--color-ink); }
+
+    /* ── Body + aside wrapper ──────────────────────────────────── */
+    .app-body {
+        display: flex;
+        flex-direction: column;
         flex: 1 1 auto;
         min-width: 0;
     }
 
-    /* Optional {% block aside %} column — dashboard only, desktop only. */
-    .page-aside {
-        display: none;
+    @media (max-width: 63.99rem) {
+        .app-body { padding-bottom: 56px; }
     }
 
     @media (min-width: 64rem) {
@@ -1696,7 +1928,19 @@
             flex-direction: row;
             align-items: flex-start;
         }
+    }
 
+    .app-body > main {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* ── Page aside — right column, desktop only ──────────────── */
+    .page-aside {
+        display: none;
+    }
+
+    @media (min-width: 64rem) {
         .page-aside {
             display: block;
             width: 320px;
@@ -1707,7 +1951,7 @@
         }
     }
 
-    /* Mobile bottom nav — 3 foreman actions, 56px tall, full width. */
+    /* ── Mobile bottom nav ────────────────────────────────────── */
     .bottom-nav {
         position: fixed;
         inset: auto 0 0 0;
@@ -1794,14 +2038,14 @@
 
         /* ── Nav ── */
         .nav-inner {
-            flex-wrap: wrap;
             padding: 12px 16px;
-            gap: 8px;
+            gap: 12px;
         }
 
         .brand {
-            font-size: 22px;
+            font-size: 20px;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .brand-meta {
@@ -1809,25 +2053,125 @@
             padding-left: 8px;
         }
 
-        .nav-links {
-            flex-basis: 100%;
-            overflow-x: auto;
-            gap: 16px;
-            padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+        /* Burger button */
+        .nav-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--color-ink);
+            flex-shrink: 0;
         }
 
-        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-toggle:hover { color: var(--color-orange); }
+
+        /* Drawer — hidden off-screen by default */
+        .nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(300px, 85vw);
+            background: var(--color-paper);
+            z-index: 60;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 0;
+            padding: 16px 24px 24px;
+            transform: translateX(100%);
+            transition: transform 200ms ease;
+            overflow-y: auto;
+        }
+
+        .nav--open .nav-drawer { transform: translateX(0); }
+
+        /* Drawer header — close button row */
+        .nav-drawer__header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+
+        .nav-drawer__close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--color-ink-2);
+        }
+
+        .nav-drawer__close:hover { color: var(--color-ink); }
+
+        /* Links stacked vertically in drawer */
+        .nav-links {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            flex-basis: auto;
+            overflow-x: visible;
+            padding-bottom: 0;
+        }
+
+        .nav-links:empty { display: none; }
 
         .nav-links a {
-            font-size: 12px;
-            white-space: nowrap;
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            padding: 10px 0;
+            width: 100%;
+            border-bottom: 1px solid var(--color-rule-2);
+        }
+
+        .nav-links li:last-child a { border-bottom: none; }
+
+        /* Actions at bottom of drawer */
+        .nav-actions {
+            flex-direction: column;
+            gap: 12px;
+            margin-left: 0;
+            margin-top: auto;
+            padding-top: 24px;
+            flex-shrink: 0;
+        }
+
+        .nav-login {
+            font-size: 14px;
+            text-align: center;
+            padding: 8px 0;
         }
 
         .nav-cta {
-            font-size: 10px;
-            padding: 8px 12px;
+            font-size: 12px;
+            padding: 12px 18px;
+            text-align: center;
+        }
+
+        /* Overlay backdrop */
+        .nav-overlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: var(--color-ink);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 55;
+            transition: opacity 200ms ease;
+        }
+
+        .nav--open .nav-overlay {
+            opacity: .35;
+            pointer-events: auto;
         }
 
         /* ── Hero ── */
@@ -2061,6 +2405,20 @@
             padding: 6px 10px;
             letter-spacing: .03em;
         }
+
+        .nav-actions {
+            gap: 8px;
+        }
+
+        .nav-login {
+            font-size: 11px;
+        }
+
+        .nav-drawer {
+            width: 100vw;
+        }
+
+        .brand-meta { display: none; }
     }
 
 }
