@@ -1,0 +1,31 @@
+{#
+    Cross-screen feedback contract for authenticated pages. Keep state copy in
+    one place so every route uses the same French labels and recovery actions.
+#}
+{% props subscriptionState = 'active', flashes = {}, showNetwork = true %}
+
+<div class="screen-state" data-screen-state>
+    {% if showNetwork %}
+        <div class="alert-banner alert-banner--warning" role="status" aria-live="polite" hidden data-network-state data-controller="network-state" data-network-state-target="banner">
+            <span class="alert-banner__icon" aria-hidden="true">⌁</span>
+            <div class="alert-banner__content">
+                <span class="alert-banner__label">Hors ligne</span>
+                <p class="alert-banner__message">Vos modifications seront synchronisées dès le retour de la connexion.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if subscriptionState == 'grace' %}
+        <twig:AlertBanner type="warning" message="Votre abonnement est arrivé à échéance. Renouvelez-le dans les 7 jours pour éviter le mode lecture seule." actionLabel="Gérer mon abonnement" actionUrl="{{ path('app_billing_portal') }}" />
+    {% elseif subscriptionState == 'read_only' %}
+        <twig:AlertBanner type="error" message="Lecture seule : votre abonnement a expiré. Les données restent accessibles." actionLabel="Renouveler" actionUrl="{{ path('app_billing_portal') }}" />
+    {% elseif subscriptionState == 'no_subscription' %}
+        <twig:AlertBanner type="info" message="Choisissez un forfait pour activer les modifications et conserver votre accès complet." actionLabel="Voir les forfaits" actionUrl="{{ path('app_billing_upgrade') }}" />
+    {% elseif subscriptionState == 'enterprise_required' %}
+        <twig:AlertBanner type="warning" message="Votre équipe dépasse les limites du forfait Business." actionLabel="Contacter Enterprise" actionUrl="{{ path('app_contact') }}" />
+    {% endif %}
+
+    {% for message in flashes.success|default([]) %}<twig:Toast type="success" :message="message" />{% endfor %}
+    {% for message in flashes.error|default([]) %}<twig:Toast type="error" :message="message" />{% endfor %}
+    {% for message in flashes.info|default([]) %}<twig:Toast type="info" :message="message" />{% endfor %}
+</div>

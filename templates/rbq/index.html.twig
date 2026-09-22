@@ -1,0 +1,19 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Vérification RBQ — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_project_show', {id: project.id}) }}">{{ project.address }}</a> / RBQ{% endblock %}
+{% block body %}
+<div class="mx-auto max-w-5xl px-4 py-8">
+    <twig:PageHeader title="Vérification RBQ" :subtitle="project.address ~ ' · licences des sous-traitants'">
+        <div class="form-actions"><a class="btn" href="{{ path('app_rbq_add', {id: project.id}) }}">Ajouter</a><a class="btn" href="{{ path('app_rbq_import', {id: project.id}) }}">Importer CSV</a></div>
+    </twig:PageHeader>
+    <form method="post" action="{{ path('app_rbq_verify_all', {id: project.id}) }}" class="mb-4"><input type="hidden" name="_token" value="{{ csrf_token('verify-all-rbq-' ~ project.id) }}"><button class="btn" type="submit">Tout vérifier</button></form>
+    <twig:RbqBatchProgress :projectId="project.id" />
+    {% if project.subcontractors is empty %}
+        <p class="empty-state">Aucun sous-traitant. Ajoutez-les manuellement ou importez un fichier CSV.</p>
+    {% else %}
+        <div class="table-wrap"><table><caption class="sr-only">Liste des sous-traitants et leur statut de conformité RBQ</caption><thead><tr><th scope="col">Entreprise</th><th scope="col">Licence</th><th scope="col">Catégorie</th><th scope="col">Échéance</th><th scope="col">Statut et preuve</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>
+        {% for subcontractor in project.subcontractors %}{% include 'rbq/_status_row.html.twig' with {subcontractor: subcontractor, project: project, result: null} only %}{% endfor %}
+        </tbody></table></div>
+    {% endif %}
+</div>
+{% endblock %}

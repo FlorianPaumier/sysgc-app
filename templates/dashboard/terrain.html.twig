@@ -1,0 +1,41 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Terrain — SysGC{% endblock %}
+{% block breadcrumb %}Terrain{% endblock %}
+
+{% block body %}
+<main class="terrain-dashboard mx-auto w-full max-w-6xl px-4 py-8" aria-labelledby="terrain-title">
+    <header class="page-header">
+        <p class="eyebrow">Opérations terrain</p>
+        <h1 id="terrain-title">Ma journée sur les chantiers</h1>
+        <p>Les rapports de sécurité à compléter et les derniers dossiers de vos chantiers assignés.</p>
+    </header>
+
+    <p class="alert-banner alert-banner--info" role="status" data-offline-status data-sync-state="online"><span aria-hidden="true">↕</span> En ligne — Synchronisation automatique activée</p>
+
+    <section class="terrain-section" aria-labelledby="today-task-title">
+        <div class="dashboard-section-head"><div><p class="eyebrow">Aujourd’hui · {{ today|date('l j F') }}</p><h2 id="today-task-title">Tâche de sécurité du jour</h2></div></div>
+        <div class="terrain-task-grid" data-terrain-today-task>
+            {% for task in todayTasks %}
+                {% set project = task.project %}{% set label = task.log ? (task.complete ? 'Complété' : 'À compléter') : 'À remplir' %}
+                <article class="terrain-task-card {{ task.complete ? 'is-complete' : 'is-pending' }}"><div><span class="project-card__eyebrow">Chantier</span><h3>{{ project.name ?: project.address }}</h3><p>{{ project.clientName }} · {{ project.address }}</p></div><twig:StatusBadge :status="task.complete ? 'success' : 'warning'" :label="label" /><a class="btn btn-primary" href="{{ path('app_safety_daily', {id: project.id, date: today|date('Y-m-d')}) }}">{{ task.complete ? 'Voir le rapport' : 'Ouvrir le rapport' }}</a></article>
+            {% else %}
+                <twig:EmptyState icon="🏗️" title="Aucun chantier assigné" description="Votre administrateur doit vous affecter un chantier avant l’accès terrain." />
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="terrain-columns">
+        <section class="terrain-section" aria-labelledby="missing-title" data-terrain-missing><div class="dashboard-section-head"><div><p class="eyebrow">À surveiller</p><h2 id="missing-title">Rapports manquants ou incomplets</h2></div></div>
+            {% if missingLogs %}<ul class="terrain-record-list">{% for item in missingLogs %}{% set project = item.project %}{% set date = item.date %}<li class="terrain-record"><div><strong>{{ project.name ?: project.address }}</strong><span>{{ date|date('l j F') }}</span></div><span class="status-badge status-badge--warning">{{ item.log ? 'Rapport incomplet' : 'Rapport non rempli' }}</span><a href="{{ path('app_safety_daily', {id: project.id, date: date|date('Y-m-d')}) }}">Ouvrir</a></li>{% endfor %}</ul>{% else %}<twig:EmptyState icon="✓" title="Tout est à jour" description="Aucun rapport manquant dans les sept derniers jours." />{% endif %}
+        </section>
+        <section class="terrain-section" aria-labelledby="recent-title" data-terrain-recent><div class="dashboard-section-head"><div><p class="eyebrow">Historique</p><h2 id="recent-title">Rapports complétés récemment</h2></div></div>
+            {% if recentCompleted %}<ul class="terrain-record-list">{% for log in recentCompleted %}{% set project = log.project %}<li class="terrain-record"><div><strong>{{ project.name ?: project.address }}</strong><span>{{ log.date|date('l j F') }}</span></div><span class="status-badge status-badge--success">Rapport complété</span><a href="{{ path('app_safety_daily', {id: project.id, date: log.date|date('Y-m-d')}) }}">Voir</a></li>{% endfor %}</ul>{% else %}<twig:EmptyState icon="📋" title="Aucun rapport récent" description="Vos rapports complétés apparaîtront ici." />{% endif %}
+        </section>
+    </div>
+
+    <section class="terrain-section" aria-labelledby="projects-title" data-terrain-projects><div class="dashboard-section-head"><div><p class="eyebrow">Mon périmètre</p><h2 id="projects-title">Chantiers assignés</h2></div></div><div class="project-grid">
+        {% for project in projects %}<article class="project-card" data-terrain-project><a href="{{ path('app_project_show', {id: project.id}) }}"><span class="project-card__eyebrow">Chantier</span><h3>{{ project.name ?: project.address }}</h3><p class="project-card__client">{{ project.clientName }} · {{ project.address }}</p></a><a class="btn" href="{{ path('app_safety_index', {id: project.id}) }}">Voir le calendrier</a></article>{% else %}<twig:EmptyState icon="🏗️" title="Aucun chantier assigné" description="Votre administrateur doit vous affecter un chantier avant l’accès terrain." />{% endfor %}
+    </div></section>
+</main>
+{% endblock %}

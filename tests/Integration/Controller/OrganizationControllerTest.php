@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
-use App\Enum\SubscriptionTier;
-use App\Factory\AddressFactory;
-use App\Factory\OrganizationFactory;
-use App\Factory\UserFactory;
+use App\Identity\Domain\Enum\SubscriptionTier;
+use App\Tests\Factory\AddressFactory;
+use App\Tests\Factory\OrganizationFactory;
+use App\Tests\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -29,10 +29,7 @@ final class OrganizationControllerTest extends IntegrationTestCase
     {
         $this->client->request('GET', '/organisation');
 
-        // Anonymous access is denied (firewall requires ROLE_USER).
-        // The MagicLinkAuthenticator has no entry-point redirect yet,
-        // so the response is a 403 Access Denied, not a redirect.
-        $this->assertResponseStatusCodeSame(401);
+        $this->assertResponseRedirects('/connexion');
     }
 
     public function test_settings_page_renders_form_prefilled_with_org_data(): void

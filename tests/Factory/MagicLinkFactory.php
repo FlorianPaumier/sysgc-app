@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Factory;
 
-use App\Entity\MagicLink;
+use App\Identity\Domain\Model\MagicLink;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -26,7 +26,9 @@ final class MagicLinkFactory extends PersistentObjectFactory
     {
         return [
             'tokenHash' => hash('sha256', 'test-token'),
-            'magicLinkTokenExpiresAt' => self::faker()->dateTimeInTimeInterval('+15 minutes'),
+            // Keep generated links valid for the same 15-minute window without
+            // relying on Faker providers that are not available in all versions.
+            'magicLinkTokenExpiresAt' => new \DateTimeImmutable('+15 minutes'),
             'owner' => UserFactory::new(),
         ];
     }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\CCQDeclaration;
-use App\Entity\Enum\InvoiceStatus;
-use App\Entity\Invoice;
-use App\Entity\Organization;
-use App\Entity\Project;
-use App\Entity\SafetyLog;
-use App\Entity\Subcontractor;
-use App\Service\ComplianceScoreCalculator;
+use App\Compliance\Domain\Model\CCQDeclaration;
+use App\Commercial\Domain\Enum\InvoiceStatus;
+use App\Commercial\Domain\Model\Invoice;
+use App\Identity\Domain\Model\Organization;
+use App\Project\Domain\Model\Project;
+use App\Safety\Domain\Model\SafetyLog;
+use App\Compliance\Domain\Model\Subcontractor;
+use App\Project\Application\ComplianceScoreCalculator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -236,7 +236,6 @@ final class ComplianceScoreCalculatorTest extends TestCase
 
         $score = $this->calculator->calculate($project);
 
-        $this->assertIsInt($score);
         $this->assertGreaterThanOrEqual(0, $score);
         $this->assertLessThanOrEqual(100, $score);
     }
@@ -253,6 +252,7 @@ final class ComplianceScoreCalculatorTest extends TestCase
         $this->assertSame($expectedColor, $badge['color']);
     }
 
+    /** @return iterable<array{int, string, string}> */
     public static function badgeProvider(): iterable
     {
         yield 'score 100 => conforme green' => [100, 'Conforme', 'green'];
@@ -381,6 +381,22 @@ final class ComplianceScoreCalculatorTest extends TestCase
         $alerts = $this->calculator->getAlerts($org, $now);
 
         $this->assertArrayHasKey('link', $alerts[0]);
+    }
+
+    #[Test]
+    public function alert_links_use_the_french_project_routes_from_the_specification(): void
+    {
+        $now = new \DateTimeImmutable('2026-08-31');
+        $org = $this->createOrganization();
+        $project = $this->createEmptyProject();
+        $this->addProjectToOrganization($org, $project);
+
+        $alerts = $this->calculator->getAlerts($org, $now);
+        $links = array_column($alerts, 'link');
+
+        self::assertContains('/chantiers/'.$project->getId().'/ccq', $links);
+        self::assertContains('/chantiers/'.$project->getId().'/rbq', $links);
+        self::assertContains('/chantiers/'.$project->getId().'/securite', $links);
     }
 
     // ── Helper methods ─────────────────────────────────────────

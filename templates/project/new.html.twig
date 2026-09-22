@@ -1,0 +1,4 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Nouveau chantier — SysGC{% endblock %}
+{% block breadcrumb %}Nouveau chantier{% endblock %}
+{% block body %}<div class="project-form-page"><twig:PageHeader title="Nouveau chantier" subtitle="Créez le dossier de suivi avant le début des travaux." context="Portefeuille" :breadcrumbs="[{label: 'Chantiers', url: path('app_project_index')}, {label: 'Nouveau'}]" />{{ include('project/_form.html.twig') }}</div>{% endblock %}

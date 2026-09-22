@@ -1,11 +1,48 @@
-# yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
+# Public delivery is loaded independently from authenticated application delivery.
+public_site:
+    resource: ../src/PublicSite/Presentation/Http/
+    type: attribute
 
-# This file is the entry point to configure the routes of your app.
-# Methods with the #[Route] attribute are automatically imported.
-# See also https://symfony.com/doc/current/routing.html
+subscription_public:
+    resource: ../src/Subscription/Presentation/Http/Public/
+    type: attribute
 
-# To list all registered routes, run the following command:
-#   bin/console debug:router
+auth:
+    resource: ../src/Identity/Presentation/Http/Auth/
+    type: attribute
+    name_prefix: auth_
 
-controllers:
-    resource: routing.controllers
+authenticated_identity:
+    resource: ../src/Identity/Presentation/Http/App/
+    type: attribute
+    name_prefix: app_
+
+authenticated_project:
+    resource: ../src/Project/Presentation/Http/
+    type: attribute
+    name_prefix: app_
+
+authenticated_safety:
+    resource: ../src/Safety/Presentation/Http/
+    type: attribute
+    name_prefix: app_
+
+authenticated_compliance:
+    resource: ../src/Compliance/Presentation/Http/
+    type: attribute
+    name_prefix: app_
+
+authenticated_commercial:
+    resource: ../src/Commercial/Presentation/Http/
+    type: attribute
+    name_prefix: app_
+
+authenticated_workforce:
+    resource: ../src/Workforce/Presentation/Http/
+    type: attribute
+    name_prefix: app_
+
+authenticated_subscription:
+    resource: ../src/Subscription/Presentation/Http/App/
+    type: attribute
+    name_prefix: app_

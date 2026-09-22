@@ -1,0 +1,24 @@
+import '@hotwired/turbo';
+import { startStimulusApp } from '@symfony/stimulus-bundle';
+import SidebarController from './controllers/sidebar_controller.js';
+import OfflineQueueController from './controllers/offline_queue_controller.js';
+import PhotoUploadController from './controllers/photo_upload_controller.js';
+import SignatureCanvasController from './controllers/signature_canvas_controller.js';
+import CameraCaptureController from './controllers/camera_capture_controller.js';
+import SafetyMediaController from './controllers/safety_media_controller.js';
+import ModalController from './controllers/modal_controller.js';
+import ToastController from './controllers/toast_controller.js';
+import TabBarController from './controllers/tab_bar_controller.js';
+import NetworkStateController from './controllers/network_state_controller.js';
+
+const authenticatedFrontend = startStimulusApp();
+authenticatedFrontend.register('sidebar', SidebarController);
+authenticatedFrontend.register('offline-queue', OfflineQueueController);
+authenticatedFrontend.register('photo-upload', PhotoUploadController);
+authenticatedFrontend.register('signature-canvas', SignatureCanvasController);
+authenticatedFrontend.register('camera-capture', CameraCaptureController);
+authenticatedFrontend.register('safety-media', SafetyMediaController);
+authenticatedFrontend.register('modal', ModalController);
+authenticatedFrontend.register('toast', ToastController);
+authenticatedFrontend.register('tab-bar', TabBarController);
+authenticatedFrontend.register('network-state', NetworkStateController);

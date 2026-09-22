@@ -1,0 +1,6 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>body{font-family:DejaVu Sans,sans-serif;font-size:11px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #bbb;padding:5px;text-align:left}.footer{margin-top:24px;color:#666}.stamp{font-weight:bold}</style></head><body>
+<h1>Déclaration CCQ — {{ declaration.periodMonth }}/{{ declaration.periodYear }}</h1>
+<p><strong>{{ organization.name }}</strong>{% if organization.rbqLicense %} · RBQ {{ organization.rbqLicense }}{% endif %}<br>Chantier : {{ project.address }}</p>
+<table><thead><tr><th>Travailleur</th><th>Métier</th><th>Région</th><th>Semaines</th><th>Total</th></tr></thead><tbody>{% for row in declaration.declaration %}<tr><td>{{ row.workerName|default('—') }}</td><td>{{ row.trade.label|default(row.trade|default('—')) }}</td><td>{{ row.region.label|default(row.region|default('—')) }}</td><td>{% for week in 1..5 %}S{{ week }}: {{ attribute(row, 'week' ~ week ~ 'Hours')|default(0) }} h{% if not loop.last %}, {% endif %}{% endfor %}</td><td>{{ row.totalHours|default(0) }} h</td></tr>{% endfor %}</tbody></table>
+<p class="stamp">Validation : {% if declaration.status in ['exported', 'filed', 'accepted', 'rejected'] %}Réussie{% else %}En attente{% endif %}</p><p class="footer">{{ footer }}</p>
+</body></html>

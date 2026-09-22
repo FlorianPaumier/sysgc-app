@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
-use App\Factory\OrganizationFactory;
-use App\Factory\UserFactory;
+use App\Tests\Factory\OrganizationFactory;
+use App\Tests\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -44,7 +44,7 @@ final class RegistrationControllerTest extends IntegrationTestCase
     }
 
     #[Test]
-    public function post_registration_with_valid_data_creates_org_and_user_and_redirects(): void
+    public function post_registration_with_valid_data_requires_magic_link_verification(): void
     {
         $this->client->request('GET', '/inscription');
         $this->client->submitForm('registration[register]', [
@@ -53,8 +53,12 @@ final class RegistrationControllerTest extends IntegrationTestCase
             'registration[rbqLicense]' => 'RBQ-1234-5678-90',
         ]);
 
-        // Auto-login and redirect to dashboard
-        $this->assertResponseRedirects('/dashboard');
+        $this->assertResponseRedirects('/login/check-email');
+
+        // Registration must not authenticate the new user before the emailed
+        // magic link is presented.
+        $this->client->request('GET', '/dashboard');
+        $this->assertResponseRedirects('/connexion');
     }
 
     #[Test]

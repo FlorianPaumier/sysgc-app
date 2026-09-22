@@ -1,0 +1,4 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Ajouter un sous-traitant — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_rbq_index', {id: project.id}) }}">RBQ</a> / Ajouter{% endblock %}
+{% block body %}<div class="mx-auto max-w-2xl px-4 py-8"><h1>Ajouter un sous-traitant</h1><p>Si la vérification automatique échoue, consignez la date, la source, les notes et la preuve de votre vérification manuelle.</p>{{ form_start(form) }}{{ form_widget(form) }}<div class="form-actions"><button class="btn" type="submit">Ajouter</button><a class="btn" href="{{ path('app_rbq_index', {id: project.id}) }}">Annuler</a></div>{{ form_end(form) }}</div>{% endblock %}

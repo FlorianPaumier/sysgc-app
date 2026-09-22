@@ -92,6 +92,10 @@ RUN <<-EOF
 	composer dump-env prod
 	composer run-script --no-dev post-install-cmd
 	if [ -f importmap.php ]; then
+		# AssetMapper's public output is generated state.  Remove any copied or
+		# cached files first so a stale unhashed stylesheet cannot shadow the
+		# digested Tailwind entrypoint (and create a self-referential mapping).
+		rm -rf public/assets/*
 		php bin/console asset-map:compile
 	fi
 	chmod +x bin/console

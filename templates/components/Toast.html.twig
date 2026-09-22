@@ -1,0 +1,15 @@
+{% props type = 'success', message = '', duration = 3000, dismissible = true %}
+
+<div
+    class="toast toast--{{ type }}"
+    role="{{ type in ['error', 'critical'] ? 'alert' : 'status' }}"
+    aria-live="{{ type in ['error', 'critical'] ? 'assertive' : 'polite' }}"
+    data-controller="toast"
+    data-toast-duration-value="{{ duration }}"
+>
+    <span class="toast__mark" aria-hidden="true">{{ type == 'success' ? '✓' : (type == 'error' ? '!' : 'i') }}</span>
+    <p class="toast__message">{{ message }}</p>
+    {% if dismissible %}
+        <button type="button" class="toast__close" data-action="toast#dismiss" aria-label="Fermer la notification">×</button>
+    {% endif %}
+</div>

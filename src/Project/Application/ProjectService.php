@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Project\Application;
+
+use App\Project\Domain\Enum\ProjectStatus;
+use App\Identity\Domain\Model\Organization;
+use App\Project\Domain\Model\Project;
+use App\Project\Infrastructure\Doctrine\ProjectRepository;
+
+readonly class ProjectService
+{
+    public function __construct(
+        private ProjectRepository $projectRepository,
+    ) {}
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function create(array $data, Organization $org): Project
+    {
+        $address = \is_string($data['address'] ?? null) ? $data['address'] : 'Unknown';
+        $clientName = \is_string($data['clientName'] ?? null) ? $data['clientName'] : 'Unknown';
+
+        $project = new Project($org, $address, $clientName);
+
+        if (($data['startDate'] ?? null) instanceof \DateTimeInterface) {
+            $project->setStartDate($data['startDate']);
+        }
+
+        if (\is_string($data['budget'] ?? null)) {
+            $project->setBudget($data['budget']);
+        }
+
+        if (($data['endDate'] ?? null) instanceof \DateTimeInterface) {
+            $project->setEndDate($data['endDate']);
+        }
+
+        if (($data['status'] ?? null) instanceof ProjectStatus) {
+            $project->setStatus($data['status']);
+        }
+
+        $this->projectRepository->save($project, true);
+
+        return $project;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function update(Project $project, array $data): Project
+    {
+        if (\is_string($data['address'] ?? null)) {
+            $project->setAddress($data['address']);
+        }
+
+        if (\is_string($data['clientName'] ?? null)) {
+            $project->setClientName($data['clientName']);
+        }
+
+        if (($data['startDate'] ?? null) instanceof \DateTimeInterface) {
+            $project->setStartDate($data['startDate']);
+        }
+
+        if (($data['endDate'] ?? null) instanceof \DateTimeInterface) {
+            $project->setEndDate($data['endDate']);
+        }
+
+        if (\is_string($data['budget'] ?? null)) {
+            $project->setBudget($data['budget']);
+        }
+
+        if (($data['status'] ?? null) instanceof ProjectStatus) {
+            $project->setStatus($data['status']);
+        }
+
+        $this->projectRepository->save($project, true);
+
+        return $project;
+    }
+
+    public function archive(Project $project): void
+    {
+        $project->setStatus(ProjectStatus::ARCHIVED);
+
+        $this->projectRepository->save($project, true);
+    }
+}

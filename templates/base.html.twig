@@ -28,13 +28,11 @@
     >
     
     {% block stylesheets %}
-        {# Logical asset path (AssetMapper public prefix is /assets) — served
-           digested + compiled by the TailwindCssAssetCompiler. #}
-        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/public.css') }}">
     {% endblock %}
     
     {% block javascripts %}
-        {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% block importmap %}{{ importmap('public') }}{% endblock %}
     {% endblock %}
     
     {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
@@ -48,8 +46,10 @@
         ></script>
     {% endif %}
 </head>
-<body>
+<body data-frontend="public">
 <a href="#main" class="skip">Aller au contenu principal</a>
+<div data-public-chrome>
+{% block public_chrome %}
 {% embed 'components/partials/_nav.html.twig' %}
     {% block nav_links %}
         <li><a href="#modules">Modules</a></li>
@@ -59,10 +59,10 @@
         <li><a href="{{ path('app_contact') }}">Contact</a></li>
     {% endblock %}
 {% endembed %}
+{% endblock %}
+</div>
 {% block layout %}
-    {# Default page layout: a single main column with an optional aside.
-       The authenticated app shell (templates/layouts/app.html.twig) overrides
-       this block to add the desktop sidebar + mobile bottom nav. #}
+    {# Public pages only. Authenticated pages use app_base.html.twig. #}
     <div class="layout">
         <main id="main" tabindex="-1">
             {% block body %}{% endblock %}
@@ -70,24 +70,6 @@
         {% block aside %}{% endblock %}
     </div>
 {% endblock %}
-<footer id="contact">
-    <div class="wrap">
-        <div class="foot-grid">
-            <div>
-                <div class="foot-brand">SYS<span class="gc">GC</span></div>
-                <div class="foot-tag">Construit au Québec — pour les entrepreneurs du Québec</div>
-            </div>
-            <ul class="foot-links">
-                <li><a href="{{ path('home') }}">Contact</a></li>
-                <li><a href="{{ path('home') }}">Confidentialité</a></li>
-                <li><a href="{{ path('home') }}">Conditions</a></li>
-            </ul>
-        </div>
-        <div class="foot-bottom">
-            <span>© {{ 'now'|date('Y') }} SysGC — Tous droits réservés.</span>
-            <span>Hébergé au Québec · Loi 25 · SOC 2 Type II</span>
-        </div>
-    </div>
-</footer>
+{% include 'components/partials/_footer.html.twig' %}
 </body>
 </html>

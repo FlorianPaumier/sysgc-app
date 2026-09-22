@@ -1,10 +1,10 @@
 # This file is for test environment specific configuration
 services:
-    App\Service\LicenseVerifier:
+    App\Compliance\Application\LicenseVerifier:
         public: true
         autowire: true
 
-    App\Service\RbqScraper:
+    App\Compliance\Infrastructure\RbqScraper:
         public: true
         autowire: true
 

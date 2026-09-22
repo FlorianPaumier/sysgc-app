@@ -1,0 +1,12 @@
+<section id="rbq-batch-progress" {% if this.progress.status != 'complete' %}data-live-poll="3000"{% endif %} aria-live="polite">
+    {% if this.progress.status == 'idle' %}
+        <p class="text-sm">Aucune vérification en cours.</p>
+    {% elseif this.progress.status == 'complete' %}
+        <p class="text-sm">Vérification terminée : {{ this.progress.verified }} licence(s) valide(s) sur {{ this.progress.total }}.</p>
+        {% if this.progress.manualReview > 0 %}<p><strong>{{ this.progress.manualReview }} vérification(s) manuelle(s) requise(s).</strong></p>{% endif %}
+        {% if this.progress.invalid > 0 %}<p>{{ this.progress.invalid }} licence(s) non vérifiée(s).</p>{% endif %}
+    {% else %}
+        <p class="text-sm">Vérification en cours : {{ this.progress.completed }} / {{ this.progress.total }}.</p>
+        <progress max="{{ this.progress.total }}" value="{{ this.progress.completed }}">{{ this.progress.completed }} sur {{ this.progress.total }}</progress>
+    {% endif %}
+</section>

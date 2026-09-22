@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Service;
 
-use App\Entity\Address;
-use App\Entity\Organization;
-use App\Entity\Project;
-use App\Entity\Subcontractor;
-use App\Service\LicenseVerifier;
-use App\Service\ValueObject\RbqLicenseResult;
+use App\Identity\Domain\Model\Address;
+use App\Identity\Domain\Model\Organization;
+use App\Project\Domain\Model\Project;
+use App\Compliance\Domain\Model\Subcontractor;
+use App\Compliance\Application\LicenseVerifier;
+use App\Compliance\Domain\ValueObject\RbqLicenseResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -26,11 +26,16 @@ final class LicenseVerifierTest extends WebTestCase
         self::bootKernel();
         $container = static::getContainer();
 
-        $this->verifier = $container->get(LicenseVerifier::class);
-        $this->entityManager = $container->get(EntityManagerInterface::class);
+        $verifier = $container->get(LicenseVerifier::class);
+        self::assertInstanceOf(LicenseVerifier::class, $verifier);
+        $this->verifier = $verifier;
+
+        $entityManager = $container->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $this->entityManager = $entityManager;
     }
 
-    public function test_verifySingle_updates_lastVerifiedAt(): void
+    public function test_verifySingle_without_a_license_requires_manual_review_without_a_false_success(): void
     {
         $address = new Address();
         $address->setStreet('123 Main St')
@@ -58,7 +63,9 @@ final class LicenseVerifierTest extends WebTestCase
 
         $this->assertFalse($result->found);
         $this->assertFalse($subcontractor->isVerified());
-        $this->assertNotNull($subcontractor->getLastVerifiedAt());
+        $this->assertNull($subcontractor->getLastVerifiedAt());
+        $this->assertTrue($subcontractor->requiresManualReview());
+        $this->assertNotNull($subcontractor->getLastVerificationAttemptAt());
     }
 
     public function test_verifyProject_returns_counts_for_all_subcontractors(): void

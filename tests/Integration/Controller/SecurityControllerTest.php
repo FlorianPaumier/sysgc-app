@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
-use App\Factory\UserFactory;
+use App\Tests\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -51,9 +51,7 @@ final class SecurityControllerTest extends IntegrationTestCase
             'login[email]' => 'test@example.com',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleContains('Vérifiez vos courriels');
-        $this->assertSelectorTextContains('body', 'courriel');
+        $this->assertResponseRedirects('/login/check-email');
     }
 
     #[Test]
@@ -64,8 +62,7 @@ final class SecurityControllerTest extends IntegrationTestCase
             'login[email]' => 'unknown@example.com',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleContains('Vérifiez vos courriels');
+        $this->assertResponseRedirects('/login/check-email');
         // Same confirmation page - no "user not found" error
     }
 
@@ -80,8 +77,7 @@ final class SecurityControllerTest extends IntegrationTestCase
             'login[email]' => 'not-an-email',
         ]);
 
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleContains('Vérifiez vos courriels');
+        $this->assertResponseRedirects('/login/check-email');
     }
 
     #[Test]

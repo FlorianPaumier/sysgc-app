@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Security;
 
-use App\Entity\MagicLink;
-use App\Factory\MagicLinkFactory;
-use App\Factory\UserFactory;
+use App\Identity\Domain\Model\MagicLink;
+use App\Tests\Factory\MagicLinkFactory;
+use App\Tests\Factory\UserFactory;
 use App\Tests\Integration\IntegrationTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -59,7 +59,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
-        $refreshed = $em->getRepository(\App\Entity\User::class)->find($user->getId());
+        $refreshed = $em->getRepository(\App\Identity\Domain\Model\User::class)->find($user->getId());
         self::assertNotNull($refreshed);
         $this->assertTrue($refreshed->isVerified());
     }
@@ -153,7 +153,7 @@ final class MagicLinkAuthenticatorTest extends IntegrationTestCase
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
-        $refreshed = $em->getRepository(\App\Entity\User::class)->find($user->getId());
+        $refreshed = $em->getRepository(\App\Identity\Domain\Model\User::class)->find($user->getId());
         self::assertNotNull($refreshed);
         $this->assertTrue($refreshed->isVerified()); // Still verified
     }

@@ -19,13 +19,14 @@ final class MagicLinkEmailTemplateTest extends KernelTestCase
     {
         self::bootKernel();
         $twig = self::getContainer()->get(Environment::class);
+        self::assertInstanceOf(Environment::class, $twig);
 
         $html = $twig->render('emails/magic_link.html.twig', [
             'url' => 'https://example.com/connexion/verifier?token=abc&email=foo@bar.com',
         ]);
 
         self::assertStringContainsString('https://example.com/connexion/verifier', $html);
-        self::assertStringContainsString('Me connecter', $html);
+        self::assertStringContainsString('Cliquez pour vous connecter', $html);
         self::assertStringContainsString('Ce lien expire dans 15 minutes.', $html);
         self::assertStringContainsString('Connexion à votre compte', $html);
     }

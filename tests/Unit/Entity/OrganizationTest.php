@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\Address;
-use App\Entity\Organization;
-use App\Entity\User;
-use App\Enum\SubscriptionTier;
+use App\Identity\Domain\Model\Address;
+use App\Identity\Domain\Model\Organization;
+use App\Identity\Domain\Model\User;
+use App\Identity\Domain\Enum\SubscriptionTier;
 use PHPUnit\Framework\TestCase;
 
 final class OrganizationTest extends TestCase
@@ -103,5 +103,32 @@ final class OrganizationTest extends TestCase
         $organization->setSubscriptionTier(null);
 
         self::assertNull($organization->getSubscriptionTier());
+    }
+
+    public function test_deletion_can_be_scheduled_and_recovered_for_thirty_days(): void
+    {
+        $organization = new Organization();
+        $scheduledAt = new \DateTimeImmutable('2026-09-16 10:00:00');
+
+        $organization->scheduleDeletion($scheduledAt);
+
+        self::assertTrue($organization->isDeletionScheduled());
+        self::assertEquals($scheduledAt->modify('+30 days'), $organization->getDeletionAt());
+        self::assertTrue($organization->canRecoverDeletion($scheduledAt->modify('+29 days')));
+
+        $organization->recoverDeletion();
+        self::assertFalse($organization->isDeletionScheduled());
+        self::assertNull($organization->getDeletionAt());
+    }
+
+    public function test_checklist_defaults_are_stored_as_a_copy(): void
+    {
+        $organization = new Organization();
+        $defaults = ['inspection' => true, 'ppe' => false];
+
+        $organization->setChecklistDefaults($defaults);
+        $defaults['inspection'] = false;
+
+        self::assertSame(['inspection' => true, 'ppe' => false], $organization->getChecklistDefaults());
     }
 }

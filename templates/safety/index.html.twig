@@ -1,0 +1,69 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Registre de sécurité — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_project_show', {id: project.id}) }}">{{ project.address }}</a> / Sécurité{% endblock %}
+
+{% block body %}
+<section class="safety-calendar mx-auto max-w-3xl px-4 py-6" aria-labelledby="safety-calendar-title">
+    <header class="safety-page-header">
+        <h1 id="safety-calendar-title">Registre de sécurité</h1>
+        <p>{{ project.address }}</p>
+    </header>
+    <twig:MonthSelector
+        :month="selectedMonth"
+        :year="selectedYear"
+        :prevUrl="path('app_safety_index', {id: project.id, month: previousMonth|date('m'), year: previousMonth|date('Y')})"
+        :nextUrl="path('app_safety_index', {id: project.id, month: nextMonth|date('m'), year: nextMonth|date('Y')})"
+        label="Choisir le mois du registre de sécurité"
+    />
+    <p class="safety-calendar__legend"><span>🟢 Complété</span> <span>🟠 Brouillon</span> <span>🔴 Incident</span> <span>⚪ Rapport manquant</span></p>
+    <table class="safety-calendar__table">
+        <caption class="sr-only">Calendrier de sécurité — {{ selectedMonth }}/{{ selectedYear }}</caption>
+        <thead><tr>{% for day in ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}<th scope="col">{{ day }}</th>{% endfor %}</tr></thead>
+        <tbody><tr>
+            {% set firstWeekday = monthStart|date('N') %}
+            {% if firstWeekday > 1 %}{% for empty in 1..firstWeekday - 1 %}<td aria-hidden="true"></td>{% endfor %}{% endif %}
+            {% for dayNumber in 1..monthEnd|date('j') %}
+                {% set day = monthStart|date_modify('+' ~ (dayNumber - 1) ~ ' days') %}
+                {% set dateKey = day|date('Y-m-d') %}
+                {% set log = logsByDate[dateKey] ?? null %}
+                {% set future = day > today %}
+                {% set incident = log and log.incidentReport %}
+                {% set draft = log and log.status.value == 'draft' %}
+                {% set label = future ? 'date future' : (log ? (incident ? 'incident déclaré' : (draft ? 'brouillon' : 'rapport complété')) : 'rapport manquant') %}
+                <td class="safety-calendar__cell" role="gridcell" aria-label="{{ day|date('l j F') }} — {{ label }}">
+                    {% if future %}
+                        <span class="safety-calendar__day is-future" aria-disabled="true"><span>{{ dayNumber }}</span></span>
+                    {% else %}
+                        <a href="{{ path('app_safety_daily', {id: project.id, date: dateKey}) }}"
+                           class="safety-calendar__day {{ log and not draft ? 'is-complete' : '' }} {{ draft ? 'is-draft' : '' }} {{ not log ? 'is-missing' : '' }} {{ incident ? 'is-incident' : '' }} {{ dateKey == today|date('Y-m-d') ? 'is-today' : '' }}"
+                           {{ dateKey == today|date('Y-m-d') ? 'aria-current="date"' : '' }}
+                           aria-label="{{ day|date('l j F') }} — {{ label }}">
+                            <span>{{ dayNumber }}</span>
+                            {% if log %}<i class="safety-calendar__dot {{ incident ? 'is-incident' : (draft ? 'is-draft' : '') }}" aria-hidden="true"></i>{% else %}<i class="safety-calendar__dot is-missing" aria-hidden="true"></i>{% endif %}
+                        </a>
+                    {% endif %}
+                </td>
+                {% if day|date('N') == 7 and dayNumber != monthEnd|date('j') %}</tr><tr>{% endif %}
+            {% endfor %}
+        </tr></tbody>
+    </table>
+    {% if logsByDate is empty %}
+        <twig:EmptyState icon="🦺" title="Aucun rapport de sécurité" description="Commencez aujourd’hui pour garder une preuve de vos inspections." actionLabel="Remplir le rapport du jour" actionUrl="{{ path('app_safety_daily', {id: project.id, date: today|date('Y-m-d')}) }}" />
+    {% endif %}
+    <aside class="safety-today-card">
+        <h2>Aujourd’hui — {{ today|date('l j F') }}</h2>
+        {% set todayLog = logsByDate[today|date('Y-m-d')] ?? null %}
+        {% if todayLog and todayLog.status.value != 'draft' %}
+            <p class="is-success">✅ Rapport complété</p>
+            <a href="{{ path('app_safety_daily', {id: project.id, date: today|date('Y-m-d')}) }}">Consulter le rapport</a>
+        {% elseif todayLog %}
+            <p class="is-warning">🟠 Brouillon en cours</p>
+            <a class="btn btn-primary" href="{{ path('app_safety_daily', {id: project.id, date: today|date('Y-m-d')}) }}">Reprendre le rapport</a>
+        {% else %}
+            <p class="is-danger">Rapport non rempli</p>
+            <a class="btn btn-primary" href="{{ path('app_safety_daily', {id: project.id, date: today|date('Y-m-d')}) }}">Remplir le rapport du jour</a>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

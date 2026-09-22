@@ -1,0 +1,21 @@
+{% props trail = [], label = 'Historique des modifications' %}
+
+<section class="audit-trail" aria-labelledby="audit-trail-title">
+    <h2 id="audit-trail-title">{{ label }}</h2>
+    {% if trail is empty %}
+        <p class="text-muted">Aucune activité enregistrée.</p>
+    {% else %}
+        <ol class="audit-trail__list" aria-label="{{ label }}">
+            {% for entry in trail|reverse %}
+                <li class="audit-trail__entry">
+                    <div class="audit-trail__marker" aria-hidden="true">{{ entry.user|first|upper }}</div>
+                    <div>
+                        <p><strong>{{ entry.user }}</strong> — {{ entry.action }}</p>
+                        <p>{{ entry.detail }}</p>
+                        <time datetime="{{ entry.timestamp }}">{{ entry.timestamp|date('d/m/Y H:i') }}</time>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+</section>

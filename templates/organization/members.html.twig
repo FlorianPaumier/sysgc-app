@@ -1,0 +1,34 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Membres et invitations — SysGC{% endblock %}
+{% block breadcrumb %}Organisation / Membres{% endblock %}
+{% block body %}
+<main class="mx-auto max-w-5xl px-4 py-10">
+    <h1 class="text-2xl font-bold">Membres et invitations</h1>
+    {% for message in app.flashes('success') %}<p role="status">{{ message }}</p>{% endfor %}
+    <section aria-labelledby="members-heading" class="card mt-6">
+        <div class="card-body">
+            <h2 id="members-heading">Membres</h2>
+            <table><caption class="sr-only">Membres de l’organisation et leurs accès</caption><thead><tr><th scope="col">Courriel</th><th scope="col">Rôle</th><th scope="col">Chantiers</th><th scope="col">Statut</th><th scope="col">Actions</th></tr></thead><tbody>
+            {% for member in members %}
+                <tr><td>{{ member.email }}</td><td>{{ member.roleLabel }}</td><td>{{ member.assignedProjects|length }}</td><td>{{ member.active ? 'Actif' : 'Désactivé' }}</td><td>{% if member != app.user %}<form method="post" action="{{ path('app_organization_member_deactivate', {id: member.id}) }}"><button type="submit">Désactiver</button></form>{% endif %}{% if member.isForeman() %}<form method="post" action="{{ path('app_organization_member_projects', {id: member.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('organization_projects_' ~ member.id) }}"><label for="projects-{{ member.id }}">Chantiers assignés</label><select id="projects-{{ member.id }}" name="projects[]" multiple>{% for project in member.organization.projects %}<option value="{{ project.id }}"{% if member.assignedProjects.contains(project) %} selected{% endif %}>{{ project.name ?? project.address ?? 'Chantier' }}</option>{% endfor %}</select><button type="submit">Enregistrer les assignations</button></form>{% endif %}{% if app.user.isOwner() and not member.isOwner() and member.active %}<form method="post" action="{{ path('app_organization_transfer_ownership', {id: member.id}) }}"><button type="submit">Transférer la propriété</button></form>{% endif %}</td></tr>
+            {% endfor %}
+            </tbody></table>
+        </div>
+    </section>
+    <section aria-labelledby="invite-heading" class="card mt-6"><div class="card-body">
+        <h2 id="invite-heading">Inviter un membre</h2>
+        {{ form_start(form) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.role) }}
+        {{ form_row(form.projects) }}
+        {{ form_row(form.send) }}
+        {{ form_end(form) }}
+    </div></section>
+    {% if invitations is not empty %}
+    <section aria-labelledby="pending-heading" class="card mt-6"><div class="card-body">
+        <h2 id="pending-heading">Invitations en attente</h2>
+        <ul>{% for invitation in invitations %}<li>{{ invitation.email }} — {{ invitation.roleLabel }}{% if not invitation.accepted and not invitation.revoked %} <form class="inline" method="post" action="{{ path('app_organization_invitation_revoke', {id: invitation.id}) }}"><button type="submit">Révoquer</button></form>{% endif %}</li>{% endfor %}</ul>
+    </div></section>
+    {% endif %}
+</main>
+{% endblock %}

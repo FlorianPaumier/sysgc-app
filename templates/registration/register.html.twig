@@ -6,7 +6,7 @@
 
 {% block form_errors %}
     {% if errors|length > 0 %}
-        <div class="auth-field-error visible">
+        <div class="field-error visible">
             {%- for error in errors -%}
                 <span>{{ error.message }}</span>
             {%- endfor -%}
@@ -16,8 +16,8 @@
 
 {% block body %}
     <div class="auth-page">
-        <div class="auth-card">
-            <div class="auth-card-body">
+        <div class="card">
+            <div class="card-body">
                 {# Branding #}
                 <a href="{{ path('home') }}" class="auth-logo" aria-label="SysGC — Accueil">
                     <span class="auth-wordmark">SYS<span>GC</span></span>
@@ -39,32 +39,32 @@
 
                 {{ form_start(form, { attr: { class: 'auth-form' } }) }}
                     {% set email_has_error = form.email.vars.errors|length > 0 %}
-                    <div class="auth-field-group">
-                        {{ form_label(form.email, null, { label_attr: { class: 'auth-field-label' } }) }}
-                        {{ form_widget(form.email, { attr: { class: 'auth-field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca', 'aria-invalid': email_has_error ? 'true' : 'false' } }) }}
+                    <div class="field-group">
+                        {{ form_label(form.email, null, { label_attr: { class: 'field-label' } }) }}
+                        {{ form_widget(form.email, { attr: { class: 'field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca', 'aria-invalid': email_has_error ? 'true' : 'false' } }) }}
                         {{ form_errors(form.email) }}
                     </div>
 
                     {% set org_has_error = form.organizationName.vars.errors|length > 0 %}
-                    <div class="auth-field-group">
-                        {{ form_label(form.organizationName, null, { label_attr: { class: 'auth-field-label' } }) }}
-                        {{ form_widget(form.organizationName, { attr: { class: 'auth-field-input' ~ (org_has_error ? ' error' : ''), placeholder: 'Construction DEM inc.', 'aria-invalid': org_has_error ? 'true' : 'false' } }) }}
+                    <div class="field-group">
+                        {{ form_label(form.organizationName, null, { label_attr: { class: 'field-label' } }) }}
+                        {{ form_widget(form.organizationName, { attr: { class: 'field-input' ~ (org_has_error ? ' error' : ''), placeholder: 'Construction DEM inc.', 'aria-invalid': org_has_error ? 'true' : 'false' } }) }}
                         {{ form_errors(form.organizationName) }}
                     </div>
 
                     {% set rbq_has_error = form.rbqLicense.vars.errors|length > 0 %}
-                    <div class="auth-field-group">
-                        {{ form_label(form.rbqLicense, null, { label_attr: { class: 'auth-field-label' } }) }}
-                        {{ form_widget(form.rbqLicense, { attr: { class: 'auth-field-input' ~ (rbq_has_error ? ' error' : ''), placeholder: 'RBQ-1234-5678-90', 'aria-invalid': rbq_has_error ? 'true' : 'false' } }) }}
+                    <div class="field-group">
+                        {{ form_label(form.rbqLicense, null, { label_attr: { class: 'field-label' } }) }}
+                        {{ form_widget(form.rbqLicense, { attr: { class: 'field-input' ~ (rbq_has_error ? ' error' : ''), placeholder: 'RBQ-1234-5678-90', 'aria-invalid': rbq_has_error ? 'true' : 'false' } }) }}
                         {{ form_errors(form.rbqLicense) }}
-                        <span class="auth-field-helper">Format&nbsp;: RBQ-1234-5678-90. Votre numéro à 10 chiffres suivi de 2 chiffres.</span>
+                        <span class="field-helper">Format&nbsp;: RBQ-1234-5678-90. Votre numéro à 10 chiffres suivi de 2 chiffres.</span>
                     </div>
 
                     {{ form_widget(form.register, { attr: { class: 'auth-submit-btn' } }) }}
                 {{ form_end(form) }}
 
                 <p class="auth-footer-link">
-                    Vous avez déjà un compte&nbsp;? <a href="{{ path('login') }}">Connectez-vous</a>.
+                    Vous avez déjà un compte&nbsp;? <a href="{{ path('auth_login') }}">Connectez-vous</a>.
                 </p>
             </div>
         </div>

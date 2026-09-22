@@ -15,7 +15,11 @@ export default defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        baseURL: 'https://localhost',
+        // The local HTTPS listener can run on a non-default port (for example
+        // 18443 in the desktop test environment). Keep the default for Docker,
+        // while allowing CI/desktop runs to select the live endpoint without
+        // rewriting every relative navigation in the suite.
+        baseURL: process.env.SYSGC_BASE_URL ?? 'https://localhost',
         ignoreHTTPSErrors: true, // accept the self-signed Caddy cert
         trace: 'on-first-retry',
     },

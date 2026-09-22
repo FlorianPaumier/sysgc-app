@@ -1,0 +1,14 @@
+{% props project, score = 0 %}
+<article class="project-card">
+    <a href="{{ path('app_project_show', {id: project.id}) }}" data-dashboard-project>
+        <div class="project-card__heading">
+            <div><span class="project-card__eyebrow">Chantier</span><h3>{{ project.name ?: project.address }}</h3></div>
+            {% set status = project.status.value %}
+            {% set status_label = status == 'active' ? 'Actif' : (status == 'on_hold' ? 'En pause' : (status == 'archived' ? 'Archivé' : 'Terminé')) %}
+            {% set status_tone = status|replace({'_': '-'}) %}
+            <span data-dashboard-project-status="{{ status }}"><twig:StatusBadge :status="status_tone" :label="status_label" /></span>
+        </div>
+        <p class="project-card__client">{{ project.clientName }} · {{ project.address }}</p>
+        <div class="project-card__meta"><span>{{ project.startDate ? project.startDate|date('Y-m-d') : 'Date à confirmer' }}</span><twig:ComplianceBadge :score="score" /></div>
+    </a>
+</article>

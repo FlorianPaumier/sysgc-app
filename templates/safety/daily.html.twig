@@ -1,0 +1,26 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Rapport de sécurité — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_safety_index', {id: project.id}) }}">Calendrier</a> / Rapport de sécurité{% endblock %}
+
+{% block body %}
+<section class="safety-daily mx-auto max-w-xl px-4 py-6" aria-labelledby="safety-daily-title" data-controller="offline-queue" data-offline-queue-key-value="safety:{{ project.id }}:{{ date|date('Y-m-d') }}">
+    <p class="safety-offline" role="alert" hidden data-offline-queue-target="banner">📡 Hors ligne — Les données seront synchronisées à la reconnexion.</p>
+    <header class="safety-page-header">
+        <a href="{{ path('app_safety_index', {id: project.id}) }}">← Calendrier</a>
+        <h1 id="safety-daily-title">Rapport de sécurité</h1>
+        <p>{{ date|date('l j F Y') }}</p>
+    </header>
+    <twig:SafetyChecklist
+        :projectId="project.id"
+        :date="date|date('Y-m-d')"
+        :weather="log ? log.weather : ''"
+        :checklistItems="log ? log.checklistItems : []"
+        :photos="log ? log.hazardPhotos : []"
+        :signatures="log ? log.workerSignatures : []"
+        :incidentReport="log ? log.incidentReport ?? '' : ''"
+        :status="log ? log.status.value : 'draft'"
+        :version="log ? log.version : 1"
+    />
+</section>
+{% endblock %}

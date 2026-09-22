@@ -1,0 +1,6 @@
+{% for alert in alerts %}
+    <a href="{{ alert.link }}" class="dashboard-alert dashboard-alert--{{ alert.level }}" data-dashboard-alert>
+        <span>{{ alert.level == 'critical' ? 'Critique' : (alert.level == 'warning' ? 'Attention' : 'Conforme') }}</span>
+        <p>{{ alert.message }}</p>
+    </a>
+{% endfor %}

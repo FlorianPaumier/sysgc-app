@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Enum\CcqRegion;
-use App\Enum\CcqTrade;
-use App\Service\ValidationEngine;
-use App\Service\ValueObject\CcqError;
-use App\Service\ValueObject\CcqValidationResult;
+use App\Workforce\Domain\Enum\CcqRegion;
+use App\Workforce\Domain\Enum\CcqTrade;
+use App\Compliance\Domain\Service\ValidationEngine;
+use App\Compliance\Domain\ValueObject\CcqError;
+use App\Compliance\Domain\ValueObject\CcqValidationResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @phpstan-type Worker array{workerId: int|null, workerName: string, trade: CcqTrade|string|null, region: CcqRegion|string|null, isApprentice: bool, hasSupervisorSignature: bool, hasOvertimeFlag: bool, hasPerDiemFlag: bool, hasSundayJustification: bool, dailyHours: array<int, array{monday: float, tuesday: float, wednesday: float, thursday: float, friday: float, saturday: float, sunday: float}|null>}
+ * @phpstan-type Options array{month?: int, year?: int, projectIsActive?: bool, hasExistingDeclaration?: bool, crossProjectWeeklyHours?: array<int, array<int, float>>}
+ */
 final class ValidationEngineTest extends TestCase
 {
     private ValidationEngine $engine;
@@ -27,9 +31,12 @@ final class ValidationEngineTest extends TestCase
     /**
      * Build a single worker entry with sensible defaults.
      */
+    /** @param array<string, mixed> $overrides
+     * @return Worker
+     */
     private function worker(array $overrides = []): array
     {
-        return array_merge([
+        $worker = [
             'workerId' => 1,
             'workerName' => 'Jean Tremblay',
             'trade' => CcqTrade::Carpenter,
@@ -42,9 +49,56 @@ final class ValidationEngineTest extends TestCase
             'dailyHours' => [
                 1 => ['monday' => 8.0, 'tuesday' => 8.0, 'wednesday' => 8.0, 'thursday' => 8.0, 'friday' => 8.0, 'saturday' => 0.0, 'sunday' => 0.0],
             ],
-        ], $overrides);
+        ];
+
+        foreach ($overrides as $key => $value) {
+            switch ($key) {
+                case 'workerId': if (is_int($value) || $value === null) $worker[$key] = $value; break;
+                case 'workerName': if (is_string($value)) $worker[$key] = $value; break;
+                case 'trade': if ($value instanceof CcqTrade || is_string($value) || $value === null) $worker[$key] = $value; break;
+                case 'region': if ($value instanceof CcqRegion || is_string($value) || $value === null) $worker[$key] = $value; break;
+                case 'isApprentice':
+                case 'hasSupervisorSignature':
+                case 'hasOvertimeFlag':
+                case 'hasPerDiemFlag':
+                case 'hasSundayJustification': if (is_bool($value)) $worker[$key] = $value; break;
+                case 'dailyHours': if (is_array($value)) $worker[$key] = $this->dailyHours($value); break;
+            }
+        }
+
+        return $worker;
     }
 
+    /** @param array<mixed> $hours
+     * @return array<int, array{monday: float, tuesday: float, wednesday: float, thursday: float, friday: float, saturday: float, sunday: float}|null>
+     */
+    private function dailyHours(array $hours): array
+    {
+        $result = [];
+        foreach ($hours as $week => $days) {
+            if (!is_int($week)) continue;
+            if ($days === null) { $result[$week] = null; continue; }
+            if (!is_array($days)) continue;
+            $names = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            $valid = true;
+            foreach ($names as $name) {
+                if (!isset($days[$name]) || !is_float($days[$name])) { $valid = false; break; }
+            }
+            if ($valid && (!is_float($days['monday']) || !is_float($days['tuesday']) || !is_float($days['wednesday']) || !is_float($days['thursday']) || !is_float($days['friday']) || !is_float($days['saturday']) || !is_float($days['sunday']))) $valid = false;
+            if ($valid) {
+                $result[$week] = [
+                    'monday' => $days['monday'], 'tuesday' => $days['tuesday'], 'wednesday' => $days['wednesday'],
+                    'thursday' => $days['thursday'], 'friday' => $days['friday'], 'saturday' => $days['saturday'],
+                    'sunday' => $days['sunday'],
+                ];
+            }
+        }
+        return $result;
+    }
+
+    /** @param list<Worker> $workers
+     * @param Options $options
+     */
     private function validate(array $workers, array $options = []): CcqValidationResult
     {
         return $this->engine->validate(
@@ -84,22 +138,26 @@ final class ValidationEngineTest extends TestCase
 
     private function assertNoError(string $code, CcqValidationResult $result): void
     {
+        $found = false;
         foreach ($result->errors as $error) {
             if ($error->code === $code && $error->isError()) {
-                $this->fail("Did not expect error '{$code}' but it was found.");
+                $found = true;
+                break;
             }
         }
-        $this->assertTrue(true); // pass
+        $this->assertFalse($found, "Did not expect error '{$code}' but it was found.");
     }
 
     private function assertNoWarning(string $code, CcqValidationResult $result): void
     {
+        $found = false;
         foreach ($result->errors as $error) {
             if ($error->code === $code && $error->isWarning) {
-                $this->fail("Did not expect warning '{$code}' but it was found.");
+                $found = true;
+                break;
             }
         }
-        $this->assertTrue(true);
+        $this->assertFalse($found, "Did not expect warning '{$code}' but it was found.");
     }
 
     // ── Rule 1: worker_no_hours (warning) ─────────────────────
@@ -506,6 +564,7 @@ final class ValidationEngineTest extends TestCase
         $this->assertHasError('invalid_hours_precision', $result);
     }
 
+    /** @return iterable<array{float}> */
     public static function invalidPrecisionProvider(): iterable
     {
         yield '0.1' => [0.1];
@@ -531,6 +590,7 @@ final class ValidationEngineTest extends TestCase
         $this->assertNoError('invalid_hours_precision', $result);
     }
 
+    /** @return iterable<array{float}> */
     public static function validPrecisionProvider(): iterable
     {
         yield '0.0' => [0.0];

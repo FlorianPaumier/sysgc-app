@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Organization;
-use App\Entity\User;
-use App\Enum\SubscriptionTier;
-use App\Exception\NotImplementedException;
-use App\Repository\OrganizationRepository;
-use App\Service\StripeService;
+use App\Identity\Domain\Model\Organization;
+use App\Identity\Domain\Model\User;
+use App\Identity\Domain\Enum\SubscriptionTier;
+use App\Identity\Infrastructure\Doctrine\OrganizationRepository;
+use App\Subscription\Application\StripeService;
 use App\Tests\Fake\FakeStripeClient;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -28,8 +28,7 @@ final class StripeServiceTest extends TestCase
     private $em;
     /** @var LoggerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $logger;
-    /** @var UrlGeneratorInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
     private StripeService $service;
 
     private const string STARTER_PRICE_ID = 'price_starter';
@@ -46,8 +45,9 @@ final class StripeServiceTest extends TestCase
 
         $this->urlGenerator->method('generate')
             ->willReturnCallback(fn (string $route) => match ($route) {
-                'billing_success' => 'http://localhost/facturation/succes',
-                'billing_upgrade' => 'http://localhost/forfaits',
+                'app_billing_success' => 'http://localhost/facturation/succes',
+                'app_billing_upgrade' => 'http://localhost/forfaits',
+                'app_organisation' => 'http://localhost/organisation',
                 default => throw new \RuntimeException("Unexpected route: {$route}"),
             });
 
@@ -95,7 +95,7 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        self::assertSame('subscription', $this->stripe->checkoutCreateParams['mode']);
+        self::assertSame('subscription', $this->stripe->checkoutCreateParams['mode'] ?? null);
     }
 
     public function test_create_checkout_session_passes_correct_price_id(): void
@@ -104,10 +104,10 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        $lineItems = $this->stripe->checkoutCreateParams['line_items'];
+        $lineItems = $this->stripe->checkoutCreateParams['line_items'] ?? [];
         self::assertCount(1, $lineItems);
-        self::assertSame('price_pro', $lineItems[0]['price']);
-        self::assertSame(1, $lineItems[0]['quantity']);
+        self::assertSame('price_pro', $lineItems[0]['price'] ?? null);
+        self::assertSame(1, $lineItems[0]['quantity'] ?? null);
     }
 
     public function test_create_checkout_session_sets_client_reference_id(): void
@@ -116,7 +116,7 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::STARTER_PRICE_ID);
 
-        self::assertSame((string) $org->getId(), $this->stripe->checkoutCreateParams['client_reference_id']);
+        self::assertSame((string) $org->getId(), $this->stripe->checkoutCreateParams['client_reference_id'] ?? null);
     }
 
     public function test_create_checkout_session_sets_tier_metadata(): void
@@ -125,7 +125,7 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        self::assertSame('pro', $this->stripe->checkoutCreateParams['metadata']['tier']);
+        self::assertSame('pro', $this->stripe->checkoutCreateParams['metadata']['tier'] ?? null);
     }
 
     public function test_create_checkout_session_enables_automatic_tax(): void
@@ -134,7 +134,7 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        self::assertTrue($this->stripe->checkoutCreateParams['automatic_tax']['enabled']);
+        self::assertTrue($this->stripe->checkoutCreateParams['automatic_tax']['enabled'] ?? false);
     }
 
     public function test_create_checkout_session_reuses_existing_customer(): void
@@ -143,7 +143,7 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        self::assertSame('cus_existing', $this->stripe->checkoutCreateParams['customer']);
+        self::assertSame('cus_existing', $this->stripe->checkoutCreateParams['customer'] ?? null);
         self::assertArrayNotHasKey('customer_email', $this->stripe->checkoutCreateParams);
     }
 
@@ -156,7 +156,7 @@ final class StripeServiceTest extends TestCase
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
         self::assertArrayNotHasKey('customer', $this->stripe->checkoutCreateParams);
-        self::assertSame('owner@example.com', $this->stripe->checkoutCreateParams['customer_email']);
+        self::assertSame('owner@example.com', $this->stripe->checkoutCreateParams['customer_email'] ?? null);
     }
 
     public function test_create_checkout_session_sets_success_and_cancel_urls(): void
@@ -165,8 +165,8 @@ final class StripeServiceTest extends TestCase
 
         $this->service->createCheckoutSession($org, self::PRO_PRICE_ID);
 
-        self::assertStringContainsString('facturation/succes', $this->stripe->checkoutCreateParams['success_url']);
-        self::assertStringContainsString('forfaits', $this->stripe->checkoutCreateParams['cancel_url']);
+        self::assertStringContainsString('facturation/succes', $this->stripe->checkoutCreateParams['success_url'] ?? '');
+        self::assertStringContainsString('forfaits', $this->stripe->checkoutCreateParams['cancel_url'] ?? '');
     }
 
     // ── handleWebhook: checkout.session.completed ───────────────────────
@@ -309,6 +309,26 @@ final class StripeServiceTest extends TestCase
         self::assertSame(SubscriptionTier::Business, $org->getSubscriptionTier());
     }
 
+    public function test_handle_webhook_subscription_updated_persists_current_period_end(): void
+    {
+        $org = $this->createOrganization(stripeCustomerId: 'cus_abc', tier: SubscriptionTier::Pro);
+        $this->repo->expects($this->once())->method('findOneByStripeCustomerId')->with('cus_abc')->willReturn($org);
+        $this->stripe->subscriptionListData = [
+            ['items' => ['data' => [['price' => ['id' => 'price_pro']]]]],
+        ];
+
+        $this->service->handleWebhook([
+            'type' => 'customer.subscription.updated',
+            'data' => ['object' => [
+                'customer' => 'cus_abc',
+                'status' => 'active',
+                'current_period_end' => 1798804800,
+            ]],
+        ]);
+
+        self::assertEquals(new \DateTimeImmutable('@1798804800'), $org->getSubscriptionExpiresAt());
+    }
+
     // ── handleWebhook: customer.subscription.deleted ────────────────────
 
     public function test_handle_webhook_subscription_deleted_downgrades_tier(): void
@@ -386,14 +406,14 @@ final class StripeServiceTest extends TestCase
 
     // ── createCustomerPortal ────────────────────────────────────────────
 
-    public function test_create_customer_portal_throws_not_implemented(): void
+    public function test_create_customer_portal_returns_url(): void
     {
         $org = $this->createOrganization(stripeCustomerId: 'cus_123');
 
-        $this->expectException(NotImplementedException::class);
-        $this->expectExceptionMessage('Customer Portal sera disponible prochainement.');
-
-        $this->service->createCustomerPortal($org);
+        self::assertSame(
+            'https://billing.stripe.com/p/session/test',
+            $this->service->createCustomerPortal($org),
+        );
     }
 
     // ── priceIdForTier ──────────────────────────────────────────────────
@@ -415,6 +435,7 @@ final class StripeServiceTest extends TestCase
 
     // ── helpers ─────────────────────────────────────────────────────────
 
+    /** @return array{type: string, data: array{object: array<string, mixed>}} */
     private function checkoutCompletedPayload(string $customer, string $clientReferenceId, string $tier): array
     {
         return [

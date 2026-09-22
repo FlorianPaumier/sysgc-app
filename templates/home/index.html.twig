@@ -3,9 +3,6 @@
 {% block title %}SysGC — La conformité sans chiffrier{% endblock %}
 
 {% block body %}
-    <a href="#main" class="skip">Aller au contenu principal</a>
-
-    <main id="main">
 
         {# ─── HERO ─── #}
         <section class="hero">
@@ -16,7 +13,7 @@
                         <h1>La conformité<br>ne devrait pas<br><span class="line2">tenir sur un chiffrier.</span></h1>
                         <p class="hero-sub">Déclarations CCQ, vérification RBQ, registres CNESST, avenants et facturation — réunis dans un seul système. Construit au Québec, pour les entrepreneurs qui courent après les chantiers, pas après la paperasse.</p>
                         <div class="hero-cta">
-                            <a href="{{ path('register') }}" class="btn btn-primary">Essai gratuit — 30 jours</a>
+                            <a href="{{ path('auth_register') }}" class="btn btn-primary">Essai gratuit — 30 jours</a>
                             <a href="#modules" class="btn btn-ghost">Voir les modules →</a>
                         </div>
                         <div class="hero-meta">
@@ -44,7 +41,7 @@
                             <div class="permit-body">
                                 <div class="permit-row"><span class="k">Chantier</span><span class="v">1234 Beaubien E.</span></div>
                                 <div class="permit-row"><span class="k">Période</span><span class="v">01-10 → 31-10-25</span></div>
-                                <div class="permit-row"><span class="k">Employés</span><span class="v">14</span></div>
+                                <div class="permit-row"><span class="k">Travailleurs</span><span class="v">14</span></div>
                                 <div class="permit-row"><span class="k">Heures tot.</span><span class="v">1 872 h</span></div>
                                 <div class="permit-row"><span class="k">Cotisations</span><span class="v">8 412,40 $</span></div>
                                 <div class="permit-rules">
@@ -89,8 +86,8 @@
                     <article class="module">
                         <div class="module-num"><span>02</span><span class="code">RBQ</span></div>
                         <div class="module-name">Vérification RBQ</div>
-                        <div class="module-desc">Vérification de licence par entrepreneur sous-traitant. Alertes soixante jours avant échéance. Historique de conformité consultable.</div>
-                        <div class="module-meta">Renouvellement · Alerte 60 j</div>
+                        <div class="module-desc">Vérification de licence par entrepreneur sous-traitant. Alertes trente jours avant échéance. Historique de conformité consultable.</div>
+                        <div class="module-meta">Renouvellement · Alerte 30 j</div>
                     </article>
                     <article class="module">
                         <div class="module-num"><span>03</span><span class="code">CNS</span></div>
@@ -113,7 +110,7 @@
                     <article class="module">
                         <div class="module-num"><span>06</span><span class="code">DOC</span></div>
                         <div class="module-name">Documents</div>
-                        <div class="module-desc">Plans, contrats, certificats, photos de chantier. Classés par projet, accessibles depuis le téléphone sur le site.</div>
+                        <div class="module-desc">Plans, contrats, certificats, photos de chantier. Classés par chantier, accessibles depuis le téléphone sur le site.</div>
                         <div class="module-meta">Versions · Mobile · Partage</div>
                     </article>
                 </div>
@@ -185,53 +182,44 @@
                         <h2>Tarification simple.<br>Alignée sur votre taille.</h2>
                     </div>
                 </div>
-                <p class="section-lead">Trois forfaits, sans surprise. Tous incluent la conformité CCQ, RBQ et CNESST. La différence : le nombre de chantiers actifs et d'utilisateurs. Taxes provinciales et fédérales en sus.</p>
+                <p class="section-lead">Trois forfaits, sans surprise. Tous incluent la conformité CCQ, RBQ et CNESST. La différence : le nombre de travailleurs gérés. Taxes provinciales et fédérales en sus.</p>
                 
                 <div class="pricing-grid">
                     <article class="plan">
                         <div class="plan-name">Starter</div>
-                        <div class="plan-desc">Pour l'entrepreneur solo ou la petite équipe.</div>
+                        <div class="plan-desc">Pour l’entrepreneur solo ou la petite équipe.</div>
                         <div class="plan-price"><span class="cur">$</span>79<span class="per">/ mois</span></div>
                         <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
                         <ul class="plan-features">
-                            <li>3 chantiers actifs</li>
-                            <li>2 utilisateurs</li>
-                            <li>Modules CCQ + RBQ</li>
+                            <li>Jusqu’à 5 travailleurs</li>
+                            <li>Modules CCQ, RBQ et CNESST</li>
                             <li>Déclarations mensuelles</li>
-                            <li>Support courriel — 48 h</li>
                         </ul>
-                        <a href="{{ path('register') }}" class="plan-cta">Commencer l'essai</a>
+                        <a href="{{ path('auth_register') }}" class="plan-cta">Commencer l'essai</a>
                     </article>
                     <article class="plan featured">
                         <span class="plan-tag">Recommandé</span>
-                        <div class="plan-name">Growth</div>
-                        <div class="plan-desc">Pour les équipes en croissance, trois à dix chantiers.</div>
+                        <div class="plan-name">Pro</div>
+                        <div class="plan-desc">Pour les équipes de construction en croissance.</div>
                         <div class="plan-price"><span class="cur">$</span>149<span class="per">/ mois</span></div>
                         <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
                         <ul class="plan-features">
-                            <li>10 chantiers actifs</li>
-                            <li>8 utilisateurs</li>
+                            <li>Jusqu’à 20 travailleurs</li>
                             <li>Tous les modules inclus</li>
                             <li>Avenants électroniques</li>
-                            <li>Support téléphone — 24 h</li>
-                            <li>Formation initiale (1 h)</li>
                         </ul>
-                        <a href="{{ path('register') }}" class="plan-cta">Commencer l'essai</a>
+                        <a href="{{ path('auth_register') }}" class="plan-cta">Commencer l'essai</a>
                     </article>
                     <article class="plan">
-                        <div class="plan-name">Enterprise</div>
+                        <div class="plan-name">Business</div>
                         <div class="plan-desc">Pour les entrepreneurs établis, multi-chantiers.</div>
                         <div class="plan-price"><span class="cur">$</span>199<span class="per">/ mois</span></div>
                         <div class="plan-tax">+ TPS (5 %) + TVQ (9,975 %)</div>
                         <ul class="plan-features">
-                            <li>Chantiers illimités</li>
-                            <li>Utilisateurs illimités</li>
+                            <li>Jusqu’à 50 travailleurs</li>
                             <li>Tous les modules inclus</li>
-                            <li>API et intégrations</li>
-                            <li>Support prioritaire — 4 h</li>
-                            <li>Gestionnaire de compte dédié</li>
                         </ul>
-                        <a href="{{ path('register') }}" class="plan-cta">Commencer l'essai</a>
+                        <a href="{{ path('auth_register') }}" class="plan-cta">Commencer l'essai</a>
                     </article>
                 </div>
             </div>
@@ -250,11 +238,11 @@
                 </div>
                 <div class="faq-list">
                     {% set faqs = [
-                        {q: 'SysGC est-il conforme aux exigences de la CCQ?', a: 'Oui. SysGC est conçu spécifiquement pour le cadre réglementaire québécois de la construction. Tous les formulaires et calculs suivent les conventions collectives et les barèmes officiels. Les mises à jour sont déployées automatiquement dès qu\'un changement réglementaire est publié.'},
-                        {q: 'Puis-je importer mes employés et mes chantiers existants?', a: 'Absolument. SysGC accepte les imports CSV pour les listes de travailleurs, les chantiers en cours et l\'historique des déclarations. Notre équipe vous assiste gratuitement pour la migration si vous choisissez le forfait annuel.'},
+                        {q: 'SysGC est-il conforme aux exigences de la CCQ?', a: 'SysGC aide à préparer et valider vos données selon les règles configurées. Les exports sont identifiés comme non officiels et doivent être vérifiés avant leur transmission à la CCQ.'},
+                        {q: 'Puis-je importer mes données existantes?', a: 'L’import CSV est prévu pour les sous-traitants RBQ. Les autres migrations doivent être évaluées selon le format de vos données.'},
                         {q: 'Quels organismes sont couverts par SysGC?', a: 'CCQ (Commission de la construction du Québec), RBQ (Régie du bâtiment du Québec), CNESST (Commission des normes, de l\'équité, de la santé et de la sécurité du travail). Chaque module est tenu à jour avec les dernières exigences de son organisme.'},
                         {q: 'Comment fonctionne la période d\'essai?', a: 'Trente jours d\'accès complet au forfait Growth. Aucune carte de crédit requise, aucun engagement. Vous pouvez annuler en un clic à tout moment. Si vous dépassez la période, vous passez au forfait de votre choix.'},
-                        {q: 'Mes données sont-elles protégées?', a: 'Chiffrement AES-256 au repos et en transit. Infrastructure hébergée au Québec (datacenters montréalais). Conforme à la Loi 25 et aux normes SOC 2 Type II. Aucune donnée transmise hors du Canada.'},
+                        {q: 'Mes données sont-elles protégées?', a: 'Les accès sont isolés par organisation, les échanges sont protégés par TLS et les fichiers privés sont soumis à une vérification d’autorisation.'},
                     ] %}
                     {% for f in faqs %}
                         <details class="faq-item">
@@ -275,7 +263,7 @@
                         <h2>Prêt à quitter<br>le <em>chiffrier?</em></h2>
                         <p>Commencez votre essai gratuit. Trente jours. Aucune carte de crédit requise. Migration depuis Excel incluse avec le forfait annuel.</p>
                     </div>
-                    <form class="cta-form" action="{{ path('register') }}" method="get">
+                    <form class="cta-form" action="{{ path('auth_register') }}" method="get">
                         <label for="email">Courriel professionnel</label>
                         <div class="input-row">
                             <input type="email" id="email" name="email" placeholder="david@constructiondem.ca" required autocomplete="email">
@@ -287,5 +275,4 @@
             </div>
         </section>
 
-    </main>
 {% endblock %}

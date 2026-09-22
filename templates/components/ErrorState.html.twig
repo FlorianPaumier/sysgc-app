@@ -1,0 +1,10 @@
+{% props title = 'Une erreur est survenue', message, retryLabel = '', retryUrl = '' %}
+
+<section class="error-state" role="alert" aria-live="assertive">
+    <span class="error-state__mark" aria-hidden="true">!</span>
+    <div>
+        <h3>{{ title }}</h3>
+        <p>{{ message }}</p>
+        {% if retryLabel and retryUrl %}<a class="btn error-state__action" href="{{ retryUrl }}">{{ retryLabel }}</a>{% endif %}
+    </div>
+</section>

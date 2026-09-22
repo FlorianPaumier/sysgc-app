@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\Enum\ProjectStatus;
+use App\Project\Domain\Enum\ProjectStatus;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -29,14 +29,20 @@ class ProjectStatusTest extends TestCase
         $this->assertSame('on_hold', $status->value);
     }
 
+    public function testArchivedStatusCanBeRestoredFromPersistence(): void
+    {
+        $this->assertSame(ProjectStatus::ARCHIVED, ProjectStatus::tryFrom('archived'));
+    }
+
     public function testAllStatusesExist(): void
     {
         $statuses = [
             ProjectStatus::ACTIVE,
             ProjectStatus::COMPLETED,
             ProjectStatus::ON_HOLD,
+            ProjectStatus::tryFrom('archived'),
         ];
 
-        $this->assertCount(3, $statuses);
+        $this->assertCount(4, $statuses);
     }
 }

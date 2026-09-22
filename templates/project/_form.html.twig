@@ -1,0 +1,7 @@
+{{ form_start(form, {attr: {class: 'project-form'}}) }}
+    {{ form_errors(form) }}
+    <section class="project-form__section" aria-labelledby="project-identity-title"><div class="project-form__heading"><span>01</span><div><h2 id="project-identity-title">Identité du chantier</h2><p>Les repères utilisés partout dans SysGC.</p></div></div><div class="project-form__fields">{{ form_row(form.address) }}{{ form_row(form.clientName) }}</div></section>
+    <section class="project-form__section" aria-labelledby="project-schedule-title"><div class="project-form__heading"><span>02</span><div><h2 id="project-schedule-title">Échéancier et état</h2><p>Gardez le portefeuille aligné sur la réalité du terrain.</p></div></div><div class="project-form__fields project-form__fields--split">{{ form_row(form.startDate) }}{{ form_row(form.endDate) }}{{ form_row(form.status) }}</div></section>
+    <section class="project-form__section" aria-labelledby="project-budget-title"><div class="project-form__heading"><span>03</span><div><h2 id="project-budget-title">Budget</h2><p>Montant contractuel avant les avenants.</p></div></div><div class="project-form__fields project-form__fields--budget">{{ form_row(form.budget) }}</div></section>
+    <div class="project-form__actions"><a class="btn" href="{{ path('app_project_index') }}">Annuler</a><button class="btn btn-primary" type="submit">Enregistrer le chantier</button></div>
+{{ form_end(form) }}

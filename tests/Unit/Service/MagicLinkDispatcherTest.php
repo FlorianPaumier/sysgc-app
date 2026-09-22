@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\MagicLink;
-use App\Entity\User;
-use App\Message\SendMagicLinkMessage;
-use App\Service\MagicLinkDispatcher;
+use App\Identity\Domain\Model\MagicLink;
+use App\Identity\Domain\Model\User;
+use App\Identity\Application\MagicLink\SendMagicLinkMessage;
+use App\Identity\Application\MagicLink\MagicLinkDispatcher;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -20,9 +21,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final class MagicLinkDispatcherTest extends TestCase
 {
-    private $entityManager;
-    private $bus;
-    private $urlGenerator;
+    private EntityManagerInterface&MockObject $entityManager;
+    private MessageBusInterface&MockObject $bus;
+    private UrlGeneratorInterface&MockObject $urlGenerator;
     private MagicLinkDispatcher $dispatcher;
 
     protected function setUp(): void
@@ -56,10 +57,11 @@ final class MagicLinkDispatcherTest extends TestCase
         $this->urlGenerator->expects($this->once())
             ->method('generate')
             ->with(
-                'login_verify',
+                'auth_login_verify',
                 $this->callback(function (array $params) use (&$capturedToken) {
                     $capturedToken = $params['token'] ?? null;
-                    return isset($params['token']) && isset($params['email'])
+                    return isset($params['token'], $params['email'])
+                        && is_string($params['token'])
                         && \strlen($params['token']) === 128
                         && $params['email'] === 'test@example.com';
                 }),
@@ -74,6 +76,7 @@ final class MagicLinkDispatcherTest extends TestCase
         $this->dispatcher->dispatchFor($user);
 
         $this->assertNotNull($capturedToken);
+        $this->assertIsString($capturedToken);
         $this->assertMatchesRegularExpression('/^[a-f0-9]{128}$/', $capturedToken);
         $this->assertNotNull($capturedLink);
     }
@@ -86,7 +89,7 @@ final class MagicLinkDispatcherTest extends TestCase
 
         $this->entityManager->expects($this->once())
             ->method('persist')
-            ->with($this->callback(function (MagicLink $link) use (&$capturedLink, &$rawToken) {
+            ->with($this->callback(function (MagicLink $link) use (&$capturedLink) {
                 $capturedLink = $link;
                 // Extract the raw token that would be in the URL
                 $this->assertNotNull($link->getTokenHash());
@@ -98,9 +101,9 @@ final class MagicLinkDispatcherTest extends TestCase
 
         $this->urlGenerator->expects($this->once())
             ->method('generate')
-            ->with('login_verify', $this->callback(function (array $params) use (&$rawToken) {
-                $rawToken = $params['token'] ?? null;
-                return $rawToken !== null && \strlen((string) $rawToken) === 128;
+            ->with('auth_login_verify', $this->callback(function (array $params) use (&$rawToken) {
+            $rawToken = $params['token'] ?? null;
+                return is_string($rawToken) && \strlen($rawToken) === 128;
             }), UrlGeneratorInterface::ABSOLUTE_URL)
             ->willReturn('https://sysgc.test/connexion/verifier');
 
@@ -113,6 +116,7 @@ final class MagicLinkDispatcherTest extends TestCase
         $this->assertNotNull($capturedLink);
         $this->assertNotNull($rawToken);
 
+        $this->assertIsString($rawToken);
         $expectedHash = hash('sha256', $rawToken);
         $this->assertSame($expectedHash, $capturedLink->getTokenHash());
         $this->assertSame(64, \strlen($capturedLink->getTokenHash()));
@@ -197,7 +201,7 @@ final class MagicLinkDispatcherTest extends TestCase
             ->with($this->callback(function (SendMagicLinkMessage $message) use (&$capturedMessage, $generatedUrl) {
                 $capturedMessage = $message;
                 return $message->to === 'test@example.com'
-                    && $message->subject === 'Votre lien de connexion SysGC'
+                    && $message->subject === 'Connectez-vous à SysGC'
                     && $message->template === 'emails/magic_link.html.twig'
                     && isset($message->context['url'])
                     && $message->context['url'] === $generatedUrl;
@@ -217,7 +221,7 @@ final class MagicLinkDispatcherTest extends TestCase
         $this->urlGenerator->expects($this->once())
             ->method('generate')
             ->with(
-                'login_verify',
+                'auth_login_verify',
                 $this->anything(),
                 UrlGeneratorInterface::ABSOLUTE_URL,
             )
@@ -234,19 +238,13 @@ final class MagicLinkDispatcherTest extends TestCase
     private function createUser(string $email): User
     {
         $user = new User();
+        if ($email === '') {
+            throw new \InvalidArgumentException('Email must not be empty.');
+        }
+
         $user->setEmail($email);
 
         return $user;
     }
 
-    /**
-     * Extract raw token from URL generation by inspecting the params passed to urlGenerator.
-     * This is a workaround since we can't directly access the raw token after dispatch.
-     */
-    private function getRawTokenFromUrlGeneration(MagicLink $link): string
-    {
-        // This method relies on the test capturing the token during URL generation
-        // In the actual test assertions above, we capture it from the callback
-        return ''; // Placeholder - actual extraction happens in test callbacks
-    }
 }

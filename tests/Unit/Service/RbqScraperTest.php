@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Service\RbqScraper;
-use App\Service\ValueObject\RbqLicenseResult;
+use App\Compliance\Infrastructure\RbqScraper;
+use App\Compliance\Domain\ValueObject\RbqLicenseResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;

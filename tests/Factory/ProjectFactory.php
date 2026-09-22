@@ -2,24 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Factory;
+namespace App\Tests\Factory;
 
-use App\Entity\Enum\ProjectStatus;
-use App\Entity\Organization;
-use App\Entity\Project;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy as FoundryProxy;
+use App\Project\Domain\Enum\ProjectStatus;
+use App\Project\Domain\Model\Project;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends ModelFactory<Project>
- *
- * @method static Project|FoundryProxy create(array|callable $attributes = [])
- * @method static Project[]|FoundryProxy[] createMany(int $number, array|callable $attributes = [])
- *
- * @phpstan-type TModel = Project
- * @phpstan-type TProxy = FoundryProxy&Project
+ * @extends PersistentObjectFactory<Project>
  */
-final class ProjectFactory extends ModelFactory
+final class ProjectFactory extends PersistentObjectFactory
 {
     #[\Override]
     protected function defaults(): array|callable
@@ -29,20 +21,12 @@ final class ProjectFactory extends ModelFactory
             'clientName' => self::faker()->company(),
             'startDate' => new \DateTime(self::faker()->date()),
             'endDate' => self::faker()->optional(0.7)->passthrough(new \DateTime(self::faker()->date())),
-            'status' => self::faker()->randomElement(ProjectStatus::cases()),
+            // Test projects should be usable by default; archived/read-only
+            // projects are created explicitly through archived().
+            'status' => ProjectStatus::ACTIVE,
             'budget' => self::faker()->randomFloat(2, 10000, 500000),
             'organization' => OrganizationFactory::new(),
         ];
-    }
-
-    #[\Override]
-    protected function initialize(): self
-    {
-        return $this->instantiate(fn(array $attributes) => new Project(
-            $attributes['organization'],
-            $attributes['address'],
-            $attributes['clientName']
-        ));
     }
 
     #[\Override]
@@ -59,6 +43,11 @@ final class ProjectFactory extends ModelFactory
     public function completed(): self
     {
         return $this->with(['status' => ProjectStatus::COMPLETED]);
+    }
+
+    public function archived(): self
+    {
+        return $this->with(['status' => ProjectStatus::ARCHIVED]);
     }
 
     public function onHold(): self

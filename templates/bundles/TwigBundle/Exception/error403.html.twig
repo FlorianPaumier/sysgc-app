@@ -1,0 +1,11 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Accès refusé — SysGC{% endblock %}
+{% block breadcrumb %}Accès refusé{% endblock %}
+
+{% block body %}
+    <section class="container py-8" data-permission-denied>
+        <twig:PageHeader title="Accès refusé" subtitle="Vous n’avez pas la permission d’effectuer cette action." context="Sécurité" />
+        <twig:ErrorState title="Permission refusée" message="Demandez à un propriétaire ou à un administrateur de vérifier votre rôle et vos assignations." retryLabel="Retour au tableau de bord" retryUrl="{{ path(app.user.isForeman ? 'app_dashboard_terrain' : 'app_dashboard') }}" />
+    </section>
+{% endblock %}

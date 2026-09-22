@@ -1,0 +1,45 @@
+<div {{ attributes.defaults({class: 'safety-checklist'}) }} data-action="safety:saved@window->offline-queue#saved">
+<div data-controller="safety-media">
+    {% set readOnly = status != 'draft' %}
+    {% if readOnly %}<div class="alert-banner alert-banner--info" role="status">Ce rapport est complété et en lecture seule.{% if status == 'amended' %} Il s’agit d’un amendement conservant la version originale.{% endif %}</div>{% endif %}
+    <section class="safety-checklist__section" aria-labelledby="conditions-title">
+        <h2 id="conditions-title">Conditions</h2>
+        <label for="safety-weather">Météo</label>
+            <select id="safety-weather" data-model="weather" {{ readOnly ? 'disabled' : '' }}>
+            <option value="">Sélectionner la météo</option>
+            {% for option in ['Ensoleillé', 'Nuageux', 'Pluie', 'Neige', 'Extrême'] %}<option value="{{ option }}" {{ weather == option ? 'selected' : '' }}>{{ option }}</option>{% endfor %}
+        </select>
+    </section>
+    <section class="safety-checklist__section" aria-labelledby="checklist-title">
+        <h2 id="checklist-title">Checklist</h2>
+        <p class="safety-checklist__counter">{{ this.completedCount }} / {{ checklistItems|length }} éléments complétés</p>
+        <div class="safety-checklist__progress" aria-hidden="true"><i style="width: {{ checklistItems|length ? this.completedCount / checklistItems|length * 100 : 0 }}%"></i></div>
+        {% for item in checklistItems %}
+            <button type="button" class="safety-checklist__item {{ item.checked ? 'is-checked' : '' }}" data-action="{{ readOnly ? '' : 'live#action' }}" data-live-action-param="toggleItem" data-live-index-param="{{ loop.index0 }}" aria-pressed="{{ item.checked ? 'true' : 'false' }}" {{ readOnly ? 'disabled' : '' }}>
+                <span aria-hidden="true">{{ item.checked ? '✓' : '' }}</span>{{ item.label }}
+            </button>
+        {% endfor %}
+        {% if not readOnly %}<div class="safety-checklist__custom-item"><label for="new-safety-item">Contrôle spécifique au chantier</label><input id="new-safety-item" type="text" data-model="newItemLabel" placeholder="Ex. Vérifier les garde-corps de la mezzanine"><button type="button" class="btn" data-action="live#action" data-live-action-param="addOptionalItem">Ajouter le contrôle</button></div>{% endif %}
+    </section>
+    <section class="safety-checklist__section" aria-labelledby="photos-title" data-controller="photo-upload camera-capture">
+        <h2 id="photos-title">Photos</h2>
+        <div class="safety-photo-grid">
+            {% for photo in photos %}<img src="{{ photo starts with 'data:' ? photo : asset(photo) }}" alt="Photo de sécurité {{ loop.index }} du chantier" width="240" height="120" loading="lazy">{% endfor %}
+            {% if not readOnly %}<label class="safety-photo-add" aria-label="Prendre une photo du chantier"><input type="file" accept="image/*" capture="environment" data-photo-upload-target="input" data-action="change->photo-upload#upload">📷<span>Prendre une photo</span></label>{% endif %}
+        </div>
+    </section>
+    <section class="safety-checklist__section" aria-labelledby="signatures-title" data-controller="signature-canvas">
+        <h2 id="signatures-title">Signatures</h2>
+        {% for signature in signatures %}<figure class="safety-signature"><img src="{{ signature.dataUrl }}" alt="Signature de {{ signature.workerName }}" width="160" height="60"><figcaption>{{ signature.workerName }}</figcaption></figure>{% endfor %}
+        {% if not readOnly %}<p id="signature-help" class="field-helper">La zone de signature est un complément visuel. Pour une alternative accessible, indiquez le nom complet du travailleur dans le champ ci-dessous avant de valider.</p><label for="signature-worker">Nom du travailleur</label><input id="signature-worker" type="text" data-signature-canvas-target="name" aria-describedby="signature-help">
+        <canvas width="600" height="200" role="img" aria-label="Zone de signature — utilisez votre doigt pour signer" aria-describedby="signature-help" data-signature-canvas-target="canvas"></canvas>
+        <button type="button" class="btn" data-action="signature-canvas#clear">Effacer</button>
+        <button type="button" class="btn" data-action="signature-canvas#submit">Valider la signature</button><p class="sr-only" aria-live="polite" data-signature-canvas-target="status"></p>{% endif %}
+    </section>
+    <section class="safety-checklist__section" aria-labelledby="incident-title">
+        <h2 id="incident-title">Incidents</h2>
+        <label for="safety-incident">Signaler un incident</label><textarea id="safety-incident" rows="3" data-model="incidentReport"></textarea>
+    </section>
+    {% if not readOnly %}<div class="safety-checklist__save"><button type="button" class="btn" data-action="click->offline-queue#queueSafetyReport live#action" data-live-action-param="save">Enregistrer le brouillon</button><button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="complete">Terminer le rapport</button></div>{% endif %}
+</div>
+</div>

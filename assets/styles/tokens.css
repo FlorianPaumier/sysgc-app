@@ -1,0 +1,212 @@
+/* SysGC design tokens — construction field notebook / official paper form */
+
+:root {
+    color-scheme: light;
+
+    /* Color: light paper and ink */
+    --color-bg-primary: #F1ECDF;
+    --color-bg-secondary: #FFFCF5;
+    --color-bg-tertiary: #E8E1CF;
+    --color-bg-inverse: #17161A;
+    --color-text-primary: #17161A;
+    --color-text-secondary: #3D3A35;
+    --color-text-tertiary: #6B665C;
+    --color-text-inverse: #F1ECDF;
+    --color-text-link: #A94F0D;
+    --color-border-primary: #B5AC97;
+    --color-border-secondary: #D6CDB6;
+    --color-border-focus: #1565C0;
+    --color-accent-primary: #F47920;
+    --color-accent-primary-hover: #C45F11;
+    --color-accent-primary-active: #A94F0D;
+    --color-accent-secondary: #A94F0D;
+    --color-status-success: #167A3E;
+    --color-status-warning: #7A4C00;
+    --color-status-error: #B5341F;
+    --color-status-info: #1565C0;
+    --color-surface-overlay: rgb(23 22 26 / 62%);
+    --color-shadow-muted: rgb(23 22 26 / 8%);
+    --color-sidebar-text: #D8D3CA;
+    --color-sidebar-muted: #ABA69D;
+    --color-sidebar-rule: #403E44;
+    --color-sidebar-hover: #29282D;
+
+    /* Compatibility palette */
+    --color-paper: var(--color-bg-primary);
+    --color-paper-2: var(--color-bg-tertiary);
+    --color-ink: var(--color-text-primary);
+    --color-ink-2: var(--color-text-secondary);
+    --color-ink-3: var(--color-text-tertiary);
+    --color-rule: var(--color-border-primary);
+    --color-rule-2: var(--color-border-secondary);
+    --color-orange: var(--color-accent-primary);
+    --color-orange-deep: var(--color-accent-secondary);
+    --color-stamp: var(--color-status-error);
+    --color-success: var(--color-status-success);
+
+    /* Spacing: 4px base */
+    --space-0: 0;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+    --space-9: 6rem;
+    --space-10: 8rem;
+    --space-11: 12rem;
+    --space-12: 16rem;
+
+    /* Typography */
+    --font-family-display: "Saira Condensed", sans-serif;
+    --font-family-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-family-mono: "IBM Plex Mono", ui-monospace, monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-md: 1.125rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    --font-size-3xl: 3rem;
+    --font-size-4xl: 4rem;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --line-height-tight: 1.08;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.7;
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.08em;
+
+    /* Layout: hard-corner paper language */
+    --max-width-content: 72ch;
+    --max-width-wide: 1100px;
+    --max-width-page: 1240px;
+    --border-radius-sm: 0;
+    --border-radius-md: 0;
+    --border-radius-lg: 0;
+    --border-radius-full: 999px;
+    --shadow-sm: 3px 3px 0 var(--color-text-primary);
+    --shadow-md: 6px 6px 0 var(--color-text-primary);
+    --shadow-lg: 8px 8px 0 var(--color-text-primary);
+    --shadow-focus: 0 0 0 3px var(--color-border-focus);
+    /* Sidebar width includes the 1rem horizontal padding on each side in the
+       generated Tailwind stylesheet (content-box sizing). */
+    --sidebar-width: 14rem;
+    --touch-target-min: 44px;
+
+    /* Motion */
+    --duration-instant: 50ms;
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+    --duration-slower: 600ms;
+    --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+    --easing-in: cubic-bezier(0.4, 0, 1, 1);
+    --easing-out: cubic-bezier(0, 0, 0.2, 1);
+
+    /* Breakpoints */
+    --breakpoint-sm: 375px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* Component tokens */
+    --focus-ring: 3px solid var(--color-border-focus);
+    --status-success-surface: #E7F5EC;
+    --status-warning-surface: #FFF3D6;
+    --status-error-surface: #FBE9E5;
+    --status-info-surface: #E7F0FB;
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg-primary: #24221F;
+    --color-bg-secondary: #302D29;
+    --color-bg-tertiary: #403B34;
+    --color-bg-inverse: #F1ECDF;
+    --color-text-primary: #F1ECDF;
+    --color-text-secondary: #D6CDB6;
+    --color-text-tertiary: #B5AC97;
+    --color-text-inverse: #24221F;
+    --color-text-link: #FFB06F;
+    --color-border-primary: #756B5B;
+    --color-border-secondary: #514B42;
+    --color-border-focus: #7FB2F0;
+    --color-accent-primary: #FF9A4D;
+    --color-accent-primary-hover: #FFB06F;
+    --color-accent-primary-active: #F47920;
+    --color-accent-secondary: #FFB06F;
+    --color-status-success: #73D79A;
+    --color-status-warning: #F0BD61;
+    --color-status-error: #F28D78;
+    --color-status-info: #8EBBF3;
+    --color-surface-overlay: rgb(0 0 0 / 72%);
+    --color-shadow-muted: rgb(0 0 0 / 55%);
+    --color-sidebar-text: #D8D3CA;
+    --color-sidebar-muted: #ABA69D;
+    --color-sidebar-rule: #514B42;
+    --color-sidebar-hover: #403B34;
+    --shadow-sm: 3px 3px 0 rgb(0 0 0 / 55%);
+    --shadow-md: 6px 6px 0 rgb(0 0 0 / 55%);
+    --shadow-lg: 8px 8px 0 rgb(0 0 0 / 55%);
+    --status-success-surface: #193B27;
+    --status-warning-surface: #493719;
+    --status-error-surface: #4B2822;
+    --status-info-surface: #203954;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --color-bg-primary: #24221F;
+        --color-bg-secondary: #302D29;
+        --color-bg-tertiary: #403B34;
+        --color-bg-inverse: #F1ECDF;
+        --color-text-primary: #F1ECDF;
+        --color-text-secondary: #D6CDB6;
+        --color-text-tertiary: #B5AC97;
+        --color-text-inverse: #24221F;
+        --color-text-link: #FFB06F;
+        --color-border-primary: #756B5B;
+        --color-border-secondary: #514B42;
+        --color-border-focus: #7FB2F0;
+        --color-accent-primary: #FF9A4D;
+        --color-accent-primary-hover: #FFB06F;
+        --color-accent-primary-active: #F47920;
+        --color-accent-secondary: #FFB06F;
+        --color-status-success: #73D79A;
+        --color-status-warning: #F0BD61;
+        --color-status-error: #F28D78;
+        --color-status-info: #8EBBF3;
+        --color-surface-overlay: rgb(0 0 0 / 72%);
+        --color-shadow-muted: rgb(0 0 0 / 55%);
+        --color-sidebar-text: #D8D3CA;
+        --color-sidebar-muted: #ABA69D;
+        --color-sidebar-rule: #514B42;
+        --color-sidebar-hover: #403B34;
+        --shadow-sm: 3px 3px 0 rgb(0 0 0 / 55%);
+        --shadow-md: 6px 6px 0 rgb(0 0 0 / 55%);
+        --shadow-lg: 8px 8px 0 rgb(0 0 0 / 55%);
+        --status-success-surface: #193B27;
+        --status-warning-surface: #493719;
+        --status-error-surface: #4B2822;
+        --status-info-surface: #203954;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --duration-instant: 0ms;
+        --duration-fast: 0ms;
+        --duration-normal: 0ms;
+        --duration-slow: 0ms;
+        --duration-slower: 0ms;
+    }
+}

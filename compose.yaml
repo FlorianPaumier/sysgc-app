@@ -60,5 +60,7 @@ volumes:
   caddy_data:
   caddy_config:
   database_data:
+  uploads_data:
+  safety_photos_data:
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###

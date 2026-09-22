@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Enum\ProjectStatus;
-use App\Entity\Organization;
-use App\Entity\Project;
-use App\Repository\ProjectRepository;
-use App\Service\ProjectService;
+use App\Project\Domain\Enum\ProjectStatus;
+use App\Identity\Domain\Model\Organization;
+use App\Project\Domain\Model\Project;
+use App\Project\Infrastructure\Doctrine\ProjectRepository;
+use App\Project\Application\ProjectService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -108,7 +108,7 @@ class ProjectServiceTest extends TestCase
         $service = new ProjectService($repository);
         $service->archive($project);
 
-        $this->assertSame(ProjectStatus::ON_HOLD, $project->getStatus());
+        $this->assertSame('archived', $project->getStatus()->value);
     }
 
     public function testArchiveCompletedProject(): void
@@ -126,6 +126,6 @@ class ProjectServiceTest extends TestCase
         $service = new ProjectService($repository);
         $service->archive($project);
 
-        $this->assertSame(ProjectStatus::COMPLETED, $project->getStatus());
+        $this->assertSame('archived', $project->getStatus()->value);
     }
 }

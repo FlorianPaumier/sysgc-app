@@ -1,0 +1,103 @@
+{% set route = app.request.attributes.get('_route') ?? '' %}
+{% set shell_role = app.user.isForeman ? 'foreman' : (app.user.isOwner ? 'owner' : 'admin') %}
+{% set role_label = shell_role == 'foreman' ? 'Contremaître' : (shell_role == 'owner' ? 'Propriétaire' : 'Administrateur') %}
+{% set home_route = shell_role == 'foreman' ? 'app_dashboard_terrain' : 'app_dashboard' %}
+{% set subscription_tier = app.user.organization ? app.user.organization.subscriptionTier : null %}
+{% set subscription_status = app.user.organization ? app.user.organization.subscriptionStatus(null, app.user.organization.workers|length, app.user.organization.users|length).value : 'no_subscription' %}
+{% set subscription_label = subscription_tier ? subscription_tier.label : 'Aucun forfait' %}
+{% set screen_flashes = {success: app.flashes('success'), error: app.flashes('error'), info: app.flashes('info')} %}
+{% set dashboard_active = route starts with 'app_dashboard' %}
+{% set projects_active = route starts with 'app_project_' %}
+{% set compliance_active = route starts with 'app_ccq_' or route starts with 'app_rbq_' %}
+{% set workers_active = route starts with 'app_worker_' %}
+{% set organization_active = route == 'app_organisation' %}
+{% set billing_active = route starts with 'app_billing_' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#17161a">
+    <meta name="robots" content="noindex,nofollow">
+    <title>{% block title %}SysGC{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Saira+Condensed:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('styles/authenticated.css') }}">
+    {{ importmap('authenticated') }}
+</head>
+<body data-frontend="authenticated">
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+<div class="app-shell" data-app-chrome data-controller="sidebar" data-sidebar-storage-key="sysgc:sidebar:{{ app.user.id }}">
+    <aside class="app-sidebar" id="app-sidebar" data-sidebar-target="sidebar" data-shell-role="{{ shell_role }}" aria-label="Navigation principale">
+        <div class="app-sidebar__top">
+            <a href="{{ path(home_route) }}" class="app-sidebar__brand" aria-label="SysGC — {{ shell_role == 'foreman' ? 'tableau de bord terrain' : 'tableau de bord' }}">SYS<span>GC</span></a>
+            <span class="app-sidebar__workspace app-sidebar__link-text">{{ shell_role == 'foreman' ? 'Terrain' : 'Bureau' }}</span>
+        </div>
+
+        <nav class="app-sidebar__nav" aria-label="Sections de l’application">
+            <div class="app-sidebar__group">
+                <span class="app-sidebar__label">{{ shell_role == 'foreman' ? 'Aujourd’hui' : 'Principal' }}</span>
+                <a href="{{ path(home_route) }}" class="app-sidebar__link{{ dashboard_active ? ' is-active' : '' }}"{{ dashboard_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="{{ shell_role == 'foreman' ? 'lucide:shield-check' : 'lucide:grid' }}"/><span class="app-sidebar__link-text">{{ shell_role == 'foreman' ? 'Sécurité' : 'Tableau de bord' }}</span></a>
+                <a href="{{ path('app_project_index') }}" class="app-sidebar__link{{ projects_active ? ' is-active' : '' }}"{{ projects_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:building-2"/><span class="app-sidebar__link-text">{{ shell_role == 'foreman' ? 'Mes chantiers' : 'Chantiers' }}</span></a>
+            </div>
+
+            {% if shell_role != 'foreman' %}
+                <div class="app-sidebar__group">
+                    <span class="app-sidebar__label">Conformité</span>
+                    <a href="{{ path('app_ccq_history') }}" class="app-sidebar__link{{ compliance_active ? ' is-active' : '' }}"{{ compliance_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:clipboard-check"/><span class="app-sidebar__link-text">Déclarations CCQ</span></a>
+                </div>
+                <div class="app-sidebar__group">
+                    <span class="app-sidebar__label">Équipe</span>
+                    <a href="{{ path('app_worker_index') }}" class="app-sidebar__link{{ workers_active ? ' is-active' : '' }}"{{ workers_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:users"/><span class="app-sidebar__link-text">Travailleurs</span></a>
+                </div>
+                <div class="app-sidebar__group">
+                    <span class="app-sidebar__label">Administration</span>
+                    <a href="{{ path('app_organisation') }}" class="app-sidebar__link{{ organization_active ? ' is-active' : '' }}"{{ organization_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:settings"/><span class="app-sidebar__link-text">Organisation</span></a>
+                    {% if shell_role == 'owner' %}
+                        <a href="{{ path('app_billing_upgrade') }}" class="app-sidebar__link{{ billing_active ? ' is-active' : '' }}"{{ billing_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:tag"/><span class="app-sidebar__link-text">Forfaits</span></a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </nav>
+
+        {% if shell_role == 'owner' %}
+            <a href="{{ path('app_billing_upgrade') }}" class="app-sidebar__subscription app-sidebar__link-text" aria-label="Forfait actuel : {{ subscription_label }}. Gérer le forfait."><span>Forfait</span><strong>{{ subscription_label }}</strong></a>
+        {% else %}
+            <div class="app-sidebar__subscription app-sidebar__link-text" aria-label="Forfait actuel : {{ subscription_label }}"><span>Forfait</span><strong>{{ subscription_label }}</strong></div>
+        {% endif %}
+
+        <div class="app-sidebar__user" id="app-account">
+            <span class="app-sidebar__avatar" aria-hidden="true">{{ app.user.displayName|slice(0, 1)|upper }}</span>
+            <span class="app-sidebar__user-meta"><strong class="app-sidebar__user-name">{{ app.user.displayName }}</strong><span class="app-sidebar__role">{{ role_label }}</span><span class="app-sidebar__user-email">{{ app.user.email }}</span></span>
+            <a href="{{ path('auth_logout') }}" class="app-sidebar__logout" aria-label="Déconnexion"><twig:ux:Icon name="lucide:log-out"/></a>
+        </div>
+    </aside>
+    <div class="app-shell__main">
+        <header class="app-header">
+            <button type="button" class="app-header__toggle" data-sidebar-target="toggle" data-action="sidebar#toggle" aria-controls="app-sidebar" aria-expanded="true"><twig:ux:Icon name="lucide:panel-left"/><span class="sr-only">Afficher ou réduire la navigation</span></button>
+            <nav class="breadcrumb" aria-label="Fil d’Ariane"><a href="{{ path(home_route) }}">SysGC</a><span aria-hidden="true">/</span><span class="breadcrumb__current" aria-current="page">{% block breadcrumb %}{{ shell_role == 'foreman' ? 'Terrain' : 'Tableau de bord' }}{% endblock %}</span></nav>
+        </header>
+        <div class="app-body">
+            <twig:ScreenState :subscriptionState="subscription_status" :flashes="screen_flashes" />
+            <main id="main" tabindex="-1">{% block body %}{% endblock %}</main>
+            {% block aside %}{% endblock %}
+        </div>
+    </div>
+
+    <nav class="bottom-nav bottom-nav--{{ shell_role }}" aria-label="Navigation mobile">
+        {% if shell_role == 'foreman' %}
+            <a href="{{ path('app_dashboard_terrain') }}" class="bottom-nav__btn{{ dashboard_active ? ' is-active' : '' }}"{{ dashboard_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:shield-check"/><span>Sécurité</span></a>
+            <a href="{{ path('app_project_index') }}" class="bottom-nav__btn{{ projects_active ? ' is-active' : '' }}"{{ projects_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:building-2"/><span>Mes chantiers</span></a>
+            <a href="#app-account" class="bottom-nav__btn"><twig:ux:Icon name="lucide:circle-user"/><span>Compte</span></a>
+        {% else %}
+            <a href="{{ path('app_dashboard') }}" class="bottom-nav__btn{{ dashboard_active ? ' is-active' : '' }}"{{ dashboard_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:grid"/><span>Tableau de bord</span></a>
+            <a href="{{ path('app_project_index') }}" class="bottom-nav__btn{{ projects_active ? ' is-active' : '' }}"{{ projects_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:building-2"/><span>Chantiers</span></a>
+            <a href="{{ path('app_ccq_history') }}" class="bottom-nav__btn{{ compliance_active ? ' is-active' : '' }}"{{ compliance_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:clipboard-check"/><span>Conformité</span></a>
+            <a href="{{ path('app_organisation') }}" class="bottom-nav__btn{{ organization_active or billing_active ? ' is-active' : '' }}"{{ organization_active or billing_active ? ' aria-current="page"' : '' }}><twig:ux:Icon name="lucide:ellipsis"/><span>Plus</span></a>
+        {% endif %}
+    </nav>
+</div>
+</body>
+</html>

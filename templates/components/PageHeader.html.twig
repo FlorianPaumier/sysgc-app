@@ -1,0 +1,30 @@
+{% props title, subtitle = '', context = '', breadcrumbs = [], actionLabel = '', actionUrl = '' %}
+
+<header class="page-header">
+    {% if breadcrumbs is not empty %}
+        <nav class="page-header__breadcrumbs" aria-label="Fil d’Ariane">
+            <ol>
+                {% for breadcrumb in breadcrumbs %}
+                    <li>
+                        {% if breadcrumb.url is defined and breadcrumb.url %}
+                            <a href="{{ breadcrumb.url }}">{{ breadcrumb.label }}</a>
+                        {% else %}
+                            <span aria-current="page">{{ breadcrumb.label }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    {% endif %}
+    <div class="page-header__row">
+        <div class="page-header__copy">
+            {% if context %}<p class="page-header__context">{{ context }}</p>{% endif %}
+            <h1>{{ title }}</h1>
+            {% if subtitle %}<p class="page-header__subtitle">{{ subtitle }}</p>{% endif %}
+            <div class="page-header__meta">{% block content %}{% endblock %}</div>
+        </div>
+        {% if actionLabel and actionUrl %}
+            <a class="btn btn-primary page-header__action" href="{{ actionUrl }}">{{ actionLabel }}</a>
+        {% endif %}
+    </div>
+</header>

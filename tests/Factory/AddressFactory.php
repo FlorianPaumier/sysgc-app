@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Factory;
 
-use App\Entity\Address;
-use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
+use App\Identity\Domain\Model\Address;
+use Zenstruck\Foundry\ObjectFactory;
 
 /**
- * @extends PersistentObjectFactory<Address>
+ * @extends ObjectFactory<Address>
  */
-final class AddressFactory extends PersistentObjectFactory
+final class AddressFactory extends ObjectFactory
 {
     #[\Override]
     public static function class(): string

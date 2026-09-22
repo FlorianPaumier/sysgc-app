@@ -85,14 +85,21 @@ docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
 # Start container
 SERVER_NAME=your-domain-name.example.com \
-APP_SECRET=ChangeMe \
-CADDY_MERCURE_JWT_SECRET=ChangeThisMercureHubJWTSecretKey \
+APP_SECRET="$(openssl rand -hex 32)" \
+POSTGRES_PASSWORD="$(openssl rand -base64 32)" \
+CADDY_MERCURE_JWT_SECRET="$(openssl rand -hex 32)" \
+MAILER_DSN='resend+api://REPLACE_WITH_RESEND_API_KEY@default' \
+RESEND_API_KEY='REPLACE_WITH_RESEND_API_KEY' \
+RESEND_FROM='noreply@your-domain-name.example.com' \
+STRIPE_SECRET_KEY='REPLACE_WITH_STRIPE_SECRET_KEY' \
+STRIPE_WEBHOOK_SECRET='REPLACE_WITH_STRIPE_WEBHOOK_SECRET' \
+STRIPE_STARTER_PRICE_ID='REPLACE_WITH_STARTER_PRICE_ID' \
+STRIPE_PRO_PRICE_ID='REPLACE_WITH_PRO_PRICE_ID' \
+STRIPE_BUSINESS_PRICE_ID='REPLACE_WITH_BUSINESS_PRICE_ID' \
 docker compose -f compose.yaml -f compose.prod.yaml up --wait
 ```
 
-Be sure to replace `your-domain-name.example.com` with your actual domain name
-and to set the values of `APP_SECRET`, `CADDY_MERCURE_JWT_SECRET`
-to cryptographically secure random values.
+Be sure to replace the domain and every `REPLACE_WITH_*` value. Keep these values in a secret manager or an untracked environment file; never commit them to Git.
 
 Your server is up and running, and a HTTPS certificate has been automatically
 generated for you.
@@ -111,8 +118,17 @@ run the following command:
 
 ```console
 SERVER_NAME=:80 \
-APP_SECRET=ChangeMe \
-CADDY_MERCURE_JWT_SECRET=ChangeThisMercureHubJWTSecretKey \
+APP_SECRET="$(openssl rand -hex 32)" \
+POSTGRES_PASSWORD="$(openssl rand -base64 32)" \
+CADDY_MERCURE_JWT_SECRET="$(openssl rand -hex 32)" \
+MAILER_DSN='resend+api://REPLACE_WITH_RESEND_API_KEY@default' \
+RESEND_API_KEY='REPLACE_WITH_RESEND_API_KEY' \
+RESEND_FROM='noreply@example.com' \
+STRIPE_SECRET_KEY='REPLACE_WITH_STRIPE_SECRET_KEY' \
+STRIPE_WEBHOOK_SECRET='REPLACE_WITH_STRIPE_WEBHOOK_SECRET' \
+STRIPE_STARTER_PRICE_ID='REPLACE_WITH_STARTER_PRICE_ID' \
+STRIPE_PRO_PRICE_ID='REPLACE_WITH_PRO_PRICE_ID' \
+STRIPE_BUSINESS_PRICE_ID='REPLACE_WITH_BUSINESS_PRICE_ID' \
 docker compose -f compose.yaml -f compose.prod.yaml up --wait
 ```
 

@@ -1,0 +1,29 @@
+<tr id="subcontractor-{{ subcontractor.id }}">
+    <th scope="row">{{ subcontractor.name }}</th>
+    <td><span class="font-mono">{{ subcontractor.rbqLicenseNumber ?: '—' }}</span></td>
+    <td>{{ subcontractor.category ?: '—' }}</td>
+    <td>{{ subcontractor.expiryDate ? subcontractor.expiryDate|date('d/m/Y') : '—' }}</td>
+    <td>
+        {% if subcontractor.requiresManualReview %}
+            <twig:StatusDot status="manual-review" label="Vérification manuelle requise" />
+        {% elseif subcontractor.verified %}
+            <twig:StatusDot status="success" :label="subcontractor.manuallyVerified ? 'Vérifiée manuellement' : 'Vérifiée'" />
+        {% else %}
+            <twig:StatusDot status="error" label="Non vérifiée" />
+        {% endif %}
+        {% if subcontractor.lastVerifiedAt %}
+            <div class="rbq-evidence">
+                <strong>Dernière vérification réussie :</strong>
+                <time datetime="{{ subcontractor.lastVerifiedAt|date('c') }}">{{ subcontractor.lastVerifiedAt|date('d/m/Y H:i') }}</time>
+                {% if subcontractor.verificationSource %}<span>Source : {{ subcontractor.verificationSource }}</span>{% endif %}
+                {% if subcontractor.verifiedBy %}<span>Par : {{ subcontractor.verifiedBy.displayName }}</span>{% endif %}
+                {% if subcontractor.evidenceOriginalName %}<span>Preuve : <a href="{{ path('app_rbq_evidence', {id: project.id, subId: subcontractor.id}) }}">{{ subcontractor.evidenceOriginalName }}</a></span>{% endif %}
+                {% if subcontractor.manualVerificationNotes %}<span>Notes : {{ subcontractor.manualVerificationNotes }}</span>{% endif %}
+            </div>
+        {% endif %}
+        {% if subcontractor.requiresManualReview and subcontractor.lastVerifiedAt %}
+            <small>Le dernier résultat valide est conservé pendant la révision.</small>
+        {% endif %}
+    </td>
+    <td><form method="post" action="{{ path('app_rbq_verify_single', {id: project.id, subId: subcontractor.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('verify-rbq-' ~ subcontractor.id) }}"><button class="btn btn--small" type="submit">Vérifier</button></form></td>
+</tr>

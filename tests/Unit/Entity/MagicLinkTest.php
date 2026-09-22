@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\MagicLink;
+use App\Identity\Domain\Model\MagicLink;
 use PHPUnit\Framework\TestCase;
 
 /**

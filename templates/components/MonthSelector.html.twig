@@ -1,0 +1,22 @@
+{% props month, year, prevUrl, nextUrl, label = 'Choisir un mois' %}
+
+{% set month = month + 0 %}
+{% set year = year + 0 %}
+{% set months = {
+    1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril', 5: 'mai', 6: 'juin',
+    7: 'juillet', 8: 'août', 9: 'septembre', 10: 'octobre', 11: 'novembre', 12: 'décembre'
+} %}
+{% set previousMonth = month == 1 ? 12 : month - 1 %}
+{% set previousYear = month == 1 ? year - 1 : year %}
+{% set followingMonth = month == 12 ? 1 : month + 1 %}
+{% set followingYear = month == 12 ? year + 1 : year %}
+
+<nav class="month-selector" aria-label="{{ label }}">
+    <a class="month-selector__button" href="{{ prevUrl }}" aria-label="Mois précédent : {{ months[previousMonth] }} {{ previousYear }}">
+        <span aria-hidden="true">←</span>
+    </a>
+    <time datetime="{{ year }}-{{ '%02d'|format(month) }}">{{ months[month] }} {{ year }}</time>
+    <a class="month-selector__button" href="{{ nextUrl }}" aria-label="Mois suivant : {{ months[followingMonth] }} {{ followingYear }}">
+        <span aria-hidden="true">→</span>
+    </a>
+</nav>

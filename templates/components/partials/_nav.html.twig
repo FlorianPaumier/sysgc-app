@@ -1,5 +1,3 @@
-{% import 'components/partials/_icons.html.twig' as icons %}
-
 <nav class="nav" aria-label="Navigation principale" data-controller="nav" data-nav-target="menu">
   <div class="nav-inner">
     <a href="{{ path('home') }}" class="brand" aria-label="SysGC - accueil">
@@ -7,11 +5,12 @@
       <span class="brand-meta">v.1.0 · QC</span>
     </a>
 
-    <button type="button" class="nav-toggle"
-            data-nav-target="toggle" data-action="nav#toggle"
-            aria-controls="nav-drawer" aria-expanded="false"
-            aria-label="Menu">
-      {{ icons.icon('menu') }}
+    <button
+        type="button" class="nav-toggle"
+        data-nav-target="toggle" data-action="nav#toggle"
+        aria-controls="nav-drawer" aria-expanded="false"
+        aria-label="Ouvrir le menu">
+        <twig:ux:icon name="lucide:menu" />
     </button>
 
     <div id="nav-drawer" class="nav-drawer">
@@ -19,7 +18,7 @@
         <button type="button" class="nav-drawer__close"
                 data-action="nav#toggle"
                 aria-label="Fermer le menu">
-          {{ icons.icon('x') }}
+            <twig:ux:icon name="carbon:close" />
         </button>
       </div>
       <ul class="nav-links">
@@ -27,8 +26,12 @@
       </ul>
       {% block nav_cta %}
         <div class="nav-actions">
-          <a href="{{ path('login') }}" class="nav-login">connexion</a>
-          <a href="{{ path('register') }}" class="nav-cta">Essai gratuit</a>
+          {% if app.user %}
+            <a href="{{ path(app.user.isForeman ? 'app_dashboard_terrain' : 'app_dashboard') }}" class="nav-cta">Ouvrir mon espace</a>
+          {% else %}
+            <a href="{{ path('auth_login') }}" class="nav-login">connexion</a>
+            <a href="{{ path('auth_register') }}" class="nav-cta">Essai gratuit</a>
+          {% endif %}
         </div>
       {% endblock %}
     </div>

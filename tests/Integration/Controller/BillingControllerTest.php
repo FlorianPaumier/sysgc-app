@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Controller;
 
-use App\Enum\SubscriptionTier;
-use App\Service\StripeService;
+use App\Identity\Domain\Enum\SubscriptionTier;
+use App\Subscription\Application\StripeService;
 use App\Tests\Integration\IntegrationTestCase;
-use App\Factory\AddressFactory;
+use App\Tests\Factory\AddressFactory;
 use App\Tests\Factory\OrganizationFactory;
 use App\Tests\Factory\UserFactory;
 use App\Tests\Fake\FakeStripeClient;
@@ -39,7 +39,7 @@ final class BillingControllerTest extends IntegrationTestCase
     public function test_upgrade_page_requires_authentication(): void
     {
         $this->client->request('GET', '/forfaits');
-        self::assertResponseStatusCodeSame(401);
+        self::assertResponseRedirects('/connexion');
     }
 
     // ── Upgrade page ────────────────────────────────────────────────────
@@ -75,6 +75,20 @@ final class BillingControllerTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Forfait actuel');
+        self::assertSelectorTextContains('body', '5 utilisateurs');
+    }
+
+    public function test_upgrade_page_shows_grace_alert_and_read_only_after_expiry(): void
+    {
+        $org = OrganizationFactory::createOne([
+            'subscriptionTier' => SubscriptionTier::Pro,
+            'subscriptionExpiresAt' => new \DateTimeImmutable('-2 days'),
+            'address' => AddressFactory::new(),
+        ]);
+        $this->client->loginUser(UserFactory::createOne(['organization' => $org]));
+
+        $this->client->request('GET', '/forfaits');
+        self::assertSelectorTextContains('[data-subscription-state="grace"]', 'Période de grâce');
     }
 
     // ── Checkout POST ───────────────────────────────────────────────────
@@ -99,8 +113,8 @@ final class BillingControllerTest extends IntegrationTestCase
 
         /** @var FakeStripeClient $fake */
         $fake = static::getContainer()->get('stripe.client');
-        self::assertSame('subscription', $fake->checkoutCreateParams['mode']);
-        self::assertSame('price_pro', $fake->checkoutCreateParams['line_items'][0]['price']);
+        self::assertSame('subscription', $fake->checkoutCreateParams['mode'] ?? null);
+        self::assertSame('price_pro', $fake->checkoutCreateParams['line_items'][0]['price'] ?? null);
     }
 
     public function test_post_invalid_tier_shows_error(): void
@@ -166,7 +180,7 @@ final class BillingControllerTest extends IntegrationTestCase
     public function test_portal_route_requires_auth(): void
     {
         $this->client->request('GET', '/facturation/portail');
-        self::assertResponseStatusCodeSame(401);
+        self::assertResponseRedirects('/connexion');
     }
 
     public function test_portal_route_redirects_with_flash(): void
@@ -177,7 +191,7 @@ final class BillingControllerTest extends IntegrationTestCase
 
         self::assertResponseRedirects('/forfaits');
         $this->client->followRedirect();
-        self::assertSelectorTextContains('body', 'bientot disponible');
+        self::assertSelectorTextContains('body', 'Choisissez un forfait pour commencer');
     }
 
     // ── Success page ────────────────────────────────────────────────────
@@ -185,7 +199,7 @@ final class BillingControllerTest extends IntegrationTestCase
     public function test_success_page_requires_auth(): void
     {
         $this->client->request('GET', '/facturation/succes');
-        self::assertResponseStatusCodeSame(401);
+        self::assertResponseRedirects('/connexion');
     }
 
     public function test_success_page_shows_thank_you(): void

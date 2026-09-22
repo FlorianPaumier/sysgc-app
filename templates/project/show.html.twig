@@ -1,0 +1,14 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}{{ project.address }} — SysGC{% endblock %}
+{% block breadcrumb %}{{ project.address }}{% endblock %}
+{% block body %}
+<div class="project-detail-page">
+    {% set status = project.status.value %}
+    {% set statusLabel = status == 'active' ? 'Actif' : (status == 'on_hold' ? 'En pause' : (status == 'archived' ? 'Archivé' : 'Terminé')) %}
+    <twig:PageHeader :title="project.address" :subtitle="project.clientName" context="Chantier" :breadcrumbs="[{label: 'Chantiers', url: path('app_project_index')}, {label: project.address}]">
+        <div class="project-detail__badges"><twig:StatusBadge :status="status|replace({'_': '-'})" :label="statusLabel" /><twig:ComplianceBadge :score="score" /></div>
+    </twig:PageHeader>
+    {% if isArchived %}<p class="project-read-only" data-project-read-only><strong>Chantier archivé</strong> — ce dossier est conservé en lecture seule.</p>{% endif %}
+    {{ include('project/_detail_frame.html.twig') }}
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Importer des sous-traitants — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_rbq_index', {id: project.id}) }}">RBQ</a> / Importer{% endblock %}
+{% block body %}<div class="mx-auto max-w-2xl px-4 py-8"><h1>Importer un fichier CSV</h1><p>Colonnes attendues : <code>name,rbq_license,category</code>. Maximum : 200 lignes.</p>{{ form_start(form) }}{{ form_widget(form) }}<div class="form-actions"><button class="btn" type="submit">Importer et vérifier</button><a class="btn" href="{{ path('app_rbq_index', {id: project.id}) }}">Annuler</a></div>{{ form_end(form) }}</div>{% endblock %}

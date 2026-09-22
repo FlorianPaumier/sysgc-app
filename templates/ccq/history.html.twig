@@ -1,0 +1,16 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Historique des déclarations — SysGC{% endblock %}
+{% block breadcrumb %}Déclarations CCQ{% endblock %}
+{% block body %}
+<div class="mx-auto max-w-7xl px-4 py-8" data-testid="ccq-workspace"><header class="dashboard-head"><div><h1>Déclaration CCQ</h1><p>Une déclaration organisationnelle pour {{ '%02d'|format(currentMonth) }}/{{ currentYear }} · historique des dépôts ci-dessous.</p></div></header>
+{% if projects is not empty %}
+    <twig:CcqGrid :projects="projects" :month="currentMonth" :year="currentYear" />
+{% else %}
+    <twig:EmptyState title="Aucun chantier" message="Ajoutez un chantier avant de préparer une déclaration CCQ." />
+{% endif %}
+<h2 class="section-title">Historique des déclarations</h2>
+{% if declarations is empty %}<twig:EmptyState title="Aucune déclaration" message="Vos déclarations CCQ apparaîtront ici après leur exportation." />
+{% else %}<div class="table-wrap"><table><thead><tr><th scope="col">Période</th><th scope="col">Chantier</th><th scope="col">Statut</th><th scope="col">Soumise le</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>{% for declaration in declarations %}<tr><td>{{ declaration.periodMonth }}/{{ declaration.periodYear }}</td><td>{{ declaration.project.address }}</td><td>{{ declaration.status }}</td><td>{{ declaration.submittedAt ? declaration.submittedAt|date('Y-m-d') : '—' }}</td><td><a href="{{ path('app_ccq_show', {id: declaration.id}) }}">Voir</a></td></tr>{% endfor %}</tbody></table></div>{% endif %}
+</div>
+{% endblock %}

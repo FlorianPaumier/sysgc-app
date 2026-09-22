@@ -4,18 +4,19 @@ The type is always conveyed as visible text (the label), never by color alone,
 so the state remains accessible to colour-blind users (WCAG 1.4.1).
 Usage: <twig:AlertBanner type="error" message="…" dismissible="true" />
 #}
-{% props type = 'info', message = '', dismissible = false %}
+{% props type = 'info', message = '', dismissible = false, actionLabel = '', actionUrl = '' %}
 
 {% set labels = { critical: 'Critique', error: 'Erreur', warning: 'Attention', info: 'Information', success: 'Confirmé' } %}
 {% set icons = { critical: '⛔', error: '⛔', warning: '⚠️', info: 'ℹ️', success: '✓' } %}
 
-<div class="alert-banner alert-banner--{{ type }}" role="alert">
+<div class="alert-banner alert-banner--{{ type }}" role="{{ type in ['critical', 'error'] ? 'alert' : 'status' }}" aria-live="{{ type in ['critical', 'error'] ? 'assertive' : 'polite' }}"{% if dismissible %} data-controller="toast" data-toast-duration-value="0"{% endif %}>
     <span class="alert-banner__icon" aria-hidden="true">{{ icons[type] ?? icons.info }}</span>
     <div class="alert-banner__content">
         <span class="alert-banner__label">{{ labels[type] ?? 'Information' }}</span>
         {% if message %}<p class="alert-banner__message">{{ message }}</p>{% endif %}
+        {% if actionLabel and actionUrl %}<a class="alert-banner__action" href="{{ actionUrl }}">{{ actionLabel }}</a>{% endif %}
     </div>
     {% if dismissible %}
-        <button type="button" class="alert-banner__close" aria-label="Fermer ce message">×</button>
+        <button type="button" class="alert-banner__close" data-action="toast#dismiss" aria-label="Fermer ce message">×</button>
     {% endif %}
 </div>

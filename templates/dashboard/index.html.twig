@@ -1,10 +1,59 @@
-{% extends 'base.html.twig' %}
+{% extends 'app_base.html.twig' %}
 
 {% block title %}Tableau de bord — SysGC{% endblock %}
 
 {% block body %}
-    <main id="main" class="mx-auto max-w-5xl px-4 py-10">
-        <h1 class="text-2xl font-bold text-zinc-900">Tableau de bord</h1>
-        <p class="mt-2 text-zinc-600">Bienvenue, {{ app.user.userIdentifier }}.</p>
-    </main>
+<div class="dashboard-page mx-auto w-full max-w-5xl px-4 py-8" data-dashboard-role="{{ app.user.isOwner ? 'owner' : 'admin' }}">
+  <twig:PageHeader
+    title="Priorités du portefeuille"
+    :subtitle="'Bonjour ' ~ app.user.displayName ~ '. Les chantiers qui demandent votre attention passent en premier.'"
+    context="Tableau de bord"
+    actionLabel="Nouveau chantier"
+    :actionUrl="path('app_project_new')"
+  />
+
+  <div class="dashboard-stats" aria-label="Résumé du portefeuille">
+    <div class="stat-card" data-stat="active"><span class="num">{{ activeCount }}</span><span class="label">Chantiers actifs</span></div>
+    <div class="stat-card" data-stat="on-hold"><span class="num">{{ onHoldCount }}</span><span class="label">Chantiers en pause</span></div>
+    <div class="stat-card" data-stat="workers"><span class="num">{{ workers }}</span><span class="label">Travailleurs</span></div>
+    <div class="stat-card" data-stat="average"><span class="num">{{ averageScore is null ? '—' : averageScore ~ '%' }}</span><span class="label">Conformité affichée</span></div>
+  </div>
+
+  <div class="dashboard-section-head">
+    <div><p class="eyebrow">Triage</p><h2>{{ filter == 'archived' ? 'Chantiers archivés' : 'Chantiers à surveiller' }}</h2></div>
+    <nav class="dashboard-filters" aria-label="Filtrer les chantiers">
+      <a href="{{ path('app_dashboard') }}" data-dashboard-filter="current"{{ filter == 'current' ? ' aria-current="page"' : '' }}>Actifs et en pause</a>
+      <a href="{{ path('app_dashboard', {status: 'archived'}) }}" data-dashboard-filter="archived"{{ filter == 'archived' ? ' aria-current="page"' : '' }}>Archives</a>
+    </nav>
+  </div>
+
+  {% if projects %}
+    <div class="project-grid" data-dashboard-projects>{% for project in projects %}<twig:ProjectCard :project="project" :score="scores[project.id ~ '']" />{% endfor %}</div>
+  {% elseif filter == 'archived' %}
+    <twig:EmptyState icon="🗂️" title="Aucun chantier archivé" description="Les chantiers terminés resteront consultables ici." />
+  {% else %}
+    <twig:EmptyState icon="🏗️" title="Aucun chantier" description="Ajoutez votre premier chantier pour commencer." actionLabel="Nouveau chantier" :actionUrl="path('app_project_new')" />
+  {% endif %}
+
+  <div class="dashboard-role-action">
+    {% if app.user.isOwner %}
+      <a class="btn" data-dashboard-role-action="owner" href="{{ path('app_organization_members') }}">Gérer les membres</a>
+    {% else %}
+      <a class="btn" data-dashboard-role-action="admin" href="{{ path('app_ccq_history') }}">Préparer la déclaration CCQ</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block aside %}
+<aside class="page-aside" aria-label="Alertes du portefeuille">
+  <h2 class="label">Alertes prioritaires</h2>
+  <div data-dashboard-alerts>
+    {% if filter == 'current' %}
+      <turbo-frame id="dashboard-alerts" src="{{ path('app_dashboard_alerts') }}">{{ include('dashboard/_alerts.html.twig') }}</turbo-frame>
+    {% else %}
+      <p class="dashboard-aside-note">Les archives sont exclues des alertes et du score courant.</p>
+    {% endif %}
+  </div>
+</aside>
 {% endblock %}

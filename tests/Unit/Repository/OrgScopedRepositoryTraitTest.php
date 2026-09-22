@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Repository;
 
-use App\Entity\Address;
-use App\Entity\Organization;
-use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Identity\Domain\Model\Address;
+use App\Identity\Domain\Model\Organization;
+use App\Identity\Domain\Model\User;
+use App\Identity\Infrastructure\Doctrine\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * @covers \App\Repository\OrgScopedRepositoryTrait
+ * @covers \App\Shared\Infrastructure\Doctrine\OrgScopedRepositoryTrait
  */
 final class OrgScopedRepositoryTraitTest extends KernelTestCase
 {
@@ -23,8 +23,13 @@ final class OrgScopedRepositoryTraitTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
-        $this->userRepository = $this->entityManager->getRepository(User::class);
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $this->entityManager = $entityManager;
+
+        $userRepository = self::getContainer()->get(UserRepository::class);
+        self::assertInstanceOf(UserRepository::class, $userRepository);
+        $this->userRepository = $userRepository;
     }
 
     private function createAddress(string $street, string $postalCode, string $city): Address
@@ -68,9 +73,15 @@ final class OrgScopedRepositoryTraitTest extends KernelTestCase
         $qb = $this->userRepository->createScopedQueryBuilder($orgA);
 
         $result = $qb->getQuery()->getResult();
+        if (!is_array($result)) {
+            self::fail('Expected the query to return an array.');
+        }
+
+        $firstResult = $result[0] ?? null;
+        self::assertInstanceOf(User::class, $firstResult);
 
         $this->assertCount(1, $result);
-        $this->assertSame('user-a@example.com', $result[0]->getEmail());
+        $this->assertSame('user-a@example.com', $firstResult->getEmail());
     }
 
     public function testFindAllWithinOrganizationReturnsOnlyOrgUsers(): void
@@ -107,7 +118,11 @@ final class OrgScopedRepositoryTraitTest extends KernelTestCase
         $users = $this->userRepository->findAllForOrganization($org->getId());
 
         $this->assertCount(2, $users);
-        $emails = array_map(static fn (User $u) => $u->getEmail(), $users);
+        $emails = [];
+        foreach ($users as $user) {
+            self::assertInstanceOf(User::class, $user);
+            $emails[] = $user->getEmail();
+        }
         $this->assertContains('user1@test.com', $emails);
         $this->assertContains('user2@test.com', $emails);
         $this->assertNotContains('other@other.com', $emails);

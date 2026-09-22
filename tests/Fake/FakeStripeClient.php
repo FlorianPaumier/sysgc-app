@@ -30,13 +30,31 @@ final class FakeStripeClient extends StripeClient
     /** URL returned by createCheckoutSession (set before call, read after). */
     public string $checkoutSessionUrl = 'https://checkout.stripe.com/c/pay/cs_test_abc';
 
-    /** Params received by the last checkout->sessions->create() call. */
+    /**
+     * @var array{
+     *     line_items?: list<array{price?: string, quantity?: int}>,
+     *     mode?: string,
+     *     customer?: string,
+     *     customer_email?: string,
+     *     client_reference_id?: string,
+     *     metadata?: array<string, string>,
+     *     automatic_tax?: array{enabled?: bool},
+     *     success_url?: string,
+     *     cancel_url?: string
+     * }
+     */
     public array $checkoutCreateParams = [];
 
     /** Set this to make checkout->sessions->create() throw. */
     public ?\Throwable $checkoutException = null;
 
-    /** Subscriptions payload returned by subscriptions->all() (array of subscription arrays). */
+    /**
+     * @var list<array{
+     *     id?: string,
+     *     status?: string,
+     *     items?: array{data?: list<array{price?: string|array{id?: string}}>}
+     * }>
+     */
     public array $subscriptionListData = [];
 
     /** Set this to make subscriptions->all() throw. */
@@ -54,24 +72,27 @@ final class FakeStripeClient extends StripeClient
     }
 
     #[\Override]
-    public function __get($name)
+    public function __get(mixed $name): mixed
     {
+        if (!\is_string($name)) {
+            throw new \InvalidArgumentException('Stripe service names must be strings.');
+        }
+
         return match ($name) {
             'checkout' => new readonly class($this) {
                 public function __construct(private FakeStripeClient $fake) {}
 
-                public function __get($name)
+                public function __get(mixed $name): mixed
                 {
+                    if (!\is_string($name)) {
+                        throw new \InvalidArgumentException('Checkout service names must be strings.');
+                    }
+
                     if ($name === 'sessions') {
                         return new readonly class($this->fake) {
                             public function __construct(private FakeStripeClient $fake) {}
 
-                            /**
-                             * @param array{line_items?: array, mode?: string, customer?: string,
-                             *   customer_email?: string, client_reference_id?: string,
-                             *   metadata?: array, automatic_tax?: array,
-                             *   success_url?: string, cancel_url?: string} $params
-                             */
+                            /** @phpstan-param array{line_items?: list<array{price?: string, quantity?: int}>, mode?: string, customer?: string, customer_email?: string, client_reference_id?: string, metadata?: array<string, string>, automatic_tax?: array{enabled?: bool}, success_url?: string, cancel_url?: string} $params */
                             public function create(array $params): CheckoutSession
                             {
                                 $this->fake->checkoutCreateParams = $params;
@@ -101,8 +122,8 @@ final class FakeStripeClient extends StripeClient
                 public function __construct(private FakeStripeClient $fake) {}
 
                 /**
-                 * @param array{customer?: string, status?: string, limit?: int} $params
-                 * @return Collection<Subscription>
+                 * @phpstan-param array{customer?: string, status?: string, limit?: int} $params
+                 * @phpstan-return Collection<Subscription>
                  */
                 public function all(array $params = []): Collection
                 {
@@ -121,12 +142,17 @@ final class FakeStripeClient extends StripeClient
             'billingPortal' => new readonly class($this) {
                 public function __construct(private FakeStripeClient $fake) {}
 
-                public function __get($name)
+                public function __get(mixed $name): mixed
                 {
+                    if (!\is_string($name)) {
+                        throw new \InvalidArgumentException('Billing service names must be strings.');
+                    }
+
                     if ($name === 'sessions') {
                         return new readonly class($this->fake) {
                             public function __construct(private FakeStripeClient $fake) {}
 
+                            /** @phpstan-param array{customer: string, return_url: string} $params */
                             public function create(array $params): PortalSession
                             {
                                 if ($this->fake->portalException) {

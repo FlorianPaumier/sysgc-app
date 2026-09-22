@@ -1,0 +1,12 @@
+{% extends 'app_base.html.twig' %}
+
+{% block title %}Déclaration CCQ — SysGC{% endblock %}
+{% block breadcrumb %}<a href="{{ path('app_ccq_history') }}">Déclarations CCQ</a> <span aria-hidden="true">/</span> {{ declaration.periodMonth }}/{{ declaration.periodYear }}{% endblock %}
+{% block body %}
+<div class="mx-auto max-w-5xl px-4 py-8" data-testid="ccq-filed-declaration"><header class="dashboard-head"><div><h1>Déclaration CCQ {{ declaration.periodMonth }}/{{ declaration.periodYear }}</h1><p>{{ declaration.project.address }}</p></div></header>
+<dl class="detail-grid"><div><dt>Statut</dt><dd>{{ declaration.status == 'filed' ? 'Déposée' : declaration.status }}</dd></div><div><dt>Version des règles</dt><dd>{{ declaration.ruleVersion }}</dd></div><div><dt>Déposée le</dt><dd>{{ declaration.filedAt ? declaration.filedAt|date('Y-m-d H:i') : 'Pas encore déposée' }}</dd></div><div><dt>Résultat CCQ</dt><dd>{{ declaration.outcome == 'accepted' ? 'Acceptée' : (declaration.outcome == 'rejected' ? 'Rejetée' : 'En attente (facultatif)') }}</dd></div></dl>
+{% if declaration.receiptPath %}<a class="btn" href="{{ path('app_ccq_pdf', {id: declaration.id}) }}">Télécharger le PDF</a>{% endif %}
+{% if declaration.filedSnapshot %}<section aria-labelledby="ccq-snapshot-title"><h2 id="ccq-snapshot-title">Instantané déposé — immuable</h2><p>Ces données correspondent exactement au document transmis et ne peuvent plus être modifiées.</p><div class="table-wrap"><table><thead><tr><th scope="col">Travailleur</th><th scope="col">Heures totales</th></tr></thead><tbody>{% for row in declaration.filedSnapshot %}<tr><th scope="row">{{ row.workerName|default('—') }}</th><td>{{ row.totalHours|default(0) }} h</td></tr>{% endfor %}</tbody></table></div></section>{% endif %}
+{% if declaration.status == 'filed' and not declaration.outcome %}<section aria-labelledby="ccq-outcome-title"><h2 id="ccq-outcome-title">Résultat CCQ (facultatif)</h2><form method="post" action="{{ path('app_ccq_outcome', {id: declaration.id}) }}"><input type="hidden" name="_token" value="{{ csrf_token('ccq_outcome_' ~ declaration.id) }}"><button class="btn" name="outcome" value="accepted" type="submit">Marquer acceptée</button><button class="btn" name="outcome" value="rejected" type="submit">Marquer rejetée</button></form></section>{% endif %}
+</div>
+{% endblock %}

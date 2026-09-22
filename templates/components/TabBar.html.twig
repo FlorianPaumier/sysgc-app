@@ -1,0 +1,19 @@
+{% props tabs = [], activeTab = '', label = 'Sections' %}
+
+<nav class="tab-bar" aria-label="{{ label }}" data-controller="tab-bar" data-action="turbo:frame-load@document->tab-bar#focusFrame">
+    <ul class="tab-bar__list">
+        {% for tab in tabs %}
+            {% set active = activeTab == tab.id %}
+            <li>
+                <a
+                    class="tab-bar__link{{ active ? ' is-active' : '' }}"
+                    href="{{ tab.url ?? tab.src }}"
+                    {% if tab.frameId is defined and tab.frameId %}data-turbo-frame="{{ tab.frameId }}"{% endif %}
+                    {% if tab.frameId is defined and tab.frameId %}data-turbo-action="advance"{% endif %}
+                    {% if tab.frameId is defined and tab.frameId %}data-action="tab-bar#select"{% endif %}
+                    {% if active %}aria-current="page"{% endif %}
+                >{{ tab.label }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>

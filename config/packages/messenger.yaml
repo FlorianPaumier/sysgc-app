@@ -20,7 +20,10 @@ framework:
 
         routing:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
-            App\Message\SendMagicLinkMessage: async
+            App\Identity\Application\MagicLink\SendMagicLinkMessage: async
+            App\Compliance\Application\ExportCCQMessage: async
+            App\Compliance\Message\BatchRbqCheckMessage: async
+            App\Compliance\Message\CheckSingleLicenseMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 

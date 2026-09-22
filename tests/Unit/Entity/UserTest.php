@@ -4,12 +4,39 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\Organization;
-use App\Entity\User;
+use App\Identity\Domain\Model\Organization;
+use App\Identity\Domain\Model\User;
+use App\Identity\Domain\Enum\UserRole;
+use App\Project\Domain\Model\Project;
 use PHPUnit\Framework\TestCase;
 
 final class UserTest extends TestCase
 {
+    public function test_role_has_french_membership_label(): void
+    {
+        self::assertSame('Propriétaire', (new User())->setRoles([UserRole::OWNER->value])->getRoleLabel());
+        self::assertSame('Administrateur', (new User())->setRoles([UserRole::ADMIN->value])->getRoleLabel());
+        self::assertSame('Contremaître', (new User())->setRoles([UserRole::FOREMAN->value])->getRoleLabel());
+    }
+
+    public function test_only_foremen_can_be_assigned_to_projects_in_their_organization(): void
+    {
+        $organization = new Organization();
+        $project = new Project($organization, '100 rue Test', 'Client');
+        $admin = (new User())->setRoles([UserRole::ADMIN->value])->setOrganization($organization);
+
+        $this->expectException(\DomainException::class);
+        $admin->assignProject($project);
+    }
+
+    public function test_foreman_cannot_be_assigned_to_project_from_another_organization(): void
+    {
+        $foreman = (new User())->setRoles([UserRole::FOREMAN->value])->setOrganization(new Organization());
+        $project = new Project(new Organization(), '100 rue Test', 'Client');
+
+        $this->expectException(\DomainException::class);
+        $foreman->assignProject($project);
+    }
     public function test_email_is_mutable(): void
     {
         $user = new User();

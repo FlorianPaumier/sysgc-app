@@ -1,0 +1,6 @@
+{% props message = 'Chargement en cours', size = 'md' %}
+
+<div class="loading-state" role="status" aria-live="polite" aria-busy="true">
+    <twig:Spinner :size="size" />
+    <span>{{ message }}</span>
+</div>

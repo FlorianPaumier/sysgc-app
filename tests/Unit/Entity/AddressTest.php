@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\Address;
+use App\Identity\Domain\Model\Address;
 use PHPUnit\Framework\TestCase;
 
 final class AddressTest extends TestCase

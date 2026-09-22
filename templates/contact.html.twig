@@ -2,7 +2,7 @@
 
 {% block body %}
     <div class="auth-page">
-        <div class="auth-card" id="contactCard" style="max-width:520px">
+        <div class="card" id="contactCard" style="max-width:520px">
             {% if app.flashes('success') is not empty %}
                 <div class="auth-success visible">
                     <div class="auth-success-circle">
@@ -14,7 +14,7 @@
                     <div class="auth-success-desc">Nous vous répondons habituellement en moins de 4 heures durant les jours ouvrables.</div>
                 </div>
             {% else %}
-                <div class="auth-card-body">
+                <div class="card-body">
                     <div class="auth-logo">
                         <div class="auth-wordmark">SYS<span>GC</span></div>
                         <div class="auth-accent-line"></div>
@@ -28,27 +28,27 @@
                         {{ form_widget(form.website) }}
                     </div>
 
-                    <div class="auth-field-group">
-                        {{ form_label(form.name, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.name, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
+                    <div class="field-group">
+                        {{ form_label(form.name, null, {label_attr: {class: 'field-label'}}) }}
+                        {{ form_widget(form.name, {attr: {class: 'field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.name) }}
                     </div>
 
-                    <div class="auth-field-group">
-                        {{ form_label(form.email, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.email, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
+                    <div class="field-group">
+                        {{ form_label(form.email, null, {label_attr: {class: 'field-label'}}) }}
+                        {{ form_widget(form.email, {attr: {class: 'field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.email) }}
                     </div>
 
-                    <div class="auth-field-group">
-                        {{ form_label(form.subject, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.subject, {attr: {class: 'auth-field-input', disabled: rate_limited}}) }}
+                    <div class="field-group">
+                        {{ form_label(form.subject, null, {label_attr: {class: 'field-label'}}) }}
+                        {{ form_widget(form.subject, {attr: {class: 'field-input', disabled: rate_limited}}) }}
                         {{ form_errors(form.subject) }}
                     </div>
 
-                    <div class="auth-field-group">
-                        {{ form_label(form.message, null, {label_attr: {class: 'auth-field-label'}}) }}
-                        {{ form_widget(form.message, {attr: {class: 'auth-field-input', style: 'height:auto;padding:12px 14px;resize:vertical;min-height:120px;font-family:var(--font-mono);font-size:0.76rem;line-height:1.6', disabled: rate_limited}}) }}
+                    <div class="field-group">
+                        {{ form_label(form.message, null, {label_attr: {class: 'field-label'}}) }}
+                        {{ form_widget(form.message, {attr: {class: 'field-input', style: 'height:auto;padding:12px 14px;resize:vertical;min-height:120px;font-family:var(--font-mono);font-size:0.76rem;line-height:1.6', disabled: rate_limited}}) }}
                         {{ form_errors(form.message) }}
                     </div>
 

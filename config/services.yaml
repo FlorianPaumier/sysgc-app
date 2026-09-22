@@ -25,15 +25,27 @@ services:
         factory: [ 'Resend', 'client' ]
         arguments: [ '%env(RESEND_API_KEY)%' ]
 
-    App\Service\ResendMailer:
+    App\Shared\Infrastructure\Mailer\ResendMailer:
         arguments:
             $from: '%env(RESEND_FROM)%'
             $logger: '@logger'
 
+    App\Compliance\Application\ExportService:
+        arguments:
+            $exportDirectory: '%kernel.project_dir%/var/uploads/ccq'
+
+    App\Safety\Infrastructure\PhotoUploader:
+        arguments:
+            $storageDirectory: '%kernel.project_dir%/public'
+
+    App\Compliance\Infrastructure\RbqEvidenceUploader:
+        arguments:
+            $storageDirectory: '%kernel.project_dir%/var/uploads'
+
     Symfony\Component\RateLimiter\RateLimiterFactory $loginPerEmailLimiterFactory: '@limiter.login_per_email'
     Symfony\Component\RateLimiter\RateLimiterFactory $loginPerIpLimiterFactory: '@limiter.login_per_ip'
 
-    App\Service\StripeService:
+    App\Subscription\Application\StripeService:
         arguments:
             $starterPriceId: '%env(STRIPE_STARTER_PRICE_ID)%'
             $proPriceId: '%env(STRIPE_PRO_PRICE_ID)%'

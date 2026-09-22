@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\Enum\ProjectStatus;
-use App\Entity\Organization;
-use App\Entity\Project;
+use App\Project\Domain\Enum\ProjectStatus;
+use App\Identity\Domain\Model\Organization;
+use App\Project\Domain\Model\Project;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

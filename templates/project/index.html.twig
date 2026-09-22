@@ -1,0 +1,36 @@
+{% extends 'app_base.html.twig' %}
+{% block title %}Chantiers — SysGC{% endblock %}
+{% block breadcrumb %}Chantiers{% endblock %}
+{% block body %}
+<div class="project-page">
+    <twig:PageHeader
+        :title="isForeman ? 'Mes chantiers' : 'Chantiers'"
+        :subtitle="isForeman ? 'Les chantiers qui vous sont assignés.' : 'Suivez les travaux en cours, en pause et archivés.'"
+        context="Portefeuille"
+        :actionLabel="isForeman ? '' : 'Nouveau chantier'"
+        :actionUrl="isForeman ? '' : path('app_project_new')"
+    />
+    <nav class="project-filters" aria-label="Filtrer les chantiers">
+        <a href="{{ path('app_project_index') }}" data-project-filter="current"{{ filter == 'current' ? ' aria-current="page"' : '' }}>En cours</a>
+        <a href="{{ path('app_project_index', {status: 'archived'}) }}" data-project-filter="archived"{{ filter == 'archived' ? ' aria-current="page"' : '' }}>Archives</a>
+    </nav>
+    {% if projects %}
+        <div class="project-grid project-grid--mobile">{% for project in projects %}<twig:ProjectCard :project="project" :score="scores[project.id ~ '']" />{% endfor %}</div>
+        <div class="project-table-wrap">
+            <table class="project-table">
+                <caption class="sr-only">Liste des chantiers et leur état de conformité</caption>
+                <thead><tr><th scope="col" data-sticky="identity">Chantier</th><th scope="col">Client</th><th scope="col">État</th><th scope="col">Conformité</th><th scope="col">Dates</th><th scope="col"><span class="sr-only">Ouvrir</span></th></tr></thead>
+                <tbody>
+                {% for project in projects %}
+                    {% set status = project.status.value %}
+                    {% set statusLabel = status == 'active' ? 'Actif' : (status == 'on_hold' ? 'En pause' : (status == 'archived' ? 'Archivé' : 'Terminé')) %}
+                    <tr><th scope="row" data-sticky="identity"><a href="{{ path('app_project_show', {id: project.id}) }}">{{ project.address }}</a></th><td>{{ project.clientName }}</td><td><twig:StatusBadge :status="status|replace({'_': '-'})" :label="statusLabel" /></td><td><twig:ComplianceBadge :score="scores[project.id ~ '']" /></td><td class="project-table__dates">{{ project.startDate ? project.startDate|date('Y-m-d') : '—' }}<span aria-hidden="true"> → </span>{{ project.endDate ? project.endDate|date('Y-m-d') : 'En cours' }}</td><td><a class="project-table__open" href="{{ path('app_project_show', {id: project.id}) }}" aria-label="Ouvrir {{ project.address }}">→</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <twig:EmptyState icon="🏗️" :title="filter == 'archived' ? 'Aucun chantier archivé' : 'Aucun chantier'" :description="filter == 'archived' ? 'Les chantiers archivés apparaîtront ici.' : (isForeman ? 'Aucun chantier ne vous est assigné pour le moment.' : 'Ajoutez votre premier chantier pour commencer.')" :actionLabel="isForeman or filter == 'archived' ? '' : 'Nouveau chantier'" :actionUrl="isForeman or filter == 'archived' ? '' : path('app_project_new')" />
+    {% endif %}
+</div>
+{% endblock %}

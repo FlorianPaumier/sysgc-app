@@ -1,13 +1,13 @@
 security:
     # Passwordless: users never have a password, so the hasher is a no-op.
     password_hashers:
-        App\Entity\User:
+        App\Identity\Domain\Model\User:
             algorithm: 'null'
 
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\User
+                class: App\Identity\Domain\Model\User
                 property: email
 
     firewalls:
@@ -17,22 +17,21 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\MagicLinkAuthenticator
+            custom_authenticator: App\Identity\Infrastructure\Security\MagicLinkAuthenticator
             logout:
-                path: logout
-                target: login
+                path: auth_logout
+                target: auth_login
 
     access_control:
-        - { path: ^/connexion, roles: PUBLIC_ACCESS }
-        - { path: ^/inscription, roles: PUBLIC_ACCESS }
-        - { path: ^/connexion/verifier, roles: PUBLIC_ACCESS }
+        - { path: ^/(connexion|inscription|login/check-email|invitation/accepter), roles: PUBLIC_ACCESS }
         - { path: ^/stripe/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/a-propos$, roles: PUBLIC_ACCESS }
         - { path: ^/contact$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:
         password_hashers:
-            App\Entity\User:
+            App\Identity\Domain\Model\User:
                 algorithm: 'null'

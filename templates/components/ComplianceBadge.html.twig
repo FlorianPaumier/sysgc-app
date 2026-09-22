@@ -1,0 +1,4 @@
+{% props score = 0 %}
+{% set state = score >= 80 ? 'success' : (score >= 50 ? 'warning' : 'critical') %}
+{% set label = score >= 80 ? 'Conforme' : (score >= 50 ? 'À surveiller' : 'Non conforme') %}
+<span class="compliance-badge compliance-badge--{{ state }}">{{ label }} · {{ score }} %</span>

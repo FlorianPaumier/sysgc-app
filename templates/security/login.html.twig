@@ -6,7 +6,7 @@
 
 {% block form_errors %}
     {% if errors|length > 0 %}
-        <div class="auth-field-error visible">
+        <div class="field-error visible">
             {%- for error in errors -%}
                 <span>{{ error.message }}</span>
             {%- endfor -%}
@@ -16,8 +16,8 @@
 
 {% block body %}
     <div class="auth-page">
-        <div class="auth-card">
-            <div class="auth-card-body">
+        <div class="card">
+            <div class="card-body">
                 {# Branding #}
                 <a href="{{ path('home') }}" class="auth-logo" aria-label="SysGC — Accueil">
                     <span class="auth-wordmark">SYS<span>GC</span></span>
@@ -49,9 +49,9 @@
 
                 {{ form_start(form, { attr: { class: 'auth-form' } }) }}
                     {% set email_has_error = form.email.vars.errors|length > 0 %}
-                    <div class="auth-field-group">
-                        {{ form_label(form.email, null, { label_attr: { class: 'auth-field-label' } }) }}
-                        {{ form_widget(form.email, { attr: { class: 'auth-field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca', 'aria-invalid': email_has_error ? 'true' : 'false' } }) }}
+                    <div class="field-group">
+                        {{ form_label(form.email, null, { label_attr: { class: 'field-label' } }) }}
+                        {{ form_widget(form.email, { attr: { class: 'field-input' ~ (email_has_error ? ' error' : ''), placeholder: 'david@constructiondem.ca', 'aria-invalid': email_has_error ? 'true' : 'false' } }) }}
                         {{ form_errors(form.email) }}
                     </div>
 
@@ -59,7 +59,7 @@
                 {{ form_end(form) }}
 
                 <p class="auth-footer-link">
-                    Pas encore de compte&nbsp;? <a href="{{ path('register') }}">Inscrivez-vous</a>.
+                    Pas encore de compte&nbsp;? <a href="{{ path('auth_register') }}">Inscrivez-vous</a>.
                 </p>
             </div>
         </div>

@@ -3,78 +3,107 @@ Organization settings page.
 Route: /organisation (GET/POST) — OrganizationController::settings
 Extends the authenticated app shell so the sidebar is visible.
 #}
-{% extends 'layouts/app.html.twig' %}
+{% extends 'app_base.html.twig' %}
+{% block breadcrumb %}Organisation{% endblock %}
 
 {% block title %}Paramètres de l'organisation — SysGC{% endblock %}
 
 {% block body %}
-<div class="mx-auto max-w-2xl px-4 py-10">
-    <h1 class="text-2xl font-bold text-zinc-900">Paramètres de l'organisation</h1>
+<div class="content-page">
+    <h1>Paramètres de l’organisation</h1>
 
     {% for flash_error in app.flashes('error') %}
-        <div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+        <div class="flash flash--error" role="alert">
             {{ flash_error }}
         </div>
     {% endfor %}
 
     {% for flash_success in app.flashes('success') %}
-        <div class="mt-4 rounded-md bg-green-50 p-3 text-sm text-green-700" role="status">
+        <div class="flash flash--success" role="status">
             {{ flash_success }}
         </div>
     {% endfor %}
 
-    {{ form_start(form, { attr: { class: 'mt-6 space-y-4' } }) }}
-        {{ form_row(form.name, {
-            row_attr: { class: 'space-y-1' },
-            attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-        }) }}
-        {{ form_row(form.rbqLicense, {
-            row_attr: { class: 'space-y-1' },
-            attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-        }) }}
+    <div class="card max-w-7xl">
+        <div class="card-body">
 
-        <fieldset class="mt-6 rounded-md border border-zinc-200 p-4">
-            <legend class="text-sm font-semibold text-zinc-700">{{ form.address.vars.label }}</legend>
-            <div class="mt-3 space-y-4">
-                {{ form_row(form.address.street, {
-                    row_attr: { class: 'space-y-1' },
-                    attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                }) }}
-                {{ form_row(form.address.street2, {
-                    row_attr: { class: 'space-y-1' },
-                    attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                }) }}
-                <div class="grid grid-cols-2 gap-4">
-                    {{ form_row(form.address.postalCode, {
-                        row_attr: { class: 'space-y-1' },
-                        attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                    }) }}
-                    {{ form_row(form.address.city, {
-                        row_attr: { class: 'space-y-1' },
-                        attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                    }) }}
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    {{ form_row(form.address.state, {
-                        row_attr: { class: 'space-y-1' },
-                        attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                    }) }}
-                    {{ form_row(form.address.country, {
-                        row_attr: { class: 'space-y-1' },
-                        attr: { class: 'mt-1 block w-full rounded-md border-zinc-300 shadow-sm' },
-                    }) }}
-                </div>
+            {{ form_start(form, { attr: { class: 'form' } }) }}
+            <div class="field-group">
+
+                {{ form_label(form.name, null, {label_attr: {class: 'field-label'}}) }}
+                {{ form_widget(form.name, {attr: {class: 'field-input' ~ (form.name.vars.errors|length > 0 ? ' is-invalid' : ''), 'aria-invalid': form.name.vars.errors|length > 0 ? 'true' : 'false' }}) }}
+                {{ form_errors(form.name) }}
             </div>
-        </fieldset>
+            <div class="field-group">
+                {{ form_label(form.rbqLicense, null, {label_attr: {class: 'field-label'}}) }}
+                {{ form_widget(form.rbqLicense, {attr: {class: 'field-input' ~ (form.rbqLicense.vars.errors|length > 0 ? ' is-invalid' : ''), 'aria-invalid': form.rbqLicense.vars.errors|length > 0 ? 'true' : 'false' }}) }}
+                {{ form_errors(form.rbqLicense) }}
+            </div>
 
-        {{ form_row(form.save, {
-            attr: { class: 'w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700' },
-        }) }}
-    {{ form_end(form) }}
+            <fieldset class="content-fieldset">
+                <legend>{{ form.address.vars.label }}</legend>
+                <div class="content-form-stack">
+                    <div class="field-group">
+                        {{ form_row(form.address.street, {
+                            row_attr: { class: 'space-y-1' },
+                            attr: { class: 'field-input', 'aria-invalid': form.address.street.vars.errors|length > 0 ? 'true' : 'false' },
+                        }) }}
+                    </div>
+                    <div class="field-group">
+                        {{ form_row(form.address.street2, {
+                            row_attr: { class: 'space-y-1' },
+                            attr: { class: 'field-input', 'aria-invalid': form.address.street2.vars.errors|length > 0 ? 'true' : 'false' },
+                        }) }}
+                    </div>
+                    <div class="content-form-grid">
+                        <div class="field-group">
+                            {{ form_row(form.address.postalCode, {
+                                row_attr: { class: 'space-y-1' },
+                                attr: { class: 'field-input', 'aria-invalid': form.address.postalCode.vars.errors|length > 0 ? 'true' : 'false' },
+                            }) }}
+                        </div>
+                        <div class="field-group">
+                            {{ form_row(form.address.city, {
+                                row_attr: { class: 'space-y-1' },
+                                attr: { class: 'field-input', 'aria-invalid': form.address.city.vars.errors|length > 0 ? 'true' : 'false' },
+                            }) }}
+                        </div>
+                    </div>
+                    <div class="content-form-grid">
+                        <div class="field-group">
+                            {{ form_row(form.address.state, {
+                                row_attr: { class: 'space-y-1' },
+                                attr: { class: 'field-input', 'aria-invalid': form.address.state.vars.errors|length > 0 ? 'true' : 'false' },
+                            }) }}
+                        </div>
+                        <div class="field-group">
+                            {{ form_row(form.address.country, {
+                                row_attr: { class: 'space-y-1' },
+                                attr: { class: 'field-input', 'aria-invalid': form.address.country.vars.errors|length > 0 ? 'true' : 'false' },
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
 
-    <section aria-labelledby="plan-heading" class="mt-10 rounded-md border border-zinc-200 p-6">
-        <h2 id="plan-heading" class="text-lg font-semibold text-zinc-900">Forfait</h2>
-        <dl class="mt-4 space-y-3 text-sm text-zinc-700">
+            {{ form_row(form.save, {
+                attr: { class: 'btn btn-primary content-submit' },
+            }) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="card max-w-7xl mt-12">
+    <section aria-labelledby="plan-heading" class="card-body">
+        <h2 id="plan-heading">Forfait</h2>
+        {% if subscriptionStatus.value == 'grace' %}
+            <div class="mt-4"><twig:AlertBanner type="warning" message="Votre abonnement est en période de grâce (7 jours). Renouvelez-le pour conserver l'accès complet." actionLabel="Gérer mon abonnement" actionUrl="{{ path('app_billing_portal') }}" /></div>
+        {% elseif subscriptionStatus.value == 'read_only' %}
+            <div class="mt-4"><twig:AlertBanner type="error" message="Votre organisation est en lecture seule jusqu'au renouvellement de l'abonnement." actionLabel="Renouveler" actionUrl="{{ path('app_billing_portal') }}" /></div>
+        {% elseif subscriptionStatus.value == 'enterprise_required' %}
+            <div class="mt-4"><twig:AlertBanner type="warning" message="Les limites Business sont dépassées. Contactez Enterprise pour continuer à développer votre équipe." actionLabel="Contacter Enterprise" actionUrl="{{ path('app_contact') }}" /></div>
+        {% endif %}
+        <dl class="content-definition-list">
             <div class="flex justify-between">
                 <dt class="font-medium">Forfait</dt>
                 <dd>{{ organization.subscriptionTier ? organization.subscriptionTier.label : '—' }}</dd>
@@ -83,10 +112,33 @@ Extends the authenticated app shell so the sidebar is visible.
                 <dt class="font-medium">Limite de travailleurs</dt>
                 <dd>{{ organization.subscriptionTier ? organization.subscriptionTier.workerLimit ~ ' travailleurs inclus' : '—' }}</dd>
             </div>
+            <div class="flex justify-between">
+                <dt class="font-medium">Utilisateurs</dt>
+                <dd>{{ organization.subscriptionTier ? userCount ~ '/' ~ organization.subscriptionTier.userLimit : '—' }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="font-medium">Statut</dt>
+                <dd>{{ subscriptionStatus.label }}</dd>
+            </div>
         </dl>
-        <a href="{{ path('billing_portal') }}" class="mt-4 inline-block text-sm font-medium text-zinc-900 underline hover:text-zinc-700">
-            Gérer mon abonnement
-        </a>
+        {% if organization.subscriptionTier %}<p class="content-muted">Travailleurs : {{ workerCount }}/{{ organization.subscriptionTier.workerLimit }}</p>{% endif %}
+        <a class="mt-4 inline-block underline" href="{{ path('app_billing_portal') }}" aria-label="Gérer l'abonnement via Stripe">Gérer mon abonnement</a>
+        {% if not organization.subscriptionTier %}<a class="mt-2 inline-block underline" href="{{ path('app_billing_upgrade') }}">Choisir un forfait</a>{% endif %}
     </section>
+    </div>
+    {% if app.user.isOwner() %}
+    <div class="card max-w-7xl mt-12"><section class="card-body" aria-labelledby="data-heading">
+        <h2 id="data-heading" class="text-lg font-semibold">Données et récupération</h2>
+        <p class="content-muted">Téléchargez une copie de vos données ou planifiez la suppression. La récupération reste possible pendant 30 jours.</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a class="btn" href="{{ path('app_organization_export') }}">Exporter mes données</a>
+            {% if organization.deletionScheduled %}
+                <form method="post" action="{{ path('app_organization_recover_deletion') }}"><button class="btn" type="submit">Annuler la suppression</button></form>
+            {% else %}
+                <form method="post" action="{{ path('app_organization_schedule_deletion') }}"><button class="btn" type="submit">Planifier la suppression</button></form>
+            {% endif %}
+        </div>
+    </section></div>
+    {% endif %}
 </div>
 {% endblock %}

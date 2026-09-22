@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Factory;
 
-use App\Entity\Organization;
+use App\Identity\Domain\Model\Organization;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -27,6 +27,7 @@ final class OrganizationFactory extends PersistentObjectFactory
         return [
             'name' => self::faker()->company(),
             'rbqLicense' => 'RBQ-' . self::faker()->numerify('####-####-##'),
+            'address' => AddressFactory::new(),
         ];
     }
 }

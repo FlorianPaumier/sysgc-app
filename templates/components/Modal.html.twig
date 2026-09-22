@@ -1,0 +1,23 @@
+{% props id, title, open = false, cancelLabel = 'Annuler' %}
+
+<dialog
+    id="{{ id }}"
+    class="modal"
+    aria-labelledby="{{ id }}-title"
+    aria-modal="true"
+    data-controller="modal"
+    data-action="modal:open@window->modal#open click->modal#backdropClose cancel->modal#close"
+    {% if open %}open{% endif %}
+>
+    <div class="modal__panel" data-modal-target="panel">
+        <header class="modal__header">
+            <h2 id="{{ id }}-title">{{ title }}</h2>
+            <button type="button" class="modal__close" data-action="modal#close" aria-label="Fermer la fenêtre">×</button>
+        </header>
+        <div class="modal__content">{% block content %}{% endblock %}</div>
+        <footer class="modal__footer">
+            <button type="button" class="btn modal__cancel" data-action="modal#close">{{ cancelLabel }}</button>
+            {% block actions %}{% endblock %}
+        </footer>
+    </div>
+</dialog>

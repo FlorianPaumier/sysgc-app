@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Controller;
 
 use App\Tests\Integration\IntegrationTestCase;
-use App\Factory\AddressFactory;
+use App\Tests\Factory\AddressFactory;
 use App\Tests\Factory\OrganizationFactory;
 use App\Tests\Factory\UserFactory;
 use App\Tests\Fake\FakeStripeClient;
@@ -31,6 +31,7 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
     public function test_webhook_is_public_and_returns_200(): void
     {
         $payload = json_encode(['type' => 'unknown.event', 'data' => ['object' => []]]);
+        self::assertIsString($payload);
 
         $this->client->request('POST', '/stripe/webhook', [], [], [
             'HTTP_STRIPE_SIGNATURE' => $this->sign($payload),
@@ -89,6 +90,7 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
             ]],
         ];
         $payload = json_encode($event);
+        self::assertIsString($payload);
 
         $this->client->request('POST', '/stripe/webhook', [], [], [
             'HTTP_STRIPE_SIGNATURE' => $this->sign($payload),
@@ -132,6 +134,7 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
             ]],
         ];
         $payload = json_encode($event);
+        self::assertIsString($payload);
 
         $this->client->request('POST', '/stripe/webhook', [], [], [
             'HTTP_STRIPE_SIGNATURE' => $this->sign($payload),
@@ -157,9 +160,13 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
             ]],
         ];
         $payload = json_encode($event);
+        self::assertIsString($payload);
 
         $result = \Stripe\Webhook::constructEvent($payload, $this->sign($payload), self::WEBHOOK_SECRET);
         $array = $result->toArray();
+        self::assertIsArray($array['data'] ?? null);
+        self::assertIsArray($array['data']['object'] ?? null);
+        self::assertIsArray($array['data']['object']['metadata'] ?? null);
 
         // Verify the structure matches what handleWebhook expects
         self::assertSame('checkout.session.completed', $array['type']);
@@ -180,8 +187,8 @@ final class StripeWebhookControllerTest extends IntegrationTestCase
         ]);
         $orgId = (string) $org->getId();
 
-        /** @var \App\Service\StripeService $service */
-        $service = static::getContainer()->get(\App\Service\StripeService::class);
+        /** @var \App\Subscription\Application\StripeService $service */
+        $service = static::getContainer()->get(\App\Subscription\Application\StripeService::class);
 
         $service->handleWebhook([
             'type' => 'checkout.session.completed',
