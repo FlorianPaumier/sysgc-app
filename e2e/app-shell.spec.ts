@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { registerOwner } from './helpers/auth';
 
 /**
  * Application shell tests — admin sidebar, breadcrumb, user menu, mobile nav.
@@ -14,12 +15,7 @@ function uniqueEmail(): string {
 }
 
 async function registerAndLandOnDashboard(page: import('@playwright/test').Page): Promise<void> {
-  await page.goto('https://localhost/inscription');
-  await page.fill('input[type="email"]', uniqueEmail());
-  await page.fill('input[name*="organization"]', 'E2E Shell Construction');
-  await page.fill('input[name*="rbq"]', 'RBQ-1234-5678-90');
-  await page.click('button[type="submit"]');
-  await page.waitForURL('**/dashboard', { timeout: 15000 });
+  await registerOwner(page, 'E2E Shell Construction');
 }
 
 test('home page loads (smoke)', async ({ page }) => {

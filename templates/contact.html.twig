@@ -24,8 +24,8 @@
 
                     {{ form_start(form, {attr: {class: 'auth-form'}}) }}
 
-                    <div class="hidden" aria-hidden="true">
-                        {{ form_widget(form.website) }}
+                    <div hidden aria-hidden="true">
+                        {{ form_widget(form.website, {attr: {tabindex: '-1', 'aria-hidden': 'true'}}) }}
                     </div>
 
                     <div class="field-group">

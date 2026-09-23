@@ -4,6 +4,7 @@
     "description": "SysGC — E2E (Playwright) tooling. The app itself is a server-rendered Symfony app; this package exists only to run the Playwright suite (specs/09-tests.md, CLAUDE.md).",
     "type": "module",
     "scripts": {
+        "build": "php bin/console tailwind:build assets/styles/public.css --env=prod && php bin/console tailwind:build assets/styles/authenticated.css --env=prod && php bin/console asset-map:compile --env=prod && php bin/sync-tailwind-assets.php",
         "test": "npm run test:frontend",
         "test:frontend": "node --test frontend-tests/*.test.js",
         "coverage:frontend": "node --experimental-test-coverage --test-coverage-include=assets/controllers/nav_controller.js --test-coverage-include=assets/controllers/sidebar_controller.js --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 frontend-tests/controllers.test.js",
@@ -12,6 +13,7 @@
         "e2e:install": "playwright install --with-deps"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.13.0",
         "@hotwired/stimulus": "^3.2.2",
         "@playwright/test": "^1.55.0",
         "jsdom": "^27.0.0"

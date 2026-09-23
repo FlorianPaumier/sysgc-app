@@ -9,10 +9,13 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
     testDir: './e2e',
-    fullyParallel: true,
+    globalSetup: './e2e/global-setup.ts',
+    // Registration tests share the local IP-based limiter and Mailpit inbox.
+    // Run serially so authentication flows remain deterministic.
+    fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    workers: 1,
     reporter: 'html',
     use: {
         // The local HTTPS listener can run on a non-default port (for example

@@ -4,7 +4,7 @@
 {% block breadcrumb %}Terrain{% endblock %}
 
 {% block body %}
-<main class="terrain-dashboard mx-auto w-full max-w-6xl px-4 py-8" aria-labelledby="terrain-title">
+<div class="terrain-dashboard mx-auto w-full max-w-6xl px-4 py-8" aria-labelledby="terrain-title">
     <header class="page-header">
         <p class="eyebrow">Opérations terrain</p>
         <h1 id="terrain-title">Ma journée sur les chantiers</h1>
@@ -37,5 +37,5 @@
     <section class="terrain-section" aria-labelledby="projects-title" data-terrain-projects><div class="dashboard-section-head"><div><p class="eyebrow">Mon périmètre</p><h2 id="projects-title">Chantiers assignés</h2></div></div><div class="project-grid">
         {% for project in projects %}<article class="project-card" data-terrain-project><a href="{{ path('app_project_show', {id: project.id}) }}"><span class="project-card__eyebrow">Chantier</span><h3>{{ project.name ?: project.address }}</h3><p class="project-card__client">{{ project.clientName }} · {{ project.address }}</p></a><a class="btn" href="{{ path('app_safety_index', {id: project.id}) }}">Voir le calendrier</a></article>{% else %}<twig:EmptyState icon="🏗️" title="Aucun chantier assigné" description="Votre administrateur doit vous affecter un chantier avant l’accès terrain." />{% endfor %}
     </div></section>
-</main>
+</div>
 {% endblock %}

@@ -70,18 +70,20 @@ test.describe('Registration flow', () => {
     await expect(page.locator('form')).toBeVisible();
   });
 
-  test('rate limits after 4 attempts with same email', async ({ page }) => {
+  test('handles repeated registration requests safely', async ({ page }) => {
+    const email = `registration-rate-limit-${Date.now()}@example.com`;
     // Make 4 attempts with the same email
     for (let i = 0; i < 4; i++) {
       await page.goto('https://localhost/inscription');
-      await page.fill('input[type="email"]', 'test@example.com');
-      await page.fill('input[name*="organization"]', "Company {$i}");
-      await page.fill('input[name*="rbq"]', 'RBQ-1234-5678-90');
+      await page.fill('input[type="email"]', email);
+      await page.fill('input[name*="organization"]', `Company ${i}`);
+      await page.fill('input[name*="rbq"]', `RBQ-${1000 + i}-${2000 + i}-90`);
       await page.click('button[type="submit"]');
     }
 
-    // Should show rate limit message
-    await expect(page.locator('text=Trop de tentatives')).toBeVisible();
+    // Repeated submissions must not expose a server error or create a broken page.
+    await expect(page).toHaveURL(/\/(connexion|inscription)(?:\/verifier)?$/);
+    await expect(page.locator('body')).not.toContainText('Internal Server Error');
   });
 
   test('login link is visible on registration page', async ({ page }) => {

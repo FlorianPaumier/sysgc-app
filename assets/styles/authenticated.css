@@ -16,6 +16,9 @@
     --app-font: var(--font-family-body); --app-display: var(--font-family-display);
     --app-mono: var(--font-family-mono);
 }
+
+/* Keep secondary dashboard notes above WCAG AA contrast on muted surfaces. */
+.dashboard-aside-note { color: var(--app-ink) !important; }
 * { box-sizing: border-box; }
 html { color-scheme: light; }
 body { margin: 0; min-width: 20rem; background: var(--app-bg); color: var(--app-ink); font: 1rem/1.5 var(--app-font); }

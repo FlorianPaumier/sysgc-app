@@ -11,7 +11,7 @@ Usage:
 
 <div class="empty-state" role="status">
     <div class="empty-state__icon" aria-hidden="true">{{ icon }}</div>
-    {% if title %}<h3 class="empty-state__title">{{ title }}</h3>{% endif %}
+    {% if title %}<h2 class="empty-state__title">{{ title }}</h2>{% endif %}
     {% if description %}<p class="empty-state__desc">{{ description }}</p>{% endif %}
     {% if actionLabel and actionUrl %}
         <a class="btn btn-primary empty-state__cta" href="{{ actionUrl }}">{{ actionLabel }}</a>

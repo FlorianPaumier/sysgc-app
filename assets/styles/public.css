@@ -176,7 +176,7 @@
         gap: 10px;
     }
 
-    .brand .gc { color: var(--color-orange); }
+    .brand .gc { color: var(--color-orange-deep); }
 
     .brand-meta {
         font-family: var(--font-mono);
@@ -359,13 +359,13 @@
 
     .btn-primary {
         background: var(--color-orange);
-        color: var(--color-ink);
+        color: #17161A;
         border-color: var(--color-orange);
     }
 
     .btn-primary:hover {
         background: var(--color-orange-deep);
-        color: var(--color-paper);
+        color: #17161A;
         border-color: var(--color-orange-deep);
     }
 
@@ -623,8 +623,8 @@
 
     /* ─── How it works (dark) ─── */
     .howto {
-        background: var(--color-ink);
-        color: var(--color-paper);
+        background: var(--color-bg-inverse);
+        color: var(--color-text-inverse);
         position: relative;
         overflow: hidden;
     }
@@ -640,9 +640,9 @@
     }
 
     .howto .wrap { position: relative; z-index: 2; }
-    .howto h2 { color: var(--color-paper); }
-    .howto .section-head { border-bottom-color: rgba(241,236,223,.2); }
-    .howto .section-lead { color: rgba(241,236,223,.7); }
+    .howto h2 { color: var(--color-text-inverse); }
+    .howto .section-head { border-bottom-color: color-mix(in srgb, var(--color-text-inverse) 20%, transparent); }
+    .howto .section-lead { color: color-mix(in srgb, var(--color-text-inverse) 70%, transparent); }
     .howto .section-head .num { color: var(--color-orange); }
 
     .steps {
@@ -674,7 +674,7 @@
         width: 48px;
         height: 48px;
         border: 2px solid var(--color-orange);
-        background: var(--color-ink);
+        background: var(--color-bg-inverse);
         color: var(--color-orange);
         font-family: var(--font-display);
         font-weight: 700;
@@ -697,7 +697,7 @@
     }
 
     .step p {
-        color: rgba(241,236,223,.75);
+        color: color-mix(in srgb, var(--color-text-inverse) 75%, transparent);
         font-size: 15px;
         margin-bottom: 20px;
         line-height: 1.55;
@@ -706,11 +706,11 @@
     .step-detail {
         font-family: var(--font-mono);
         font-size: 11px;
-        color: rgba(241,236,223,.5);
+        color: color-mix(in srgb, var(--color-text-inverse) 50%, transparent);
         text-transform: uppercase;
         letter-spacing: .05em;
         padding-top: 16px;
-        border-top: 1px solid rgba(241,236,223,.15);
+        border-top: 1px solid color-mix(in srgb, var(--color-text-inverse) 15%, transparent);
     }
 
     /* ─── Testimonial ─── */
@@ -916,12 +916,13 @@
     .plan.featured .plan-cta {
         background: var(--color-orange);
         border-color: var(--color-orange);
+        color: #17161A;
     }
 
     .plan.featured .plan-cta:hover {
         background: var(--color-orange-deep);
         border-color: var(--color-orange-deep);
-        color: var(--color-paper);
+        color: #17161A;
     }
 
     /* ─── FAQ ─── */
@@ -1058,7 +1059,7 @@
 
     .cta-form button {
         background: var(--color-orange);
-        color: var(--color-ink);
+        color: #17161A;
         border: none;
         padding: 0 24px;
         font-family: var(--font-mono);
@@ -1111,7 +1112,7 @@
         line-height: 1;
     }
 
-    .foot-brand .gc { color: var(--color-orange); }
+    .foot-brand .gc { color: var(--color-orange-deep); }
 
     .foot-tag {
         font-family: var(--font-mono);
@@ -1227,7 +1228,7 @@
         color: var(--color-ink);
     }
 
-    .auth-wordmark span { color: var(--color-orange); }
+    .auth-wordmark span { color: var(--color-orange-deep); }
 
     .auth-accent-line {
         width: 32px;
@@ -1399,7 +1400,7 @@
     }
 
     .auth-footer-link a {
-        color: var(--color-orange);
+        color: var(--color-orange-deep);
         text-decoration: none;
         font-weight: 600;
     }

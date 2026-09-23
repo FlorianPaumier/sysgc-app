@@ -33,7 +33,7 @@ final class SharedComponentsTest extends KernelTestCase
             TWIG);
 
         self::assertStringContainsString('<header class="page-header">', $html);
-        self::assertStringContainsString('aria-label="Fil d’Ariane"', $html);
+        self::assertStringContainsString('aria-label="Fil d’Ariane de la page"', $html);
         self::assertStringContainsString('href="/chantiers"', $html);
         self::assertStringContainsString('aria-current="page"', $html);
         self::assertStringContainsString('Déclaration CCQ', $html);

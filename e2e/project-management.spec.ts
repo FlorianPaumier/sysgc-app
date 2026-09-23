@@ -1,39 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { randomUUID } from 'node:crypto';
+import { registerOwner } from './helpers/auth';
 
 const baseUrl = process.env.SYSGC_BASE_URL ?? 'https://localhost';
-const mailpitUrl = process.env.SYSGC_MAILPIT_URL ?? 'http://127.0.0.1:8025';
-
-async function registerOwner(page: import('@playwright/test').Page): Promise<void> {
-  const email = `e2e-project-${randomUUID()}@example.com`;
-  await page.goto(`${baseUrl}/inscription`);
-  await page.getByLabel(/courriel/i).fill(email);
-  await page.locator('input[name*="organization"]').fill('E2E Projets Construction');
-  await page.locator('input[name*="rbq"]').fill('RBQ-1234-5678-90');
-  await page.getByRole('button', { name: /créer|inscrire|commencer/i }).click();
-  await page.waitForURL('**/login/check-email');
-
-  const deadline = Date.now() + 15_000;
-  let verificationUrl = '';
-  while (Date.now() < deadline && verificationUrl === '') {
-    const response = await fetch(`${mailpitUrl}/api/v1/messages`);
-    const inbox = await response.json() as { messages: Array<{ ID: string; To: Array<{ Address: string }> }> };
-    const message = inbox.messages.find(item => item.To.some(recipient => recipient.Address === email));
-    if (message) {
-      const detailResponse = await fetch(`${mailpitUrl}/api/v1/message/${message.ID}`);
-      const detail = await detailResponse.json() as { Text: string };
-      verificationUrl = detail.Text.match(/https?:\/\/\S+\/connexion\/verifier\?\S+/)?.[0].replace('&amp;', '&') ?? '';
-    }
-    if (verificationUrl === '') {
-      await new Promise(resolve => setTimeout(resolve, 250));
-    }
-  }
-
-  expect(verificationUrl, `magic link for ${email}`).not.toBe('');
-  await page.goto(verificationUrl);
-  await page.waitForURL('**/dashboard', { timeout: 15_000 });
-}
-
 test('owner creates a project, navigates its five tabs, then archives it', async ({ page }) => {
   await registerOwner(page);
   await page.goto(`${baseUrl}/chantiers`);

@@ -1,35 +1,31 @@
 import { test, expect } from '@playwright/test';
+import { registerOwner } from './helpers/auth';
 
 test.describe('Billing upgrade (Forfaits)', () => {
   const uniqueEmail = () => `e2e-billing-${Date.now()}@example.com`;
 
   test.beforeEach(async ({ page }) => {
     // Register a fresh org + auto-login.
-    const email = uniqueEmail();
-    await page.goto('https://localhost/inscription');
-    await page.fill('input[type="email"]', email);
-    await page.fill('input[name*="organization"]', 'E2E Billing Inc');
-    await page.fill('input[name*="rbq"]', 'RBQ-1234-5678-90');
-    await page.click('button[type="submit"]');
+    await registerOwner(page, 'E2E Billing Inc');
 
     // Navigate to the pricing page.
     await page.goto('https://localhost/forfaits');
   });
 
   test('shows three pricing cards with prices and worker limits', async ({ page }) => {
-    await expect(page.locator('text=Starter')).toBeVisible();
-    await expect(page.locator('text=Pro')).toBeVisible();
-    await expect(page.locator('text=Business')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Starter' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Pro' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Business' })).toBeVisible();
 
     // Prices
-    await expect(page.locator('text=79 $')).toBeVisible();
-    await expect(page.locator('text=149 $')).toBeVisible();
-    await expect(page.locator('text=199 $')).toBeVisible();
+    await expect(page.locator('.plan-card__price').nth(0)).toContainText('79');
+    await expect(page.locator('.plan-card__price').nth(1)).toContainText('149');
+    await expect(page.locator('.plan-card__price').nth(2)).toContainText('199');
 
     // Worker limits
-    await expect(page.locator("text=Jusqu'a 5 travailleurs")).toBeVisible();
-    await expect(page.locator("text=Jusqu'a 20 travailleurs")).toBeVisible();
-    await expect(page.locator("text=Jusqu'a 50 travailleurs")).toBeVisible();
+    await expect(page.getByText('Jusqu’à 5 travailleurs')).toBeVisible();
+    await expect(page.getByText('Jusqu’à 20 travailleurs')).toBeVisible();
+    await expect(page.getByText('Jusqu’à 50 travailleurs')).toBeVisible();
   });
 
   test('selecting a tier submits and redirects towards Stripe', async ({ page }) => {

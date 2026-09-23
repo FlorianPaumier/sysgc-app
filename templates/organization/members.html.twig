@@ -2,7 +2,7 @@
 {% block title %}Membres et invitations — SysGC{% endblock %}
 {% block breadcrumb %}Organisation / Membres{% endblock %}
 {% block body %}
-<main class="mx-auto max-w-5xl px-4 py-10">
+<div class="mx-auto max-w-5xl px-4 py-10">
     <h1 class="text-2xl font-bold">Membres et invitations</h1>
     {% for message in app.flashes('success') %}<p role="status">{{ message }}</p>{% endfor %}
     <section aria-labelledby="members-heading" class="card mt-6">
@@ -30,5 +30,5 @@
         <ul>{% for invitation in invitations %}<li>{{ invitation.email }} — {{ invitation.roleLabel }}{% if not invitation.accepted and not invitation.revoked %} <form class="inline" method="post" action="{{ path('app_organization_invitation_revoke', {id: invitation.id}) }}"><button type="submit">Révoquer</button></form>{% endif %}</li>{% endfor %}</ul>
     </div></section>
     {% endif %}
-</main>
+</div>
 {% endblock %}

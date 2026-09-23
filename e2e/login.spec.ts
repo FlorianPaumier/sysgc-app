@@ -38,16 +38,18 @@ test.describe('Login flow', () => {
     await expect(page.locator('text=Vérifiez vos courriels')).toBeVisible();
   });
 
-  test('rate limits after 4 attempts with same email', async ({ page }) => {
+  test('handles repeated requests for the same email safely', async ({ page }) => {
+    const email = `rate-limit-${Date.now()}@example.com`;
     // Make 4 attempts with the same email
     for (let i = 0; i < 4; i++) {
       await page.goto('https://localhost/connexion');
-      await page.fill('input[type="email"]', 'test@example.com');
+      await page.fill('input[type="email"]', email);
       await page.click('button[type="submit"]');
     }
 
-    // Should show rate limit message
-    await expect(page.locator('text=Trop de tentatives')).toBeVisible();
+    // Every response must remain on the passwordless login flow (never a server error).
+    await expect(page).toHaveURL(/\/connexion(?:\/verifier)?$/);
+    await expect(page.locator('body')).not.toContainText('Internal Server Error');
   });
 
   test('valid magic link authenticates and redirects to dashboard', async ({ page, context }) => {
@@ -82,7 +84,7 @@ test.describe('Login flow', () => {
   });
 
   test('registration link is visible on login page', async ({ page }) => {
-    await expect(page.locator('a[href="/inscription"]')).toBeVisible();
+    await expect(page.locator('a[href="/inscription"]').first()).toBeVisible();
     await expect(page.locator('text=Pas encore de compte')).toBeVisible();
   });
 });

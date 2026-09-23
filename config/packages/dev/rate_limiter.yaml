@@ -1,0 +1,9 @@
+framework:
+    rate_limiter:
+        # The browser suite creates many isolated test organizations from one
+        # local Docker IP. Keep the per-email protection unchanged while
+        # preventing the shared development IP bucket from coupling tests.
+        login_per_ip:
+            policy: token_bucket
+            limit: 100
+            rate: { interval: '5 minutes', amount: 100 }

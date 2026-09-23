@@ -1,9 +1,9 @@
 framework:
     rate_limiter:
         login_per_email:
-            policy: token_bucket
+            policy: fixed_window
             limit: 3
-            rate: { interval: '15 minutes', amount: 15 }
+            interval: '15 minutes'
             # Keyed by user email to enforce per‑email limits.
             # The controller extracts the email from the form and passes it.
         login_per_ip:
