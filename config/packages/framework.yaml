@@ -5,6 +5,11 @@ framework:
     # French is the default UI locale (EN fallbacks in translations/messages.en.yaml)
     default_locale: fr_FR
 
+    # Trust only the immediate Caddy/Laravel Cloud proxy, never arbitrary
+    # forwarded headers sent by a client. REMOTE_ADDR is resolved per request.
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    trusted_headers: [x-forwarded-for, x-forwarded-host, x-forwarded-proto, x-forwarded-port, x-forwarded-prefix]
+
     # Session: 30-day lifetime, secure + httponly + samesite=lax cookie.
     # See specs/04-auth.md.
     session:

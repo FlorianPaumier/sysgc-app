@@ -1,0 +1,10 @@
+{
+    "name": "SysGC",
+    "short_name": "SysGC",
+    "description": "Conformité CCQ, RBQ et CNESST pour les entrepreneurs du Québec.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#F1ECDF",
+    "theme_color": "#F1ECDF",
+    "lang": "fr-CA"
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sysgc-app-production-5ou4vq.laravel.cloud/sitemap.xml

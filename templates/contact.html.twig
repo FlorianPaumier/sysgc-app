@@ -52,6 +52,11 @@
                         {{ form_errors(form.message) }}
                     </div>
 
+                    <p class="field-helper" data-privacy-notice>
+                        Nous utilisons ces renseignements uniquement pour répondre à votre demande et assurer son suivi.
+                        Consultez notre <a href="{{ path('privacy_policy') }}">politique de confidentialité</a>.
+                    </p>
+
                     <button type="submit" class="auth-submit-btn" {% if rate_limited %}disabled{% endif %}>
                         {% if rate_limited %}
                             Réessayez plus tard

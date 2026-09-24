@@ -7,6 +7,12 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(LEGAL_OPERATOR_NAME): 'À compléter — raison sociale de l’exploitant'
+    env(LEGAL_OPERATOR_ADDRESS): 'À compléter — adresse postale de l’exploitant'
+    env(LEGAL_OPERATOR_EMAIL): 'À compléter — adresse courriel de l’exploitant'
+    env(PRIVACY_OFFICER_NAME): 'À compléter — nom ou fonction du responsable'
+    env(PRIVACY_OFFICER_EMAIL): 'À compléter — adresse courriel du responsable'
+    env(LEGAL_EFFECTIVE_DATE): 'À compléter — date d’entrée en vigueur'
 
 services:
     # default configuration for services in *this* file
@@ -18,6 +24,15 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    App\PublicSite\Presentation\Http\LegalController:
+        arguments:
+            $operatorName: '%env(LEGAL_OPERATOR_NAME)%'
+            $operatorAddress: '%env(LEGAL_OPERATOR_ADDRESS)%'
+            $operatorEmail: '%env(LEGAL_OPERATOR_EMAIL)%'
+            $privacyOfficerName: '%env(PRIVACY_OFFICER_NAME)%'
+            $privacyOfficerEmail: '%env(PRIVACY_OFFICER_EMAIL)%'
+            $effectiveDate: '%env(LEGAL_EFFECTIVE_DATE)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

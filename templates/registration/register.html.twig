@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Inscription — SysGC{% endblock %}
+{% block meta_robots %}noindex,nofollow{% endblock %}
 
 {% form_theme form _self %}
 
@@ -59,6 +60,12 @@
                         {{ form_errors(form.rbqLicense) }}
                         <span class="field-helper">Format&nbsp;: RBQ-1234-5678-90. Votre numéro à 10 chiffres suivi de 2 chiffres.</span>
                     </div>
+
+                    <p class="field-helper" data-privacy-notice>
+                        Ces renseignements servent à créer et sécuriser votre compte et à fournir le service.
+                        Consultez notre <a href="{{ path('privacy_policy') }}">politique de confidentialité</a>
+                        pour connaître vos droits et les modalités de traitement.
+                    </p>
 
                     {{ form_widget(form.register, { attr: { class: 'auth-submit-btn' } }) }}
                 {{ form_end(form) }}

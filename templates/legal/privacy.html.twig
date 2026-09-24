@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Politique de confidentialité — SysGC{% endblock %}
+
+{% block body %}
+<article class="wrap legal-page" aria-labelledby="legal-title">
+    <header>
+        <p class="eyebrow">Protection des renseignements personnels</p>
+        <h1 id="legal-title">Politique de confidentialité</h1>
+        <p>Entrée en vigueur : <strong>{{ effective_date }}</strong></p>
+        <p>La présente politique explique comment l’exploitant de SysGC traite les renseignements personnels conformément aux lois applicables au Québec, notamment la Loi sur la protection des renseignements personnels dans le secteur privé.</p>
+    </header>
+
+    <section aria-labelledby="identity-title">
+        <h2 id="identity-title">Identité de l’exploitant</h2>
+        <p><strong>{{ operator_name }}</strong><br>{{ operator_address }}<br>{{ operator_email }}</p>
+        <p><strong>Note de publication :</strong> les mentions « À compléter » sont des valeurs de configuration temporaires. Elles doivent être remplacées par les renseignements juridiques réels avant la mise en production.</p>
+    </section>
+
+    <section>
+        <h2>Renseignements personnels recueillis</h2>
+        <p>Selon l’utilisation du service, nous pouvons traiter :</p>
+        <ul>
+            <li>les renseignements d’identité et de contact des utilisateurs, membres, travailleurs, sous-traitants et personnes-ressources;</li>
+            <li>les renseignements sur l’entreprise, ses chantiers, licences, métiers, heures travaillées et dossiers de conformité;</li>
+            <li>les registres de santé et sécurité, signatures, photos et pièces justificatives téléversées;</li>
+            <li>les données contractuelles et de facturation, ainsi que les identifiants et statuts de paiement fournis par Stripe; SysGC ne reçoit pas les numéros complets de carte;</li>
+            <li>les communications avec nous, les journaux de connexion, l’adresse IP, le navigateur, l’appareil et les événements nécessaires à la sécurité et au fonctionnement.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Finalités</h2>
+        <p>Ces renseignements servent à créer et sécuriser les comptes, fournir les fonctions de gestion de chantier et de conformité, produire les documents demandés, traiter la facturation, soutenir les utilisateurs, prévenir la fraude, diagnostiquer les incidents, respecter nos obligations légales et améliorer la fiabilité du service. Nous ne les utilisons pas à une nouvelle fin incompatible sans obtenir l’autorisation requise.</p>
+    </section>
+
+    <section>
+        <h2>Moyens de collecte</h2>
+        <p>Nous recueillons les renseignements fournis directement dans les formulaires, fichiers importés, photos, signatures et messages; ceux créés lors de l’utilisation du service; et ceux transmis par les administrateurs de l’entreprise cliente ou nos fournisseurs lorsque nécessaire au service.</p>
+    </section>
+
+    <section>
+        <h2>Fournisseurs et communication</h2>
+        <p>L’accès est limité aux membres autorisés de l’entreprise cliente, à notre personnel qui en a besoin et aux fournisseurs agissant pour notre compte. Selon la configuration déployée, ceux-ci comprennent :</p>
+        <ul>
+            <li><strong>Laravel Cloud et Cloudflare</strong> pour l’hébergement, le réseau, la protection et les journaux techniques;</li>
+            <li><strong>Stripe</strong> pour les paiements et la gestion des abonnements;</li>
+            <li><strong>Resend</strong> pour l’envoi de courriels transactionnels;</li>
+            <li><strong>Google Fonts</strong>, encore chargé par le site public, qui peut recevoir des données techniques comme l’adresse IP lors du chargement des polices.</li>
+        </ul>
+        <p>Nous pouvons aussi communiquer des renseignements si la loi l’exige, pour protéger des droits ou avec un acquéreur dans le cadre encadré d’une opération commerciale. Nous ne vendons pas de renseignements personnels.</p>
+    </section>
+
+    <section>
+        <h2>Transferts hors du Québec et évaluation</h2>
+        <p>Certains fournisseurs peuvent conserver ou traiter des renseignements hors du Québec, où les lois diffèrent. Avant une communication hors du Québec, nous réalisons une <strong>évaluation des facteurs relatifs à la vie privée</strong> (EFVP) tenant compte de la sensibilité, des fins, des mesures de protection et du régime juridique applicable. Une entente écrite encadre ensuite la communication si elle peut recevoir une protection adéquate.</p>
+    </section>
+
+    <section>
+        <h2>Conservation et destruction</h2>
+        <p>Nous conservons les renseignements seulement pendant la durée nécessaire aux fins décrites, aux engagements contractuels et aux délais imposés ou permis par la loi. Les durées précises dépendent de la catégorie de dossier et des choix de l’entreprise cliente. À l’échéance, les renseignements sont détruits de façon sécuritaire ou anonymisés selon un processus irréversible.</p>
+    </section>
+
+    <section>
+        <h2>Mesures de sécurité</h2>
+        <p>Nous appliquons des mesures administratives, techniques et physiques proportionnelles à la sensibilité des renseignements, notamment des contrôles d’accès, l’authentification, le chiffrement en transit, la journalisation, des sauvegardes et des pratiques de gestion des incidents. Aucun système ne peut toutefois garantir une sécurité absolue.</p>
+    </section>
+
+    <section>
+        <h2>Vos droits</h2>
+        <p>Sous réserve des exceptions légales, une personne peut demander l’accès à ses renseignements, leur rectification, une copie informatisée dans un format technologique structuré et couramment utilisé, ou des renseignements sur leur utilisation et leur communication. Elle peut aussi demander la cessation de diffusion ou la désindexation lorsque les conditions légales sont réunies.</p>
+        <h3>Retrait du consentement</h3>
+        <p>Vous pouvez retirer un consentement lorsque le traitement repose sur celui-ci. Nous expliquerons les conséquences possibles, notamment lorsqu’un renseignement demeure nécessaire pour fournir le service ou respecter la loi.</p>
+    </section>
+
+    <section>
+        <h2>Plainte et incident de confidentialité</h2>
+        <p>Toute demande ou plainte peut être adressée au responsable ci-dessous. Nous vérifions l’identité du demandeur et répondons dans les délais prévus par la loi. En cas d’incident de confidentialité présentant un risque de préjudice sérieux, nous prenons les mesures raisonnables pour réduire le risque et avisons les personnes et autorités concernées conformément à la loi.</p>
+    </section>
+
+    <section>
+        <h2>Témoins</h2>
+        <p>SysGC utilise des témoins et technologies semblables strictement nécessaires à la session, à l’authentification, à la sécurité et aux préférences essentielles. Le site public charge actuellement Google Fonts depuis les serveurs de Google. Vous pouvez bloquer certains témoins dans votre navigateur, mais des fonctions essentielles pourraient alors ne plus fonctionner.</p>
+    </section>
+
+    <section>
+        <h2>Responsable de la protection des renseignements personnels</h2>
+        <address>
+            <strong>{{ privacy_officer_name }}</strong><br>
+            {{ operator_name }}<br>
+            {{ operator_address }}<br>
+            <a href="mailto:{{ privacy_officer_email }}">{{ privacy_officer_email }}</a>
+        </address>
+    </section>
+</article>
+{% endblock %}

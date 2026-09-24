@@ -28,6 +28,7 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/a-propos$, roles: PUBLIC_ACCESS }
         - { path: ^/contact$, roles: PUBLIC_ACCESS }
+        - { path: ^/(confidentialite|conditions-utilisation)$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

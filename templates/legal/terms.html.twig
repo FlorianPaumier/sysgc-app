@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions d’utilisation — SysGC{% endblock %}
+
+{% block body %}
+<article class="wrap legal-page" aria-labelledby="legal-title">
+    <header>
+        <p class="eyebrow">Cadre contractuel B2B</p>
+        <h1 id="legal-title">Conditions d’utilisation</h1>
+        <p>Entrée en vigueur : <strong>{{ effective_date }}</strong></p>
+    </header>
+
+    <section>
+        <h2>Exploitant et acceptation</h2>
+        <p>SysGC est exploité par <strong>{{ operator_name }}</strong>, {{ operator_address }} — {{ operator_email }}. Les mentions « À compléter » sont des valeurs de configuration temporaires à remplacer avant la mise en production.</p>
+        <p>Ces conditions s’adressent uniquement aux <strong>entreprises et professionnels</strong>. La personne qui crée ou utilise un compte confirme avoir le pouvoir d’engager l’entreprise cliente. L’utilisation du service vaut acceptation de ces conditions et de la politique de confidentialité.</p>
+    </section>
+
+    <section>
+        <h2>Service</h2>
+        <p>SysGC fournit des outils de gestion de chantier, de préparation documentaire, de suivi de conformité et de facturation. Les fonctions disponibles dépendent de l’offre effectivement présentée au client au moment de la souscription. Nous pouvons faire évoluer le service sans retirer une fonction essentielle déjà payée pendant la période en cours, sauf nécessité légale, de sécurité ou technique.</p>
+    </section>
+
+    <section>
+        <h2>Offre, prix et renouvellement</h2>
+        <p>Le prix, les taxes, la durée, l’existence et les modalités d’un essai, la fréquence de facturation et le renouvellement applicables sont uniquement ceux affichés dans l’offre ou acceptés lors de la commande. Aucune période d’essai, durée, remise ou reconduction particulière n’est garantie par les présentes conditions. Stripe traite les paiements. Le client doit maintenir ses renseignements de facturation exacts et acquitter les sommes exigibles selon l’offre acceptée.</p>
+    </section>
+
+    <section>
+        <h2>Compte et usage acceptable</h2>
+        <p>Le client protège ses accès, limite les permissions à ses utilisateurs autorisés et nous avise rapidement de tout usage non autorisé. Il lui est interdit de contourner la sécurité, perturber le service, introduire du code malveillant, utiliser le service illégalement ou tenter d’accéder aux données d’un tiers.</p>
+    </section>
+
+    <section>
+        <h2>Responsabilité réglementaire</h2>
+        <p>Les calculs, alertes, vérifications et documents de SysGC sont des outils d’assistance. Ils ne constituent pas un avis juridique, comptable, fiscal, professionnel ou une décision d’une autorité. Le client demeure responsable de vérifier l’exactitude des données, les règles applicables, les échéances et les documents avant leur dépôt ou leur utilisation.</p>
+        <p><strong>SysGC n’est ni affilié, ni approuvé, ni commandité par la CCQ, la RBQ ou la CNESST.</strong> Les marques et sigles correspondants appartiennent à leurs titulaires.</p>
+    </section>
+
+    <section>
+        <h2>Données du client</h2>
+        <p>Le client conserve ses droits sur les données qu’il fournit. Il nous accorde l’autorisation limitée de les héberger, copier, traiter et transmettre uniquement pour exploiter, sécuriser et soutenir le service. Il garantit avoir le droit de nous confier ces données, d’informer les personnes concernées et d’obtenir les autorisations requises. Nos traitements de renseignements personnels sont décrits dans la <a href="{{ path('privacy_policy') }}">politique de confidentialité</a>.</p>
+    </section>
+
+    <section>
+        <h2>Disponibilité et services tiers</h2>
+        <p>Nous visons un service fiable, sans garantir une disponibilité ininterrompue ni l’absence d’erreur. Des interruptions peuvent découler de la maintenance, d’un incident, d’un fournisseur ou d’un cas hors de notre contrôle. Les services de tiers, dont Stripe, Resend, Laravel Cloud et Cloudflare, demeurent assujettis à leurs propres conditions.</p>
+    </section>
+
+    <section>
+        <h2>Résiliation, exportation et suppression</h2>
+        <p>Les modalités de résiliation applicables sont celles de l’offre acceptée. Avant la fin de l’accès, le client doit utiliser les fonctions d’exportation disponibles pour conserver les données dont il a besoin. Après la résiliation, nous pouvons désactiver l’accès puis supprimer ou anonymiser les données selon notre calendrier de conservation, sous réserve des sauvegardes, obligations légales et demandes valides de préservation. Une suspension immédiate peut être nécessaire pour un risque de sécurité, un usage illégal ou un défaut grave.</p>
+    </section>
+
+    <section>
+        <h2>Propriété intellectuelle</h2>
+        <p>Le service, son logiciel, son apparence et sa documentation appartiennent à l’exploitant ou à ses concédants. Le client reçoit un droit limité, non exclusif et non transférable d’utiliser le service pour ses activités internes pendant la durée de son accès.</p>
+    </section>
+
+    <section>
+        <h2>Limitation de responsabilité</h2>
+        <p><strong>À faire valider par un conseiller juridique avant publication.</strong> Dans la mesure permise par la loi et sous réserve des responsabilités qui ne peuvent être exclues, le contrat définitif devrait préciser les dommages exclus, le plafond monétaire, les exceptions au plafond et le traitement des réclamations liées aux données, à la confidentialité, à la propriété intellectuelle et à la faute intentionnelle ou lourde. Aucune limite chiffrée n’est affirmée tant que ces choix n’ont pas été validés et configurés.</p>
+    </section>
+
+    <section>
+        <h2>Droit applicable et modifications</h2>
+        <p>Le contrat définitif doit préciser le droit applicable, le tribunal compétent et le mécanisme d’avis des modifications. Les champs correspondants doivent être validés avec un conseiller juridique avant publication. Si une modification importante exige un consentement, celui-ci sera demandé selon la loi et le contrat.</p>
+    </section>
+
+    <section>
+        <h2>Nous joindre</h2>
+        <address>{{ operator_name }}<br>{{ operator_address }}<br><a href="mailto:{{ operator_email }}">{{ operator_email }}</a></address>
+    </section>
+</article>
+{% endblock %}
