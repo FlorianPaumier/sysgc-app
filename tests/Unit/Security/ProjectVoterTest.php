@@ -139,4 +139,18 @@ final class ProjectVoterTest extends TestCase
 
         self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($this->token, $project, ['view']));
     }
+    public function test_inactive_members_and_read_only_writes_are_denied(): void
+    {
+        $organization = $this->user->getOrganization();
+        self::assertNotNull($organization);
+        $project = new Project($organization, '123 rue Test', 'Client');
+        $this->token->method('getUser')->willReturn($this->user);
+        $this->user->deactivate();
+        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($this->token, $project, ['view']));
+        $this->user->activate();
+        $organization->scheduleDeletion();
+        self::assertSame(Voter::ACCESS_GRANTED, $this->voter->vote($this->token, $project, ['view']));
+        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($this->token, $project, ['edit']));
+    }
+
 }

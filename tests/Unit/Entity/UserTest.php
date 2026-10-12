@@ -89,4 +89,13 @@ final class UserTest extends TestCase
         self::assertFalse($user->isVerified());
         self::assertTrue($user->setIsVerified(true)->isVerified());
     }
+    public function test_deactivation_invalidates_the_serialized_session_user(): void
+    {
+        $user = (new User())->setEmail('member@example.com')->setOrganization(new Organization())->setRoles(['ROLE_ADMIN']);
+        $sessionUser = clone $user;
+        $user->deactivate();
+        self::assertInstanceOf(\Symfony\Component\Security\Core\User\EquatableInterface::class, $user);
+        self::assertFalse($sessionUser->isEqualTo($user));
+    }
+
 }

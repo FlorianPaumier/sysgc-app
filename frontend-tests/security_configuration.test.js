@@ -23,3 +23,13 @@ test('the web server emits the required browser security policy', async () => {
   assert.match(caddy, /font-src 'self' https:\/\/fonts\.gstatic\.com/);
   assert.match(caddy, /img-src 'self' data: blob:/);
 });
+
+test('web and background worker share uploads and RBQ progress storage', async () => {
+  const prod = await read('../compose.prod.yaml');
+  const dev = await read('../compose.override.yaml');
+  assert.match(prod.split('  messenger-worker:')[1], /uploads_data:\/app\/var\/uploads/);
+  assert.match(dev.split('  messenger-worker:')[1], /uploads_data:\/app\/var\/uploads/);
+  const config = await read('../config/packages/cache.yaml');
+  assert.match(config, /rbq\.progress/);
+  assert.match(config, /cache\.adapter\.doctrine_dbal/);
+});

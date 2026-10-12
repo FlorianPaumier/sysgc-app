@@ -33,6 +33,13 @@ final class MembershipVoterTest extends TestCase
         self::assertSame(Voter::ACCESS_DENIED, $this->vote($otherOwner, MembershipVoter::MANAGE, $organization));
     }
 
+    public function test_inactive_managers_cannot_manage_members(): void
+    {
+        $organization = new Organization();
+        $actor = (new User())->setEmail('owner@example.com')->setOrganization($organization)->setRoles([UserRole::OWNER->value])->deactivate();
+        self::assertSame(Voter::ACCESS_DENIED, $this->vote($actor, MembershipVoter::MANAGE, $organization));
+    }
+
     private function vote(User $user, string $attribute, Organization $organization): int
     {
         $token = $this->createStub(TokenInterface::class);

@@ -112,6 +112,35 @@ final class DailyLogServiceTest extends TestCase
     }
 
     /** @return array{weather: string, checklistItems: list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}>, hazardPhotos: list<string>, workerSignatures: list<array{workerName: string, dataUrl: string}>, incidentReport: string|null} */
+    public function test_sync_applies_existing_checklist_edits_at_the_current_version(): void
+    {
+        $project = new Project(new Organization(), 'Rue Test', 'Client');
+        $date = new \DateTimeImmutable('2026-06-09');
+        $item = ['id' => 'initial-1', 'label' => 'Casques', 'checked' => false, 'comment' => '', 'protected' => false];
+        $log = SafetyLog::record($project, $date, 'Nuageux', [$item], [], [], null);
+        $repository = $this->createMock(SafetyLogRepository::class);
+        $repository->method('findOneByProjectAndDate')->willReturn($log);
+        $repository->expects(self::once())->method('save');
+        $data = $this->data();
+        $data['checklistItems'][0]['comment'] = 'Vérifié sur place';
+        $result = (new DailyLogService($repository))->sync($project, $date, $data, $log->getVersion(), 'edit-1');
+        self::assertTrue($result->log->getChecklistItems()[0]['checked']);
+        self::assertSame('Vérifié sur place', $result->log->getChecklistItems()[0]['comment']);
+    }
+
+    public function test_stale_checklist_edit_is_reported_without_acknowledging_the_event(): void
+    {
+        $project = new Project(new Organization(), 'Rue Test', 'Client');
+        $date = new \DateTimeImmutable('2026-06-09');
+        $item = ['id' => 'initial-1', 'label' => 'Casques', 'checked' => false, 'comment' => '', 'protected' => false];
+        $log = SafetyLog::record($project, $date, 'Nuageux', [$item], [], [], null);
+        $repository = $this->createMock(SafetyLogRepository::class);
+        $repository->method('findOneByProjectAndDate')->willReturn($log);
+        $result = (new DailyLogService($repository))->sync($project, $date, $this->data(), 0, 'stale-1');
+        self::assertContains('checklistItems', $result->conflicts);
+        self::assertFalse($log->hasAppliedClientEvent('stale-1'));
+    }
+
     private function data(): array
     {
         return [

@@ -78,6 +78,51 @@ final class CcqGridTest extends TestCase
         self::assertSame('Vérifié avec la paie du mois.', $grid->warningAcknowledgement);
     }
 
+    public function test_numeric_strings_are_counted_and_invalid_numbers_are_rejected(): void
+    {
+        $grid = $this->grid();
+        self::assertSame(40.5, $grid->totalFor(['week1Hours' => '40.5']));
+        $this->expectException(\InvalidArgumentException::class);
+        $grid->totalFor(['week1Hours' => 'oops']);
+    }
+
+    public function test_real_daily_hours_detect_sunday_and_daily_ceiling(): void
+    {
+        $grid = $this->grid();
+        $grid->month = 6;
+        $grid->year = 2026;
+        $grid->hoursData = [$this->row(['8' => '16', '14' => '8'])];
+        $grid->validate(new ValidationEngine());
+        $codes = array_column($grid->validationErrors, 'code');
+        self::assertContains('day_hour_ceiling', $codes);
+        self::assertContains('sunday_hours', $codes);
+        self::assertFalse($grid->validated);
+    }
+
+    public function test_worker_totals_are_combined_across_projects_in_calendar_weeks(): void
+    {
+        $grid = $this->grid();
+        $grid->month = 6;
+        $grid->year = 2026;
+        $days = ['8' => '8', '9' => '8', '10' => '8', '11' => '8', '12' => '8'];
+        $grid->hoursData = [$this->row($days), $this->row($days)];
+        $grid->validate(new ValidationEngine());
+        self::assertContains('week_hour_ceiling', array_column($grid->validationErrors, 'code'));
+    }
+
+    public function test_filing_state_survives_live_hydration(): void
+    {
+        foreach (['validated', 'status', 'exporting', 'filingConfirmationOpen'] as $property) {
+            self::assertNotEmpty((new \ReflectionProperty(CcqGrid::class, $property))->getAttributes(\Symfony\UX\LiveComponent\Attribute\LiveProp::class));
+        }
+    }
+
+    /** @param array<int, string> $days @return array<string, mixed> */
+    private function row(array $days): array
+    {
+        return ['workerId' => 7, 'workerName' => 'Jeanne', 'trade' => CcqTrade::Electrician, 'region' => CcqRegion::Montreal, 'dailyHours' => $days];
+    }
+
     private function grid(): CcqGrid
     {
         return new CcqGrid(new HoursSummarizer(new class implements HoursEntryReader {
