@@ -42,7 +42,7 @@ final class CommercialController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ProjectVoter::EDIT, $project);
         $this->denyIfArchived($project);
-        $changeOrder = (new ChangeOrder())->setProject($project)->setRequestedBy($this->userName());
+        $changeOrder = new ChangeOrder()->setProject($project)->setRequestedBy($this->userName());
         $form = $this->createForm(ChangeOrderType::class, $changeOrder);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -145,7 +145,7 @@ final class CommercialController extends AbstractController
         if (! $this->canManageInvoices($project)) {
             throw $this->createAccessDeniedException('La facturation est en lecture seule sans forfait actif.');
         }
-        $invoice = (new Invoice())->setProject($project);
+        $invoice = new Invoice()->setProject($project);
         $form = $this->createForm(InvoiceType::class, $invoice);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -246,6 +246,7 @@ final class CommercialController extends AbstractController
     {
         return $project->getStatus()->value !== 'archived'
             && $this->isGranted(ProjectVoter::EDIT, $project)
+            && !$project->getOrganization()->isReadOnly()
             && $project->getOrganization()->getSubscriptionTier() !== null;
     }
 }

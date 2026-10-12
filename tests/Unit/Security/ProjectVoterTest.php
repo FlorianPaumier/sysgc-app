@@ -9,7 +9,6 @@ use App\Identity\Domain\Model\Organization;
 use App\Identity\Domain\Enum\UserRole;
 use App\Project\Domain\Model\Project;
 use App\Project\Infrastructure\Security\ProjectVoter;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -20,13 +19,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class ProjectVoterTest extends TestCase
 {
     private ProjectVoter $voter;
-    private TokenInterface&MockObject $token;
+    private TokenInterface&\PHPUnit\Framework\MockObject\Stub $token;
     private User $user;
 
     protected function setUp(): void
     {
         $this->voter = new ProjectVoter();
-        $this->token = $this->createMock(TokenInterface::class);
+        $this->token = $this->createStub(TokenInterface::class);
 
         $org = new Organization();
         $org->setName('Test Org');

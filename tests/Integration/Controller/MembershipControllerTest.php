@@ -109,10 +109,11 @@ final class MembershipControllerTest extends IntegrationTestCase
         $em->flush();
 
         $this->client->loginUser($owner);
-        $this->client->request('POST', '/organisation/membres/invitations/'.$invitation->getId().'/revoquer');
+        $crawler = $this->client->request('GET', '/organisation/membres');
+        $this->client->submit($crawler->filter('form[action="/organisation/membres/invitations/'.$invitation->getId().'/revoquer"]')->form());
 
         $this->assertResponseRedirects('/organisation/membres');
-        self::assertTrue($invitation->isRevoked());
+        self::assertTrue($this->entityManager()->find(Invitation::class, $invitation->getId())?->isRevoked());
     }
 
     public function test_owner_can_deactivate_member_and_member_is_marked_inactive(): void
@@ -122,10 +123,11 @@ final class MembershipControllerTest extends IntegrationTestCase
         $member = UserFactory::createOne(['organization' => $organization, 'roles' => [UserRole::ADMIN->value]]);
 
         $this->client->loginUser($owner);
-        $this->client->request('POST', '/organisation/membres/'.$member->getId().'/desactiver');
+        $crawler = $this->client->request('GET', '/organisation/membres');
+        $this->client->submit($crawler->filter('form[action="/organisation/membres/'.$member->getId().'/desactiver"]')->form());
 
         $this->assertResponseRedirects('/organisation/membres');
-        self::assertFalse($member->isActive());
+        self::assertFalse($this->users()->find($member->getId())?->isActive());
     }
 
     public function test_owner_can_transfer_ownership_to_an_active_member(): void
@@ -135,11 +137,12 @@ final class MembershipControllerTest extends IntegrationTestCase
         $member = UserFactory::createOne(['organization' => $organization, 'roles' => [UserRole::ADMIN->value]]);
 
         $this->client->loginUser($owner);
-        $this->client->request('POST', '/organisation/membres/'.$member->getId().'/transferer-propriete');
+        $crawler = $this->client->request('GET', '/organisation/membres');
+        $this->client->submit($crawler->filter('form[action="/organisation/membres/'.$member->getId().'/transferer-propriete"]')->form());
 
         $this->assertResponseRedirects('/organisation/membres');
-        self::assertTrue($member->isOwner());
-        self::assertFalse($owner->isOwner());
+        self::assertTrue($this->users()->find($member->getId())?->isOwner());
+        self::assertFalse($this->users()->find($owner->getId())?->isOwner());
     }
 
     private function entityManager(): EntityManagerInterface

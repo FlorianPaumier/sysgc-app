@@ -21,6 +21,7 @@ use App\Workforce\Domain\Model\Worker;
  *     week4Hours: float,
  *     week5Hours: float,
  *     totalHours: float,
+ *     dailyHours: array<int, float>,
  * }
  */
 final readonly class HoursSummarizer
@@ -69,6 +70,8 @@ final readonly class HoursSummarizer
                 }
 
                 $week = min(5, intdiv(((int) $date->format('j')) - 1, 7) + 1);
+                $dayNumber = (int) $date->format('j');
+                $summaries[$key]['dailyHours'][$dayNumber] = ($summaries[$key]['dailyHours'][$dayNumber] ?? 0.0) + (float) $hours;
                 $this->addHours($summaries[$key], $week, (float) $hours);
             }
         }
@@ -90,6 +93,7 @@ final readonly class HoursSummarizer
             'week4Hours' => 0.0,
             'week5Hours' => 0.0,
             'totalHours' => 0.0,
+            'dailyHours' => [],
         ];
     }
 

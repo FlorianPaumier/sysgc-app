@@ -24,7 +24,7 @@ final class BatchRbqCheckMessageHandlerTest extends TestCase
     {
         $project = new Project(new Organization(), '100 rue Test', 'Client');
         $lastSuccess = new \DateTimeImmutable('2026-08-01 10:00:00');
-        $subcontractor = (new Subcontractor())
+        $subcontractor = new Subcontractor()
             ->setName('Construction Exemple')
             ->setRbqLicenseNumber('RBQ-1234-5678-90')
             ->setVerified(true)
@@ -34,7 +34,7 @@ final class BatchRbqCheckMessageHandlerTest extends TestCase
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->method('find')->willReturn($project);
         $entityManager->expects(self::once())->method('flush');
-        $repository = $this->createMock(SubcontractorRepository::class);
+        $repository = $this->createStub(SubcontractorRepository::class);
         $repository->method('findOneForProjectByLicense')->willReturn($subcontractor);
         $cache = new ArrayAdapter();
         $scraper = new RbqScraper(

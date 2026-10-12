@@ -15,6 +15,7 @@ services:
       - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
       # Keep var/ off the bind-mount for faster I/O on Mac/Windows; comment to inspect from the host.
       - /app/var
+      - uploads_data:/app/var/uploads
       # If you develop on Mac or Windows you can remove the vendor/ directory
       #  from the bind-mount for better performance by enabling the next line:
       #- /app/vendor
@@ -57,11 +58,13 @@ services:
       - ./:/app
       - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
       - /app/var
+      - uploads_data:/app/var/uploads
     environment:
       APP_ENV: "${APP_ENV:-dev}"
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
       MESSENGER_TRANSPORT_DSN: doctrine://default
       XDEBUG_MODE: "off"
+      MAILER_DSN: smtp://mailer:1025
     # The messenger reader: consumes the "async" (PostgreSQL doctrine) transport
     command: [ "php", "bin/console", "messenger:consume", "async", "--memory-limit=256M", "--time-limit=3600" ]
     # This container runs a console worker, not a web server — override the

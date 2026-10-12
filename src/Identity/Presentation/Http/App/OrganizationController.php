@@ -73,8 +73,11 @@ final class OrganizationController extends AbstractController
     }
 
     #[Route('/organisation/suppression', name: 'organization_schedule_deletion', methods: ['POST'])]
-    public function scheduleDeletion(): Response
+    public function scheduleDeletion(Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('organization_delete', $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
         $user = $this->getUser();
         if (!$user instanceof User || !$user->isOwner() || $user->getOrganization() === null) {
             throw $this->createAccessDeniedException();
@@ -87,8 +90,11 @@ final class OrganizationController extends AbstractController
     }
 
     #[Route('/organisation/suppression/annuler', name: 'organization_recover_deletion', methods: ['POST'])]
-    public function recoverDeletion(): Response
+    public function recoverDeletion(Request $request): Response
     {
+        if (!$this->isCsrfTokenValid('organization_recover', $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
         $user = $this->getUser();
         if (!$user instanceof User || !$user->isOwner() || $user->getOrganization() === null) {
             throw $this->createAccessDeniedException();

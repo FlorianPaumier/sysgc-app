@@ -47,8 +47,10 @@ final class AuditRegressionTest extends IntegrationTestCase
         $this->client->loginUser($member);
         $this->client->request('GET', '/dashboard');
         self::assertResponseIsSuccessful();
-        $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->find(\App\Identity\Domain\Model\User::class, $member->getId())->deactivate();
+        $em = $this->entityManager();
+        $reloaded = $em->find(\App\Identity\Domain\Model\User::class, $member->getId());
+        self::assertNotNull($reloaded);
+        $reloaded->deactivate();
         $em->flush();
         $this->client->request('GET', '/dashboard');
         self::assertResponseRedirects('/connexion');
@@ -59,8 +61,8 @@ final class AuditRegressionTest extends IntegrationTestCase
         $org = OrganizationFactory::createOne();
         $member = UserFactory::createOne(['organization' => $org, 'roles' => [UserRole::FOREMAN->value]]);
         $project = ProjectFactory::createOne(['organization' => $org, 'address' => 'Secret Payroll']);
-        $declaration = (new CCQDeclaration())->setProject($project)->setOrganization($org)->setPeriodMonth(6)->setPeriodYear(2026)->setStatus('draft');
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $declaration = new CCQDeclaration()->setProject($project)->setOrganization($org)->setPeriodMonth(6)->setPeriodYear(2026)->setStatus('draft');
+        $em = $this->entityManager();
         $em->persist($declaration);
         $em->flush();
         $this->client->loginUser($member);
@@ -80,7 +82,7 @@ final class AuditRegressionTest extends IntegrationTestCase
         $org = OrganizationFactory::createOne();
         $owner = UserFactory::createOne(['organization' => $org, 'roles' => [UserRole::OWNER->value]]);
         $org->scheduleDeletion();
-        self::getContainer()->get(EntityManagerInterface::class)->flush();
+        $this->entityManager()->flush();
         $this->client->loginUser($owner);
         foreach (['/travailleurs/nouveau', '/chantiers/nouveau'] as $url) {
             $this->client->request('GET', $url);
@@ -93,9 +95,9 @@ final class AuditRegressionTest extends IntegrationTestCase
         $org = OrganizationFactory::createOne();
         $owner = UserFactory::createOne(['organization' => $org, 'roles' => [UserRole::OWNER->value]]);
         $project = ProjectFactory::createOne(['organization' => $org]);
-        $sub = (new Subcontractor())->setName('Roof')->setRbqLicenseNumber('RBQ-1234-5678-90');
+        $sub = new Subcontractor()->setName('Roof')->setRbqLicenseNumber('RBQ-1234-5678-90');
         $project->addSubcontractor($sub);
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = $this->entityManager();
         $em->persist($sub);
         $em->flush();
         $transport = new InMemoryTransport();
@@ -120,12 +122,57 @@ final class AuditRegressionTest extends IntegrationTestCase
         $live = $this->createLiveComponent('CcqGrid', ['project' => $project, 'month' => 6, 'year' => 2026], $this->client);
         $live->set('hoursData', [['workerId' => 7, 'workerName' => 'A', 'trade' => 'electrician', 'region' => 'montreal', 'dailyHours' => ['8' => '8']]]);
         $live->call('exportPdf');
-        $id = $live->component()->declarationId;
+        $component = $live->component();
+        self::assertInstanceOf(\App\Compliance\Presentation\Component\CcqGrid::class, $component);
+        $id = $component->declarationId;
         self::assertNotNull($id);
         $live->call('exportPdf');
-        self::assertSame($id, $live->component()->declarationId);
-        self::assertSame(1, self::getContainer()->get(EntityManagerInterface::class)->getRepository(CCQDeclaration::class)->count([]));
+        $component = $live->component();
+        self::assertInstanceOf(\App\Compliance\Presentation\Component\CcqGrid::class, $component);
+        self::assertSame($id, $component->declarationId);
+        self::assertSame(1, $this->entityManager()->getRepository(CCQDeclaration::class)->count([]));
         $live->call('refreshExportStatus')->call('prepareFiling')->call('fileDeclaration');
-        self::assertSame('filed', $live->component()->status);
+        $component = $live->component();
+        self::assertInstanceOf(\App\Compliance\Presentation\Component\CcqGrid::class, $component);
+        self::assertSame('filed', $component->status);
+    }
+    public function test_hours_in_a_week_starting_last_month_are_not_lost(): void
+    {
+        $org = OrganizationFactory::createOne();
+        $project = ProjectFactory::createOne(['organization' => $org]);
+        $worker = new \App\Workforce\Domain\Model\Worker()->setName('Boundary')->setOrganization($org)->setCcqTrade(\App\Workforce\Domain\Enum\CcqTrade::Electrician)->setCcqRegion(\App\Workforce\Domain\Enum\CcqRegion::Montreal);
+        $entry = new \App\Workforce\Domain\Model\HoursEntry()->setProject($project)->setWorker($worker)->setWeekStart(new \DateTime('2026-09-28'))->setHours(['thursday' => 8]);
+        $em = $this->entityManager();
+        $em->persist($worker);
+        $em->persist($entry);
+        $em->flush();
+        $summarizer = self::getContainer()->get(\App\Compliance\Application\HoursSummarizer::class);
+        self::assertInstanceOf(\App\Compliance\Application\HoursSummarizer::class, $summarizer);
+        $rows = $summarizer->summarize($project, 10, 2026);
+        self::assertCount(1, $rows);
+        self::assertSame([1 => 8.0], $rows[0]['dailyHours']);
+    }
+
+    public function test_foreman_cannot_read_an_organization_snapshot_with_an_unassigned_project(): void
+    {
+        $org = OrganizationFactory::createOne();
+        $foreman = UserFactory::createOne(['organization' => $org, 'roles' => [UserRole::FOREMAN->value]]);
+        $assigned = ProjectFactory::createOne(['organization' => $org]);
+        $other = ProjectFactory::createOne(['organization' => $org]);
+        $foreman->assignProject($assigned);
+        $declaration = new CCQDeclaration()->setProject($assigned)->setOrganization($org)->setPeriodMonth(6)->setPeriodYear(2026)->setStatus('draft')->setDeclaration([['projectId' => (string) $other->getId(), 'workerName' => 'Private payroll']]);
+        $em = $this->entityManager();
+        $em->persist($declaration);
+        $em->flush();
+        $this->client->loginUser($foreman);
+        $this->client->request('GET', '/declarations/'.$declaration->getId());
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    private function entityManager(): EntityManagerInterface
+    {
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+        return $em;
     }
 }

@@ -17,7 +17,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface
+class User implements UserInterface, \Symfony\Component\Security\Core\User\EquatableInterface
 {
     use TimestampableTrait;
 
@@ -214,6 +214,15 @@ class User implements UserInterface
         $this->isVerified = $isVerified;
 
         return $this;
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        return $user instanceof self
+            && $this->active && $user->active
+            && $this->email === $user->email
+            && $this->getRoles() === $user->getRoles()
+            && $this->organization?->getId()->equals($user->organization?->getId()) === true;
     }
 
     public function isActive(): bool

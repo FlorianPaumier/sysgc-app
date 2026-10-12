@@ -47,8 +47,8 @@ final class CcqController extends AbstractController
         $now = new \DateTimeImmutable();
 
         return $this->render('ccq/history.html.twig', [
-            'declarations' => $declarations->findAllForOrganization($this->organizationId()),
-            'projects' => $user->getOrganization()->getProjects()->toArray(),
+            'declarations' => array_values(array_filter($declarations->findAllForOrganization($this->organizationId()), $this->canViewDeclaration(...))),
+            'projects' => array_values(array_filter($user->getOrganization()->getProjects()->toArray(), fn (Project $project): bool => $this->isGranted(ProjectVoter::VIEW, $project))),
             'currentMonth' => (int) $now->format('n'),
             'currentYear' => (int) $now->format('Y'),
         ]);
@@ -61,6 +61,10 @@ final class CcqController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        if (!$this->canViewDeclaration($declaration)) {
+            throw $this->createAccessDeniedException();
+        }
+
         return $this->render('ccq/show.html.twig', ['declaration' => $declaration]);
     }
 
@@ -68,6 +72,9 @@ final class CcqController extends AbstractController
     public function pdf(CCQDeclaration $declaration): BinaryFileResponse
     {
         if ($declaration->getOrganization()?->getId()->equals($this->organizationId()) !== true) {
+            throw $this->createAccessDeniedException();
+        }
+        if (!$this->canViewDeclaration($declaration)) {
             throw $this->createAccessDeniedException();
         }
         $receiptPath = $declaration->getReceiptPath();
@@ -92,6 +99,7 @@ final class CcqController extends AbstractController
         if ($declaration->getOrganization()?->getId()->equals($this->organizationId()) !== true) {
             throw $this->createAccessDeniedException();
         }
+        $this->denyAccessUnlessGranted(ProjectVoter::EDIT, $declaration->getProject());
         if (!$this->isCsrfTokenValid('ccq_outcome_'.$declaration->getId()->toRfc4122(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -101,6 +109,22 @@ final class CcqController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('app_ccq_show', ['id' => $declaration->getId()]);
+    }
+
+    private function canViewDeclaration(CCQDeclaration $declaration): bool
+    {
+        if (!$this->isGranted(ProjectVoter::VIEW, $declaration->getProject())) {
+            return false;
+        }
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+        if ($user->isAdmin()) {
+            return true;
+        }
+        $assignedIds = array_map(static fn (Project $project): string => (string) $project->getId(), $user->getAssignedProjects()->toArray());
+        return array_all($declaration->getDeclaration(), fn($row) => !(isset($row['projectId']) && !in_array($row['projectId'], $assignedIds, true)));
     }
 
     private function organizationId(): \Symfony\Component\Uid\Uuid

@@ -15,7 +15,7 @@
         <p class="safety-checklist__counter">{{ this.completedCount }} / {{ checklistItems|length }} éléments complétés</p>
         <div class="safety-checklist__progress" aria-hidden="true"><i style="width: {{ checklistItems|length ? this.completedCount / checklistItems|length * 100 : 0 }}%"></i></div>
         {% for item in checklistItems %}
-            <button type="button" class="safety-checklist__item {{ item.checked ? 'is-checked' : '' }}" data-action="{{ readOnly ? '' : 'live#action' }}" data-live-action-param="toggleItem" data-live-index-param="{{ loop.index0 }}" aria-pressed="{{ item.checked ? 'true' : 'false' }}" {{ readOnly ? 'disabled' : '' }}>
+            <button type="button" class="safety-checklist__item {{ item.checked ? 'is-checked' : '' }}" data-action="{{ readOnly ? '' : 'click->offline-queue#toggleChecklistItem live#action' }}" data-live-action-param="toggleItem" data-live-index-param="{{ loop.index0 }}" aria-pressed="{{ item.checked ? 'true' : 'false' }}" {{ readOnly ? 'disabled' : '' }}>
                 <span aria-hidden="true">{{ item.checked ? '✓' : '' }}</span>{{ item.label }}
             </button>
         {% endfor %}

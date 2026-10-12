@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Registration flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://localhost/inscription');
+    await page.goto('/inscription');
   });
 
   test('renders registration form', async ({ page }) => {
@@ -74,7 +74,7 @@ test.describe('Registration flow', () => {
     const email = `registration-rate-limit-${Date.now()}@example.com`;
     // Make 4 attempts with the same email
     for (let i = 0; i < 4; i++) {
-      await page.goto('https://localhost/inscription');
+      await page.goto('/inscription');
       await page.fill('input[type="email"]', email);
       await page.fill('input[name*="organization"]', `Company ${i}`);
       await page.fill('input[name*="rbq"]', `RBQ-${1000 + i}-${2000 + i}-90`);

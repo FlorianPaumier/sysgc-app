@@ -55,19 +55,4 @@ class CCQDeclarationRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function existsSubmittedForProjectPeriod(CCQDeclaration $declaration): bool
-    {
-        return (int) $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->andWhere('c.project = :project')
-            ->andWhere('c.periodMonth = :month')
-            ->andWhere('c.periodYear = :year')
-            ->andWhere('c.status IN (:statuses)')
-            ->setParameter('project', $declaration->getProject())
-            ->setParameter('month', $declaration->getPeriodMonth())
-            ->setParameter('year', $declaration->getPeriodYear())
-            ->setParameter('statuses', ['exported', 'filed', 'accepted', 'rejected', 'submitted'])
-            ->getQuery()
-            ->getSingleScalarResult() > 0;
-    }
 }

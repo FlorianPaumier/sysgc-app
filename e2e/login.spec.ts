@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Login flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://localhost/connexion');
+    await page.goto('/connexion');
   });
 
   test('renders login form', async ({ page }) => {
@@ -42,7 +42,7 @@ test.describe('Login flow', () => {
     const email = `rate-limit-${Date.now()}@example.com`;
     // Make 4 attempts with the same email
     for (let i = 0; i < 4; i++) {
-      await page.goto('https://localhost/connexion');
+      await page.goto('/connexion');
       await page.fill('input[type="email"]', email);
       await page.click('button[type="submit"]');
     }
@@ -62,24 +62,24 @@ test.describe('Login flow', () => {
     // 5. Assert redirect to dashboard
 
     // For now, we test the structure
-    await page.goto('https://localhost/connexion/verifier?token=invalid&email=test@example.com');
+    await page.goto('/connexion/verifier?token=invalid&email=test@example.com');
 
     // Should redirect to login with error
-    await page.waitForURL('https://localhost/connexion');
+    await page.waitForURL('**/connexion');
     await expect(page.locator('.flash-error')).toContainText('invalide ou a expiré');
   });
 
   test('expired token shows error message', async ({ page }) => {
-    await page.goto('https://localhost/connexion/verifier?token=expired&email=test@example.com');
+    await page.goto('/connexion/verifier?token=expired&email=test@example.com');
 
-    await page.waitForURL('https://localhost/connexion');
+    await page.waitForURL('**/connexion');
     await expect(page.locator('.flash-error')).toContainText('invalide ou a expiré');
   });
 
   test('logout redirects to login', async ({ page }) => {
-    await page.goto('https://localhost/deconnexion');
+    await page.goto('/deconnexion');
 
-    await page.waitForURL('https://localhost/connexion');
+    await page.waitForURL('**/connexion');
     await expect(page.locator('h1')).toContainText('Connexion');
   });
 

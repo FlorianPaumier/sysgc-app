@@ -22,7 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final class MembershipController extends AbstractController
 {
     #[Route('/organisation/membres/invitations/{id}/revoquer', name: 'organization_invitation_revoke', methods: ['POST'])]
-    public function revoke(string $id, InvitationRepository $invitations, EntityManagerInterface $entityManager): Response
+    public function revoke(Request $request, string $id, InvitationRepository $invitations, EntityManagerInterface $entityManager): Response
     {
         $actor = $this->requireManager();
         try {
@@ -34,6 +34,9 @@ final class MembershipController extends AbstractController
         if (!$invitation instanceof \App\Identity\Domain\Model\Invitation || $invitation->getOrganization() !== $actor->getOrganization()) {
             throw $this->createNotFoundException();
         }
+        if (!$this->isCsrfTokenValid('organization_revoke_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
         $invitation->revoke();
         $entityManager->flush();
         $this->addFlash('success', 'L\'invitation a été révoquée.');
@@ -42,12 +45,15 @@ final class MembershipController extends AbstractController
     }
 
     #[Route('/organisation/membres/{id}/desactiver', name: 'organization_member_deactivate', methods: ['POST'])]
-    public function deactivate(string $id, UserRepository $users, EntityManagerInterface $entityManager): Response
+    public function deactivate(Request $request, string $id, UserRepository $users, EntityManagerInterface $entityManager): Response
     {
         $actor = $this->requireManager();
         $member = $users->find($this->uuidOrNotFound($id));
         if (!$member instanceof User || $member->getOrganization() !== $actor->getOrganization() || $member === $actor) {
             throw $this->createNotFoundException();
+        }
+        if (!$this->isCsrfTokenValid('organization_deactivate_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
         }
         $member->deactivate();
         $entityManager->flush();
@@ -57,7 +63,7 @@ final class MembershipController extends AbstractController
     }
 
     #[Route('/organisation/membres/{id}/transferer-propriete', name: 'organization_transfer_ownership', methods: ['POST'])]
-    public function transferOwnership(string $id, UserRepository $users, EntityManagerInterface $entityManager): Response
+    public function transferOwnership(Request $request, string $id, UserRepository $users, EntityManagerInterface $entityManager): Response
     {
         $actor = $this->requireManager();
         if (!$actor->isOwner()) {
@@ -66,6 +72,9 @@ final class MembershipController extends AbstractController
         $member = $users->find($this->uuidOrNotFound($id));
         if (!$member instanceof User || $member->getOrganization() !== $actor->getOrganization()) {
             throw $this->createNotFoundException();
+        }
+        if (!$this->isCsrfTokenValid('organization_transfer_'.$id, $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
         }
         $actor->transferOwnershipTo($member);
         $entityManager->flush();

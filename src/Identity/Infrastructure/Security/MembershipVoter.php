@@ -23,7 +23,7 @@ final class MembershipVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
-        if (! $user instanceof User || ! $user->isAdmin() || $user->getOrganization() === null) {
+        if (! $user instanceof User || !$user->isActive() || ! $user->isAdmin() || $user->getOrganization() === null) {
             return false;
         }
 

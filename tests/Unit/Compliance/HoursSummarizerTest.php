@@ -18,21 +18,21 @@ final class HoursSummarizerTest extends TestCase
 {
     public function test_summarizes_project_hours_into_ccq_calendar_weeks(): void
     {
-        $organization = (new Organization())->setName('Construction Nord');
+        $organization = new Organization()->setName('Construction Nord');
         $project = new Project($organization, '100 Rue Principale', 'Client');
-        $worker = (new Worker())
+        $worker = new Worker()
             ->setName('Jeanne Tremblay')
             ->setCcqTrade(CcqTrade::Electrician)
             ->setCcqRegion(CcqRegion::Montreal)
             ->setOrganization($organization);
 
-        $entry = (new HoursEntry())
+        $entry = new HoursEntry()
             ->setProject($project)
             ->setWorker($worker)
             ->setWeekStart(new \DateTime('2026-06-08'))
             ->setHours(['monday' => 8, 'tuesday' => 8, 'wednesday' => 8, 'thursday' => 8, 'friday' => 8]);
 
-        $reader = new class([$entry]) implements HoursEntryReader {
+        $reader = new readonly class([$entry]) implements HoursEntryReader {
             /** @param list<HoursEntry> $entries */
             public function __construct(private array $entries) {}
 
@@ -54,7 +54,8 @@ final class HoursSummarizerTest extends TestCase
                 'week4Hours' => 0.0,
                 'week5Hours' => 0.0,
                 'totalHours' => 40.0,
+                'dailyHours' => [8 => 8.0, 9 => 8.0, 10 => 8.0, 11 => 8.0, 12 => 8.0],
             ],
-        ], (new HoursSummarizer($reader))->summarize($project, 6, 2026));
+        ], new HoursSummarizer($reader)->summarize($project, 6, 2026));
     }
 }

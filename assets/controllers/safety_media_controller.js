@@ -24,6 +24,6 @@ export default class extends Controller {
 
     const property = action === 'addPhoto' ? 'photos' : 'signatures';
     const value = action === 'addPhoto' ? parameters.path : parameters;
-    live.component.set(property, [...(live.component.getData(property) || []), value]);
+    live.component.set(property, [...(live.component.getData(property) || []), value], false);
   }
 }

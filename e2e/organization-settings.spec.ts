@@ -7,7 +7,7 @@ test.describe('Organization settings', () => {
   test.beforeEach(async ({ page }) => {
     // Register a fresh org + auto-login, then navigate to settings.
     await registerOwner(page, 'E2E Construction');
-    await page.goto('https://localhost/organisation');
+    await page.goto('/organisation');
   });
 
   test('renders settings form prefilled with org data', async ({ page }) => {

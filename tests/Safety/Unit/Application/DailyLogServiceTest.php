@@ -21,7 +21,7 @@ final class DailyLogServiceTest extends TestCase
         $repository->expects(self::once())->method('findOneByProjectAndDate')->with($project, $date)->willReturn(null);
         $repository->expects(self::once())->method('save')->with(self::isInstanceOf(SafetyLog::class), true);
 
-        $log = (new DailyLogService($repository))->createOrUpdate($project, $date, $this->data());
+        $log = new DailyLogService($repository)->createOrUpdate($project, $date, $this->data());
 
         self::assertSame('Nuageux', $log->getWeather());
         self::assertSame('Incident mineur', $log->getIncidentReport());
@@ -36,7 +36,7 @@ final class DailyLogServiceTest extends TestCase
         $repository->expects(self::once())->method('findOneByProjectAndDate')->willReturn($existing);
         $repository->expects(self::once())->method('save')->with($existing, true);
 
-        $log = (new DailyLogService($repository))->createOrUpdate($project, $date, $this->data());
+        $log = new DailyLogService($repository)->createOrUpdate($project, $date, $this->data());
 
         self::assertSame($existing, $log);
         self::assertSame('Nuageux', $log->getWeather());
@@ -52,7 +52,7 @@ final class DailyLogServiceTest extends TestCase
         $repository->expects(self::once())->method('findOneByProjectAndDate')->willReturn($existing);
         $repository->expects(self::once())->method('save')->with($existing, true);
 
-        $log = (new DailyLogService($repository))->amend($project, $date, $this->data());
+        $log = new DailyLogService($repository)->amend($project, $date, $this->data());
 
         self::assertSame('Nuageux', $log->getWeather());
         self::assertSame('Ensoleillé', $log->getOriginalWeather());
@@ -68,20 +68,20 @@ final class DailyLogServiceTest extends TestCase
         $repository->expects(self::once())->method('findOneByProjectAndDate')->willReturn($existing);
         $repository->expects(self::never())->method('save');
 
-        $result = (new DailyLogService($repository))->sync($project, $date, $this->data(), 1, 'event-1');
+        $result = new DailyLogService($repository)->sync($project, $date, $this->data(), 1, 'event-1');
 
         self::assertSame($existing, $result->log);
         self::assertSame(1, $result->log->getVersion());
     }
 
-    public function test_sync_merges_new_evidence_and_reports_scalar_conflicts(): void
+    public function test_sync_keeps_evidence_queued_until_scalar_conflicts_are_resolved(): void
     {
         $project = new Project($this->createStub(Organization::class), '123 rue Principale', 'Client');
         $date = new \DateTimeImmutable('2026-06-09');
         $existing = SafetyLog::record($project, $date, 'Ensoleillé', [['id' => 'baseline-1', 'label' => 'Casques', 'checked' => true, 'comment' => '']], ['before.jpg'], [], null);
         $repository = $this->createMock(SafetyLogRepository::class);
         $repository->expects(self::once())->method('findOneByProjectAndDate')->willReturn($existing);
-        $repository->expects(self::once())->method('save')->with($existing, true);
+        $repository->expects(self::never())->method('save');
 
         $data = $this->data();
         $data['weather'] = 'Pluie';
@@ -90,11 +90,12 @@ final class DailyLogServiceTest extends TestCase
             ['id' => 'custom-1', 'label' => 'Zone', 'checked' => false, 'comment' => '', 'protected' => false],
         ];
         $data['hazardPhotos'][] = 'after.jpg';
-        $result = (new DailyLogService($repository))->sync($project, $date, $data, 0, 'event-2');
+        $result = new DailyLogService($repository)->sync($project, $date, $data, 0, 'event-2');
 
         self::assertContains('weather', $result->conflicts);
-        self::assertSame(['before.jpg', 'safety_photos/project/2026-06-09/hazard.jpg', 'after.jpg'], $result->log->getHazardPhotos());
-        self::assertCount(2, $result->log->getChecklistItems());
+        self::assertSame(['before.jpg'], $result->log->getHazardPhotos());
+        self::assertFalse($existing->hasAppliedClientEvent('event-2'));
+        self::assertCount(1, $result->log->getChecklistItems());
     }
 
     public function test_sync_cannot_overwrite_a_completed_log(): void
@@ -108,10 +109,9 @@ final class DailyLogServiceTest extends TestCase
         $repository->expects(self::never())->method('save');
 
         $this->expectException(\LogicException::class);
-        (new DailyLogService($repository))->sync($project, $date, $this->data(), 1, 'event-new');
+        new DailyLogService($repository)->sync($project, $date, $this->data(), 1, 'event-new');
     }
 
-    /** @return array{weather: string, checklistItems: list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}>, hazardPhotos: list<string>, workerSignatures: list<array{workerName: string, dataUrl: string}>, incidentReport: string|null} */
     public function test_sync_applies_existing_checklist_edits_at_the_current_version(): void
     {
         $project = new Project(new Organization(), 'Rue Test', 'Client');
@@ -122,8 +122,8 @@ final class DailyLogServiceTest extends TestCase
         $repository->method('findOneByProjectAndDate')->willReturn($log);
         $repository->expects(self::once())->method('save');
         $data = $this->data();
-        $data['checklistItems'][0]['comment'] = 'Vérifié sur place';
-        $result = (new DailyLogService($repository))->sync($project, $date, $data, $log->getVersion(), 'edit-1');
+        $data['checklistItems'] = [['id' => 'initial-1', 'label' => 'Casques', 'checked' => true, 'comment' => 'Vérifié sur place', 'protected' => false]];
+        $result = new DailyLogService($repository)->sync($project, $date, $data, $log->getVersion(), 'edit-1');
         self::assertTrue($result->log->getChecklistItems()[0]['checked']);
         self::assertSame('Vérifié sur place', $result->log->getChecklistItems()[0]['comment']);
     }
@@ -134,13 +134,14 @@ final class DailyLogServiceTest extends TestCase
         $date = new \DateTimeImmutable('2026-06-09');
         $item = ['id' => 'initial-1', 'label' => 'Casques', 'checked' => false, 'comment' => '', 'protected' => false];
         $log = SafetyLog::record($project, $date, 'Nuageux', [$item], [], [], null);
-        $repository = $this->createMock(SafetyLogRepository::class);
+        $repository = $this->createStub(SafetyLogRepository::class);
         $repository->method('findOneByProjectAndDate')->willReturn($log);
-        $result = (new DailyLogService($repository))->sync($project, $date, $this->data(), 0, 'stale-1');
+        $result = new DailyLogService($repository)->sync($project, $date, $this->data(), 0, 'stale-1');
         self::assertContains('checklistItems', $result->conflicts);
         self::assertFalse($log->hasAppliedClientEvent('stale-1'));
     }
 
+    /** @return array{weather: string, checklistItems: list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}>, hazardPhotos: list<string>, workerSignatures: list<array{workerName: string, dataUrl: string}>, incidentReport: string|null} */
     private function data(): array
     {
         return [

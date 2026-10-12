@@ -31,7 +31,7 @@ class HoursEntryRepository extends ServiceEntityRepository implements HoursEntry
             ->andWhere('entry.weekStart >= :from')
             ->andWhere('entry.weekStart < :until')
             ->setParameter('project', $project)
-            ->setParameter('from', $from)
+            ->setParameter('from', $from->modify('-6 days'))
             ->setParameter('until', $until)
             ->orderBy('entry.weekStart', 'ASC')
             ->getQuery()

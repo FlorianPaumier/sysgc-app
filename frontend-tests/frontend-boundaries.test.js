@@ -37,3 +37,9 @@ test('public and authenticated stylesheets do not import one another', async () 
   assert.doesNotMatch(publicCss, /authenticated\.css/);
   assert.doesNotMatch(authenticatedCss, /public\.css/);
 });
+
+test('Live Component styles load without a CSP-blocked data script module', async () => {
+  const config = JSON.parse(await read('../assets/controllers.json'));
+  assert.equal(config.controllers['@symfony/ux-live-component'].live.autoimport['@symfony/ux-live-component/dist/live.min.css'], false);
+  assert.match(await read('../templates/app_base.html.twig'), /asset\('@symfony\/ux-live-component\/live\.min\.css'\)/);
+});

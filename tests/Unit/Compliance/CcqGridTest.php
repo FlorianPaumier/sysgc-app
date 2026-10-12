@@ -18,7 +18,7 @@ final class CcqGridTest extends TestCase
 {
     public function test_validation_exposes_french_rule_codes_without_custom_javascript(): void
     {
-        $organization = (new Organization())->setName('Construction Nord');
+        $organization = new Organization()->setName('Construction Nord');
         $grid = $this->grid();
         $grid->project = new Project($organization, '100 Rue Principale', 'Client');
         $grid->month = 6;
@@ -34,6 +34,7 @@ final class CcqGridTest extends TestCase
             'week4Hours' => 0.0,
             'week5Hours' => 0.0,
             'totalHours' => 40.0,
+            'dailyHours' => [8 => '8', 9 => '8', 10 => '8', 11 => '8', 12 => '8'],
         ]];
 
         $grid->validate(new ValidationEngine());
@@ -82,6 +83,7 @@ final class CcqGridTest extends TestCase
     {
         $grid = $this->grid();
         self::assertSame(40.5, $grid->totalFor(['week1Hours' => '40.5']));
+        self::assertSame(0.0, $grid->totalFor(['week1Hours' => '']));
         $this->expectException(\InvalidArgumentException::class);
         $grid->totalFor(['week1Hours' => 'oops']);
     }
@@ -113,11 +115,14 @@ final class CcqGridTest extends TestCase
     public function test_filing_state_survives_live_hydration(): void
     {
         foreach (['validated', 'status', 'exporting', 'filingConfirmationOpen'] as $property) {
-            self::assertNotEmpty((new \ReflectionProperty(CcqGrid::class, $property))->getAttributes(\Symfony\UX\LiveComponent\Attribute\LiveProp::class));
+            self::assertNotEmpty(new \ReflectionProperty(CcqGrid::class, $property)->getAttributes(\Symfony\UX\LiveComponent\Attribute\LiveProp::class));
         }
     }
 
-    /** @param array<int, string> $days @return array<string, mixed> */
+    /**
+     * @param array<int, string> $days
+     * @return array<string, mixed>
+     */
     private function row(array $days): array
     {
         return ['workerId' => 7, 'workerName' => 'Jeanne', 'trade' => CcqTrade::Electrician, 'region' => CcqRegion::Montreal, 'dailyHours' => $days];
@@ -125,11 +130,15 @@ final class CcqGridTest extends TestCase
 
     private function grid(): CcqGrid
     {
-        return new CcqGrid(new HoursSummarizer(new class implements HoursEntryReader {
+        $authorization = $this->createStub(\Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface::class);
+        $authorization->method('isGranted')->willReturn(true);
+        $grid = new CcqGrid(new HoursSummarizer(new class implements HoursEntryReader {
             public function findForProjectAndMonth(Project $project, int $month, int $year): iterable
             {
                 return [];
             }
-        }));
+        }), $authorization);
+        $grid->project = new Project(new Organization(), 'Rue Test', 'Client');
+        return $grid;
     }
 }

@@ -75,8 +75,9 @@ test('offline reports preserve live photos, signatures and checklist edits throu
   for (const name of ['window', 'document', 'Element', 'HTMLElement', 'Node', 'MutationObserver', 'localStorage']) globalThis[name] = name === 'window' ? dom.window : dom.window[name];
   const state = { weather: 'Pluie', incidentReport: '', checklistItems: [{ id: 'helmet', checked: true }], photos: ['photo'], signatures: [{ workerName: 'A', dataUrl: 'signature' }], version: 2 };
   const replayed = {};
+  let result = { response: { ok: true, headers: { get: () => 'application/vnd.live-component+html' } } };
   const application = Application.start();
-  application.register('live', class extends Controller { connect() { this.component = { getData: key => state[key], set: (key, value) => { replayed[key] = value; }, action: async () => {} }; } });
+  application.register('live', class extends Controller { connect() { this.component = { getData: key => state[key], set: (key, value) => { replayed[key] = value; }, action: async () => result }; } });
   application.register('offline-queue', OfflineQueueController);
   await new Promise(resolve => window.setTimeout(resolve, 0));
   const queue = application.getControllerForElementAndIdentifier(document.querySelector('section'), 'offline-queue');
@@ -87,6 +88,33 @@ test('offline reports preserve live photos, signatures and checklist edits throu
   await queue.sync();
   assert.deepEqual(replayed.photos, state.photos);
   assert.deepEqual(replayed.signatures, state.signatures);
+  queue.queue(queue.report());
+  result.response.ok = false;
+  await queue.sync();
+  assert.equal(JSON.parse(localStorage.getItem('safety:test')).length, 1);
+  result.response.ok = true;
+  state.syncConflicts = ['checklistItems'];
+  await queue.sync();
+  assert.equal(JSON.parse(localStorage.getItem('safety:test'))[0].status, 'conflict');
+  state.syncConflicts = [];
+  await queue.retry();
+  assert.equal(JSON.parse(localStorage.getItem('safety:test')).length, 0);
+  application.stop();
+  dom.window.close();
+});
+
+test('offline checklist buttons edit local state and stop the server action', async () => {
+  const dom = new JSDOM('<section data-controller="offline-queue"><div data-controller="live"><button data-live-index-param="0" data-action="click->offline-queue#toggleChecklistItem">Casques</button></div></section>', { url: 'https://sysgc.test' });
+  for (const name of ['window', 'document', 'Element', 'HTMLElement', 'Node', 'MutationObserver', 'MouseEvent', 'KeyboardEvent', 'localStorage']) globalThis[name] = name === 'window' ? dom.window : dom.window[name];
+  Object.defineProperty(window.navigator, 'onLine', { value: false, configurable: true });
+  let items = [{ id: 'helmet', label: 'Casques', checked: false, comment: '' }];
+  const application = Application.start();
+  application.register('live', class extends Controller { connect() { this.component = { getData: () => items, set: (key, value, render) => { assert.equal(key, 'checklistItems'); assert.equal(render, false); items = value; } }; } });
+  application.register('offline-queue', OfflineQueueController);
+  await new Promise(resolve => window.setTimeout(resolve, 0));
+  document.querySelector('button').click();
+  assert.equal(items[0].checked, true);
+  assert.equal(document.querySelector('button').getAttribute('aria-pressed'), 'true');
   application.stop();
   dom.window.close();
 });

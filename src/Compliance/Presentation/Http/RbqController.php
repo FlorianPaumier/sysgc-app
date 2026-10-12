@@ -121,7 +121,7 @@ final class RbqController extends AbstractController
     }
 
     #[Route('/{subId}/verifier', name: 'verify_single', methods: ['POST'])]
-    public function verifySingle(Request $request, Project $project, string $subId, SubcontractorRepository $subcontractors, LicenseVerifier $verifier): Response
+    public function verifySingle(Request $request, Project $project, string $subId, SubcontractorRepository $subcontractors, \Symfony\Component\Messenger\MessageBusInterface $messages): Response
     {
         $this->denyAccessUnlessGranted(ProjectVoter::EDIT, $project);
         $this->denyIfArchived($project);
@@ -132,14 +132,8 @@ final class RbqController extends AbstractController
         if (!$this->isCsrfTokenValid('verify-rbq-'.$subcontractor->getId(), $request->getPayload()->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
-        $result = $verifier->verifySingle($subcontractor);
-        if (null !== $result->error || ! $result->found) {
-            $this->addFlash('warning', 'Vérification automatique impossible : une vérification manuelle est requise.');
-        } elseif ($subcontractor->isVerified()) {
-            $this->addFlash('success', 'La licence RBQ a été vérifiée.');
-        } else {
-            $this->addFlash('warning', 'La licence RBQ n’est pas valide selon le registre.');
-        }
+        $messages->dispatch(new \App\Compliance\Message\CheckSingleLicenseMessage($subcontractor->getId()->toRfc4122()));
+        $this->addFlash('success', 'La vérification RBQ a été mise en file.');
 
         return $this->redirectToRoute('app_rbq_index', ['id' => $project->getId()], Response::HTTP_SEE_OTHER);
     }

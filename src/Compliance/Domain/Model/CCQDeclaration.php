@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
+#[ORM\UniqueConstraint(name: 'uniq_ccq_organization_period', fields: ['organization', 'periodMonth', 'periodYear'])]
 class CCQDeclaration
 {
     public const string CURRENT_RULE_VERSION = 'CCQ-2026.1';

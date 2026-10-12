@@ -9,7 +9,7 @@ test.describe('Billing upgrade (Forfaits)', () => {
     await registerOwner(page, 'E2E Billing Inc');
 
     // Navigate to the pricing page.
-    await page.goto('https://localhost/forfaits');
+    await page.goto('/forfaits');
   });
 
   test('shows three pricing cards with prices and worker limits', async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe('Billing upgrade (Forfaits)', () => {
         // Redirect to local success page instead of Stripe.
         await route.fulfill({
           status: 302,
-          headers: { Location: 'https://localhost/facturation/succes' },
+          headers: { Location: new URL('/facturation/succes', process.env.SYSGC_BASE_URL ?? 'https://localhost').href },
         });
       } else {
         await route.continue();
@@ -54,7 +54,7 @@ test.describe('Billing upgrade (Forfaits)', () => {
     expect(submitted).toBe(true);
 
     // Should land on the success page.
-    await expect(page).toHaveURL('https://localhost/facturation/succes');
+    await expect(page).toHaveURL(new URL('/facturation/succes', process.env.SYSGC_BASE_URL ?? 'https://localhost').href);
     await expect(page.locator('text=Merci')).toBeVisible();
     await expect(page.locator("text=Votre abonnement est actif")).toBeVisible();
   });

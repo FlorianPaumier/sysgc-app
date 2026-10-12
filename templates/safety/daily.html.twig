@@ -4,7 +4,7 @@
 {% block breadcrumb %}<a href="{{ path('app_safety_index', {id: project.id}) }}">Calendrier</a> / Rapport de sécurité{% endblock %}
 
 {% block body %}
-<section class="safety-daily mx-auto max-w-xl px-4 py-6" aria-labelledby="safety-daily-title" data-controller="offline-queue" data-offline-queue-key-value="safety:{{ project.id }}:{{ date|date('Y-m-d') }}">
+<section class="safety-daily mx-auto max-w-xl px-4 py-6" aria-labelledby="safety-daily-title" data-controller="offline-queue" data-action="live:connect->offline-queue#sync" data-offline-queue-key-value="safety:{{ project.id }}:{{ date|date('Y-m-d') }}">
     <p class="safety-offline" role="alert" hidden data-offline-queue-target="banner">📡 Hors ligne — Les données seront synchronisées à la reconnexion.</p>
     <header class="safety-page-header">
         <a href="{{ path('app_safety_index', {id: project.id}) }}">← Calendrier</a>
@@ -19,7 +19,7 @@
         :photos="log ? log.hazardPhotos : []"
         :signatures="log ? log.workerSignatures : []"
         :incidentReport="log ? log.incidentReport ?? '' : ''"
-        :status="log ? log.status.value : 'draft'"
+        :status="is_granted('safety_edit', project) ? (log ? log.status.value : 'draft') : 'read_only'"
         :version="log ? log.version : 1"
     />
 </section>

@@ -89,7 +89,10 @@ final readonly class DailyLogService
             }
         }
 
-        $checklist = $this->mergeChecklist($log->getChecklistItems(), $data['checklistItems']);
+        $checklist = $this->mergeChecklist($log->getChecklistItems(), $data['checklistItems'], $baseVersion === $log->getVersion(), $conflicts);
+        if ($conflicts !== []) {
+            return new SafetySyncResult($log, $conflicts);
+        }
         $photos = array_values(array_unique(array_merge($log->getHazardPhotos(), $data['hazardPhotos'])));
         $signatures = $this->mergeSignatures($log->getWorkerSignatures(), $data['workerSignatures']);
         $log->update($weather, $checklist, $photos, $signatures, $incidentReport);
@@ -102,19 +105,24 @@ final readonly class DailyLogService
     /**
      * @param list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}> $current
      * @param list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}> $incoming
+     * @param list<string> $conflicts
      * @return list<array{id?: string, label: string, checked: bool, comment: string, protected?: bool}>
      */
-    private function mergeChecklist(array $current, array $incoming): array
+    private function mergeChecklist(array $current, array $incoming, bool $canReplace, array &$conflicts): array
     {
         $ids = [];
-        foreach ($current as $item) {
-            $ids[(string) ($item['id'] ?? 'legacy-'.$item['label'])] = true;
+        foreach ($current as $index => $item) {
+            $ids[(string) ($item['id'] ?? 'legacy-'.$item['label'])] = $index;
         }
         foreach ($incoming as $item) {
             $id = (string) ($item['id'] ?? 'legacy-'.$item['label']);
             if (! isset($ids[$id])) {
                 $current[] = $item;
-                $ids[$id] = true;
+                $ids[$id] = array_key_last($current);
+            } elseif ($canReplace) {
+                $current[$ids[$id]] = $item;
+            } elseif ($current[$ids[$id]]['checked'] !== $item['checked'] || $current[$ids[$id]]['comment'] !== $item['comment']) {
+                $conflicts[] = 'checklistItems';
             }
         }
 

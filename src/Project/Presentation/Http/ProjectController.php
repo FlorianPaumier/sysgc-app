@@ -50,7 +50,7 @@ final class ProjectController extends AbstractController
     #[Route('/nouveau', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request, ProjectService $projects): Response
     {
-        if (! $this->requireUser()->isAdmin()) {
+        if (! $this->requireUser()->isAdmin() || $this->requireOrganization()->isReadOnly()) {
             throw $this->createAccessDeniedException();
         }
         $form = $this->createForm(ProjectType::class);

@@ -25,11 +25,12 @@ final class ProjectVoter extends Voter
     public const string VIEW = 'view';
     public const string EDIT = 'edit';
     public const string DELETE = 'delete';
+    public const string SAFETY_EDIT = 'safety_edit';
 
     #[\Override]
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (! \in_array($attribute, [self::VIEW, self::EDIT, self::DELETE], true)) {
+        if (! \in_array($attribute, [self::VIEW, self::EDIT, self::DELETE, self::SAFETY_EDIT], true)) {
             return false;
         }
 
@@ -50,7 +51,7 @@ final class ProjectVoter extends Voter
     ): bool {
         $user = $token->getUser();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof User || !$user->isActive()) {
             return false;
         }
 
@@ -67,11 +68,15 @@ final class ProjectVoter extends Voter
             return false;
         }
 
+        if ($attribute !== self::VIEW && ($userOrganization->isReadOnly() || $subject->getStatus()->value === 'archived')) {
+            return false;
+        }
+
         if ($user->isAdmin()) {
             return true;
         }
 
-        if (! $user->hasRole(UserRole::FOREMAN) || $attribute !== self::VIEW) {
+        if (! $user->hasRole(UserRole::FOREMAN) || !in_array($attribute, [self::VIEW, self::SAFETY_EDIT], true)) {
             return false;
         }
 

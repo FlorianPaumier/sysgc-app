@@ -112,7 +112,8 @@ final class RoleTenantAuthorizationTest extends IntegrationTestCase
         self::assertResponseStatusCodeSame(403);
 
         $this->client->loginUser($owner);
-        $this->client->request('POST', '/organisation/membres/'.$admin->getId().'/transferer-propriete');
+        $crawler = $this->client->request('GET', '/organisation/membres');
+        $this->client->submit($crawler->filter('form[action="/organisation/membres/'.$admin->getId().'/transferer-propriete"]')->form());
         self::assertResponseRedirects('/organisation/membres');
         $users = self::getContainer()->get(UserRepository::class);
         self::assertInstanceOf(UserRepository::class, $users);

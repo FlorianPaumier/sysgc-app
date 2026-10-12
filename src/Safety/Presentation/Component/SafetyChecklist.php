@@ -10,6 +10,7 @@ use App\Safety\Application\DailyLogService;
 use App\Safety\Domain\Enum\SafetyLogStatus;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -21,6 +22,10 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 #[AsLiveComponent('SafetyChecklist')]
 final class SafetyChecklist
 {
+    public function __construct(private readonly \Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface $authorization)
+    {
+    }
+
     use DefaultActionTrait;
     use ComponentToolsTrait;
 
@@ -57,8 +62,14 @@ final class SafetyChecklist
     #[LiveProp]
     public int $version = 1;
 
-    public function mount(): void
+    /** @var list<string> */
+    #[LiveProp]
+    public array $syncConflicts = [];
+
+    /** @param list<ChecklistItem> $checklistItems */
+    public function mount(array $checklistItems = []): void
     {
+        $this->checklistItems = $checklistItems;
         if ([] === $this->checklistItems) {
             $this->checklistItems = $this->getDefaultChecklist();
         } else {
@@ -77,7 +88,7 @@ final class SafetyChecklist
     }
 
     #[LiveAction]
-    public function toggleItem(int $index): void
+    public function toggleItem(#[LiveArg] int $index): void
     {
         $this->assertEditable();
         if (! isset($this->checklistItems[$index])) {
@@ -88,7 +99,7 @@ final class SafetyChecklist
     }
 
     #[LiveAction]
-    public function addPhoto(string $path): void
+    public function addPhoto(#[LiveArg] string $path): void
     {
         $this->assertEditable();
         if (count($this->photos) >= 5) {
@@ -99,14 +110,14 @@ final class SafetyChecklist
     }
 
     #[LiveAction]
-    public function addSignature(string $workerName, string $dataUrl): void
+    public function addSignature(#[LiveArg] string $workerName, #[LiveArg] string $dataUrl): void
     {
         $this->assertEditable();
         $this->signatures[] = ['workerName' => $workerName, 'dataUrl' => $dataUrl];
     }
 
     #[LiveAction]
-    public function addCustomItem(string $label): void
+    public function addCustomItem(#[LiveArg] string $label): void
     {
         $this->assertEditable();
         $label = trim($label);
@@ -139,6 +150,10 @@ final class SafetyChecklist
             throw new \LogicException('Le chantier du rapport de sécurité est introuvable.');
         }
 
+        if (!$this->authorization->isGranted(\App\Project\Infrastructure\Security\ProjectVoter::SAFETY_EDIT, $project)) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
+        }
+
         $log = $logs->createOrUpdate($project, new \DateTimeImmutable($this->date), [
             'weather' => $this->weather,
             'checklistItems' => $this->checklistItems,
@@ -153,7 +168,7 @@ final class SafetyChecklist
 
     /** @param array{weather?: string, incidentReport?: string|null} $scalarChoices */
     #[LiveAction]
-    public function sync(ProjectRepository $projects, DailyLogService $logs, string $clientEventId, int $baseVersion, array $scalarChoices = []): void
+    public function sync(ProjectRepository $projects, DailyLogService $logs, #[LiveArg] string $clientEventId, #[LiveArg] int $baseVersion, #[LiveArg] array $scalarChoices = []): void
     {
         $this->assertEditable();
         $project = $projects->find($this->projectId);
@@ -161,7 +176,12 @@ final class SafetyChecklist
             throw new \LogicException('Le chantier du rapport de sécurité est introuvable.');
         }
 
+        if (!$this->authorization->isGranted(\App\Project\Infrastructure\Security\ProjectVoter::SAFETY_EDIT, $project)) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
+        }
+
         $result = $logs->sync($project, new \DateTimeImmutable($this->date), $this->payload(), $baseVersion, $clientEventId, $scalarChoices);
+        $this->syncConflicts = $result->conflicts;
         $this->version = $result->log->getVersion();
         $this->checklistItems = $result->log->getChecklistItems();
         $this->photos = $result->log->getHazardPhotos();
@@ -178,6 +198,10 @@ final class SafetyChecklist
         $project = $projects->find($this->projectId);
         if (! $project instanceof Project) {
             throw new \LogicException('Le chantier du rapport de sécurité est introuvable.');
+        }
+
+        if (!$this->authorization->isGranted(\App\Project\Infrastructure\Security\ProjectVoter::SAFETY_EDIT, $project)) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
         }
 
         $log = $logs->complete($project, new \DateTimeImmutable($this->date), $this->payload());

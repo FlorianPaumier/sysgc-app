@@ -22,7 +22,7 @@ final class WorkerController extends AbstractController
     {
         $user = $this->getUser();
         \assert($user instanceof User);
-        if (! $user->isAdmin()) {
+        if (! $user->isActive() || ! $user->isAdmin()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -37,8 +37,11 @@ final class WorkerController extends AbstractController
         $worker = new Worker();
         $user = $this->getUser();
         \assert($user instanceof User);
-        if (! $user->isAdmin()) {
+        if (! $user->isActive() || ! $user->isAdmin()) {
             throw $this->createAccessDeniedException();
+        }
+        if ($user->getOrganization()?->isReadOnly() !== false) {
+            throw $this->createAccessDeniedException('Votre organisation est en lecture seule.');
         }
         $worker->setOrganization($user->getOrganization());
         $form = $this->createForm(WorkerType::class, $worker);
@@ -61,7 +64,7 @@ final class WorkerController extends AbstractController
     public function edit(Request $request, Worker $worker, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        if (!$user instanceof User || ! $user->isAdmin() || $worker->getOrganization() !== $user->getOrganization()) {
+        if (!$user instanceof User || !$user->isActive() || ! $user->isAdmin() || $user->getOrganization()?->isReadOnly() !== false || $worker->getOrganization() !== $user->getOrganization()) {
             throw $this->createAccessDeniedException();
         }
 

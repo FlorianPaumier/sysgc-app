@@ -26,7 +26,10 @@ final class CcqGrid
 {
     use DefaultActionTrait;
 
-    public function __construct(private readonly HoursSummarizer $summarizer)
+    public function __construct(
+        private readonly HoursSummarizer $summarizer,
+        private readonly \Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface $authorization,
+    )
     {
     }
 
@@ -50,16 +53,21 @@ final class CcqGrid
     #[LiveProp]
     public array $validationErrors = [];
 
+    #[LiveProp]
     public bool $validated = false;
 
     /** The active CCQ rule set is kept with the workspace snapshot. */
+    #[LiveProp]
     public string $ruleVersion = 'CCQ-2026.1';
 
     /** draft → validated → exported → filed; filing is handled by the next flow. */
+    #[LiveProp]
     public string $status = 'draft';
 
+    #[LiveProp]
     public bool $exporting = false;
 
+    #[LiveProp]
     public bool $filingConfirmationOpen = false;
 
     #[LiveProp(writable: true)]
@@ -81,12 +89,16 @@ final class CcqGrid
     #[LiveAction]
     public function validate(ValidationEngine $validation): void
     {
+        $this->assertCanManage();
+        if ($this->month < 1 || $this->month > 12 || $this->year < 2000 || $this->year > 2100) {
+            throw new \InvalidArgumentException('La période CCQ est invalide.');
+        }
         $project = $this->project;
         $result = $validation->validate(
             hoursData: $this->validationRows(),
             month: $this->month,
             year: $this->year,
-            projectIsActive: $project === null || $project->getStatus()->value === 'active',
+            projectIsActive: $project->getStatus()->value === 'active',
             hasExistingDeclaration: false,
         );
 
@@ -110,14 +122,7 @@ final class CcqGrid
         if (!$this->validated) {
             return false;
         }
-
-        foreach ($this->validationErrors as $error) {
-            if ($error['warning'] === true && trim($this->warningAcknowledgement) === '') {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($this->validationErrors, fn($error) => !($error['warning'] === true && trim($this->warningAcknowledgement) === ''));
     }
 
     #[LiveAction]
@@ -156,39 +161,49 @@ final class CcqGrid
             return;
         }
 
-        $declaration = (new CCQDeclaration())
-            ->setProject($project)
-            ->setOrganization($project->getOrganization())
-            ->setPeriodMonth($this->month)
-            ->setPeriodYear($this->year)
-            ->setRuleVersion($this->ruleVersion)
-            ->setDeclaration($this->hoursData)
-            ->setStatus('draft');
-
-        if ($declarations->existsSubmittedForProjectPeriod($declaration)) {
-            $this->validationErrors = [[
-                'code' => 'duplicate_declaration',
-                'message' => 'Une déclaration CCQ a déjà été soumise pour ce mois.',
-                'warning' => false,
-                'workerId' => null,
-                'week' => null,
-            ]];
-            $this->validated = false;
-
-            return;
-        }
-
-        $entityManager->persist($declaration);
-        $entityManager->flush();
-        $messages->dispatch(new ExportCCQMessage($declaration->getId()));
-        $this->declarationId = $declaration->getId()->toRfc4122();
-        $this->exporting = true;
-        $this->status = 'exported';
+        $entityManager->wrapInTransaction(function () use ($project, $declarations, $entityManager, $messages): void {
+            // Serialize exports for the same organization before checking the period.
+            $entityManager->lock($project->getOrganization(), \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
+            $existing = $declarations->findOneBy([
+                'organization' => $project->getOrganization(),
+                'periodMonth' => $this->month,
+                'periodYear' => $this->year,
+            ]);
+            if ($existing instanceof CCQDeclaration) {
+                $this->declarationId = $existing->getId()->toRfc4122();
+                $this->status = $existing->getStatus() ?? 'draft';
+                $this->exporting = $this->status === 'draft';
+                return;
+            }
+            $snapshot = $this->hoursData;
+            foreach ($snapshot as &$row) {
+                for ($week = 1; $week <= 5; ++$week) {
+                    $row['week'.$week.'Hours'] = $this->rowWeekTotal($row, $week);
+                }
+                $row['totalHours'] = $this->totalFor($row);
+            }
+            unset($row);
+            $declaration = new CCQDeclaration()
+                ->setProject($project)
+                ->setOrganization($project->getOrganization())
+                ->setPeriodMonth($this->month)
+                ->setPeriodYear($this->year)
+                ->setRuleVersion($this->ruleVersion)
+                ->setDeclaration($snapshot)
+                ->setStatus('draft');
+            $entityManager->persist($declaration);
+            $entityManager->flush();
+            $messages->dispatch(new ExportCCQMessage($declaration->getId()));
+            $this->declarationId = $declaration->getId()->toRfc4122();
+            $this->exporting = true;
+            $this->status = 'draft';
+        });
     }
 
     #[LiveAction]
     public function prepareFiling(): void
     {
+        $this->assertCanManage();
         if ($this->declarationId !== null && $this->status === 'exported' && !$this->exporting) {
             $this->filingConfirmationOpen = true;
         }
@@ -197,11 +212,12 @@ final class CcqGrid
     #[LiveAction]
     public function refreshExportStatus(CCQDeclarationRepository $declarations): void
     {
+        $this->assertCanManage();
         if ($this->declarationId === null) {
             return;
         }
 
-        $declaration = $declarations->find(Uuid::fromString($this->declarationId));
+        $declaration = $declarations->findOneForOrganization(Uuid::fromString($this->declarationId), $this->project->getOrganization()->getId());
         if ($declaration instanceof CCQDeclaration && $declaration->getStatus() === 'exported') {
             $this->exporting = false;
             $this->status = 'exported';
@@ -211,13 +227,14 @@ final class CcqGrid
     #[LiveAction]
     public function fileDeclaration(CCQDeclarationRepository $declarations, EntityManagerInterface $entityManager): void
     {
+        $this->assertCanManage();
         // Filing is deliberately a second, explicit step after the export worker
         // has completed and the confirmation modal has been opened.
         if ($this->declarationId === null || !$this->filingConfirmationOpen || $this->exporting || $this->status !== 'exported') {
             return;
         }
 
-        $declaration = $declarations->find(Uuid::fromString($this->declarationId));
+        $declaration = $declarations->findOneForOrganization(Uuid::fromString($this->declarationId), $this->project->getOrganization()->getId());
         if (!$declaration instanceof CCQDeclaration) {
             return;
         }
@@ -231,13 +248,7 @@ final class CcqGrid
 
     private function hasWarnings(): bool
     {
-        foreach ($this->validationErrors as $error) {
-            if ($error['warning'] === true) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->validationErrors, fn($error) => $error['warning'] === true);
     }
 
     /**
@@ -264,33 +275,65 @@ final class CcqGrid
      */
     private function validationRows(): array
     {
-        return array_map(function (array $row): array {
-            $dailyHours = [];
-            for ($week = 1; $week <= 5; ++$week) {
-                // The weekly-entry view records total weekly hours. Split the total across
-                // weekdays so the domain engine still receives its daily CCQ shape.
-                $total = $this->numericValue($row['week'.$week.'Hours'] ?? 0.0);
-                $dailyHours[$week] = $this->weekdayDistribution($total);
+        $workers = [];
+        $rows = $this->hoursData;
+        $workerIds = array_column($rows, 'workerId');
+        if ($this->project !== null) {
+            $includedProjects = array_column($rows, 'projectId');
+            $includedProjects[] = $this->project->getId()?->toRfc4122();
+            foreach ($this->project->getOrganization()->getProjects() as $otherProject) {
+                if (in_array($otherProject->getId()?->toRfc4122(), $includedProjects, true)) {
+                    continue;
+                }
+                foreach ($this->summarizer->summarize($otherProject, $this->month, $this->year) as $row) {
+                    if (in_array($row['workerId'], $workerIds, true)) {
+                        $rows[] = $row;
+                    }
+                }
             }
-
+        }
+        foreach ($rows as $index => $row) {
+            if (!is_array($row['dailyHours'] ?? null)) {
+                throw new \InvalidArgumentException('Les heures doivent être renseignées par jour avant la validation.');
+            }
             $workerId = $row['workerId'] ?? null;
-            $workerName = $row['workerName'] ?? '';
             $trade = $row['trade'] ?? null;
             $region = $row['region'] ?? null;
+            $key = is_int($workerId) ? 'worker-'.$workerId : 'row-'.$index;
+            if (!isset($workers[$key])) {
+                $workers[$key] = [
+                    'workerId' => is_int($workerId) ? $workerId : null,
+                    'workerName' => is_string($row['workerName'] ?? null) ? $row['workerName'] : '',
+                    'trade' => $trade instanceof CcqTrade || is_string($trade) ? $trade : null,
+                    'region' => $region instanceof CcqRegion || is_string($region) ? $region : null,
+                    'isApprentice' => ($row['isApprentice'] ?? false) === true,
+                    'hasSupervisorSignature' => ($row['hasSupervisorSignature'] ?? false) === true,
+                    'hasOvertimeFlag' => ($row['hasOvertimeFlag'] ?? false) === true,
+                    'hasPerDiemFlag' => ($row['hasPerDiemFlag'] ?? false) === true,
+                    'hasSundayJustification' => ($row['hasSundayJustification'] ?? false) === true,
+                    'dailyHours' => [],
+                ];
+            }
+            foreach ($row['dailyHours'] as $day => $value) {
+                $date = new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $this->year, $this->month, (int) $day));
+                if ((int) $day < 1 || $date->format('Y-m') !== sprintf('%04d-%02d', $this->year, $this->month)) {
+                    throw new \InvalidArgumentException('La date des heures CCQ est invalide.');
+                }
+                $week = (int) $date->format('W');
+                $weekday = match ((int) $date->format('N')) {
+                    1 => 'monday', 2 => 'tuesday', 3 => 'wednesday', 4 => 'thursday',
+                    5 => 'friday', 6 => 'saturday', default => 'sunday',
+                };
+                $workers[$key]['dailyHours'][$week] ??= array_fill_keys(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'], 0.0);
+                $hours = $this->numericValue($value);
+                if ($hours < 0) {
+                    throw new \InvalidArgumentException('Les heures ne peuvent pas être négatives.');
+                }
+                $workers[$key]['dailyHours'][$week][$weekday] += $hours;
+            }
+        }
 
-            return [
-                'workerId' => is_int($workerId) ? $workerId : null,
-                'workerName' => is_string($workerName) ? $workerName : '',
-                'trade' => $trade instanceof CcqTrade || is_string($trade) ? $trade : null,
-                'region' => $region instanceof CcqRegion || is_string($region) ? $region : null,
-                'isApprentice' => is_bool($row['isApprentice'] ?? null) && $row['isApprentice'],
-                'hasSupervisorSignature' => is_bool($row['hasSupervisorSignature'] ?? null) && $row['hasSupervisorSignature'],
-                'hasOvertimeFlag' => is_bool($row['hasOvertimeFlag'] ?? null) && $row['hasOvertimeFlag'],
-                'hasPerDiemFlag' => is_bool($row['hasPerDiemFlag'] ?? null) && $row['hasPerDiemFlag'],
-                'hasSundayJustification' => is_bool($row['hasSundayJustification'] ?? null) && $row['hasSundayJustification'],
-                'dailyHours' => $dailyHours,
-            ];
-        }, $this->hoursData);
+        return array_values($workers);
     }
 
     /** @param array<string, mixed> $row */
@@ -298,7 +341,7 @@ final class CcqGrid
     {
         $total = 0.0;
         for ($week = 1; $week <= 5; ++$week) {
-            $total += $this->numericValue($row['week'.$week.'Hours'] ?? 0.0);
+            $total += $this->rowWeekTotal($row, $week);
         }
 
         return $total;
@@ -308,7 +351,7 @@ final class CcqGrid
     {
         $total = 0.0;
         foreach ($this->hoursData as $row) {
-            $total += $this->numericValue($row['week'.$week.'Hours'] ?? 0.0);
+            $total += $this->rowWeekTotal($row, $week);
         }
 
         return $total;
@@ -345,6 +388,13 @@ final class CcqGrid
         $rows = [];
         foreach ($projects as $project) {
             foreach ($summarizer->summarize($project, $this->month, $this->year) as $row) {
+                $daysInMonth = (int) new \DateTimeImmutable(sprintf('%04d-%02d-01', $this->year, $this->month))->format('t');
+                $row['dailyHours'] += array_fill(1, $daysInMonth, 0.0);
+                ksort($row['dailyHours']);
+                $row['tradeLabel'] = $row['trade']?->label();
+                $row['regionLabel'] = $row['region']?->label();
+                $row['trade'] = $row['trade']?->value;
+                $row['region'] = $row['region']?->value;
                 $row['projectId'] = $project->getId()?->toRfc4122();
                 $row['projectName'] = $project->getName() ?? $project->getAddress();
                 $row['projectAddress'] = $project->getAddress();
@@ -355,42 +405,43 @@ final class CcqGrid
         return $rows;
     }
 
-    /**
-     * @return array{
-     *     monday: float,
-     *     tuesday: float,
-     *     wednesday: float,
-     *     thursday: float,
-     *     friday: float,
-     *     saturday: float,
-     *     sunday: float,
-     * }
-     */
-    private function weekdayDistribution(float $total): array
+    /** @param array<string, mixed> $row */
+    private function rowWeekTotal(array $row, int $week): float
     {
-        $days = [
-            'monday' => 0.0,
-            'tuesday' => 0.0,
-            'wednesday' => 0.0,
-            'thursday' => 0.0,
-            'friday' => 0.0,
-            'saturday' => 0.0,
-            'sunday' => 0.0,
-        ];
-        foreach (array_keys($days) as $day) {
-            $hours = min(14.0, $total);
-            $days[$day] = $hours;
-            $total -= $hours;
-            if ($total <= 0.0) {
-                break;
+        if (!is_array($row['dailyHours'] ?? null)) {
+            return $this->numericValue($row['week'.$week.'Hours'] ?? 0.0);
+        }
+        $total = 0.0;
+        foreach ($row['dailyHours'] as $day => $hours) {
+            if (min(5, intdiv((int) $day - 1, 7) + 1) === $week) {
+                $total += $this->numericValue($hours);
             }
         }
+        return $total;
+    }
 
-        return $days;
+    public function canManage(): bool
+    {
+        return $this->project instanceof Project
+            && $this->authorization->isGranted(\App\Project\Infrastructure\Security\ProjectVoter::EDIT, $this->project);
+    }
+
+    /** @phpstan-assert Project $this->project */
+    private function assertCanManage(): void
+    {
+        if (!$this->canManage()) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
+        }
     }
 
     private function numericValue(mixed $value): float
     {
-        return is_float($value) ? $value : (is_int($value) ? (float) $value : 0.0);
+        if ($value === '') {
+            return 0.0;
+        }
+        if (!is_numeric($value) || !is_finite((float) $value)) {
+            throw new \InvalidArgumentException('Les heures doivent être un nombre valide.');
+        }
+        return (float) $value;
     }
 }

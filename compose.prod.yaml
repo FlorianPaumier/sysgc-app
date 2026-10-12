@@ -41,8 +41,13 @@ services:
     environment:
       APP_ENV: prod
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-app}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
-      MESSENGER_TRANSPORT_DSN: doctrine://default
+      MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default}
+      APP_SECRET: ${APP_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY must be set}
+      RESEND_FROM: ${RESEND_FROM:?RESEND_FROM must be set}
       MAILER_DSN: ${MAILER_DSN}
+    volumes:
+      - uploads_data:/app/var/uploads
     command: [ "php", "bin/console", "messenger:consume", "async", "--memory-limit=256M", "--time-limit=3600" ]
     healthcheck:
       test: ["CMD-SHELL", "grep -qa 'messenger:consume' /proc/*/cmdline 2>/dev/null"]
