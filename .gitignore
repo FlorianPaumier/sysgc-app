@@ -25,3 +25,7 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+# Local files excluded from publication
+.DS_Store
+brag-output*/
